@@ -1,11 +1,12 @@
 import { db } from '../db/index.js';
-import { itemTable } from '../db/schema.js';
-import { eq, sql } from 'drizzle-orm';
+import { itemTable, ordersTable, orderItemsTable } from '../db/schema.js';
+import { eq, sql, desc, and } from 'drizzle-orm';
 
 // Update item quantity when order is placed
 export const processOrderPlacement = async (req, res) => {
     try {
-        const { orderItems } = req.body; // Array of { itemId, quantity }
+        const { orderItems, notes } = req.body; // Array of { itemId, quantity }
+        const userId = req.user.userId;
 
         if (!orderItems || !Array.isArray(orderItems) || orderItems.length === 0) {
             return res.status(400).json({
@@ -26,6 +27,8 @@ export const processOrderPlacement = async (req, res) => {
 
         const results = [];
         const errors = [];
+        const orderItemsData = [];
+        let totalAmount = 0;
 
         // Process each item in a transaction-like manner
         for (const orderItem of orderItems) {
@@ -64,6 +67,20 @@ export const processOrderPlacement = async (req, res) => {
                     continue;
                 }
 
+                // Calculate totals
+                const itemTotal = parseFloat(item.price) * quantity;
+                totalAmount += itemTotal;
+
+                // Store order item data for later insertion
+                orderItemsData.push({
+                    itemId: parseInt(itemId),
+                    itemName: item.name,
+                    quantity: quantity,
+                    unitPrice: item.price,
+                    totalPrice: itemTotal.toFixed(2),
+                    unit: item.unit
+                });
+
                 // Update quantity (subtract the ordered quantity)
                 const newQuantity = item.quantity - quantity;
                 const updatedItem = await db.update(itemTable)
@@ -90,7 +107,7 @@ export const processOrderPlacement = async (req, res) => {
             }
         }
 
-        // Return results
+        // Return results if there were errors and no successful items
         if (errors.length > 0 && results.length === 0) {
             return res.status(400).json({
                 success: false,
@@ -99,10 +116,33 @@ export const processOrderPlacement = async (req, res) => {
             });
         }
 
+        // Create order record if we have successful items
+        let orderRecord = null;
+        if (results.length > 0) {
+            const newOrder = await db.insert(ordersTable).values({
+                userId,
+                status: 'placed',
+                totalAmount: totalAmount.toFixed(2),
+                itemCount: results.length,
+                notes: notes || null
+            }).returning();
+
+            orderRecord = newOrder[0];
+
+            // Insert order items
+            for (const orderItemData of orderItemsData) {
+                await db.insert(orderItemsTable).values({
+                    orderId: orderRecord.id,
+                    ...orderItemData
+                });
+            }
+        }
+
         res.status(200).json({
             success: true,
             message: `Order processed. ${results.length} items updated successfully.`,
             data: {
+                order: orderRecord,
                 successful: results,
                 failed: errors
             }
@@ -116,9 +156,7 @@ export const processOrderPlacement = async (req, res) => {
             error: error.message
         });
     }
-};
-
-// Update item quantity when order is cancelled
+};// Update item quantity when order is cancelled
 export const processOrderCancellation = async (req, res) => {
     try {
         const { orderItems } = req.body; // Array of { itemId, quantity }
@@ -425,6 +463,123 @@ export const checkStockAvailability = async (req, res) => {
 
     } catch (error) {
         console.error('Error checking stock availability:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message
+        });
+    }
+};
+
+// Get all orders with details (for viewing order history)
+export const getAllOrders = async (req, res) => {
+    try {
+        const { page = 1, limit = 20, status, userId } = req.query;
+        const offset = (parseInt(page) - 1) * parseInt(limit);
+        const currentUserId = req.user.userId;
+        const userRole = req.user.role;
+
+        let whereConditions = [];
+
+        // Admin can see all orders, viewers can only see their own orders
+        if (userRole !== 'admin') {
+            whereConditions.push(eq(ordersTable.userId, currentUserId));
+        } else if (userId) {
+            // Admin can filter by specific user
+            whereConditions.push(eq(ordersTable.userId, parseInt(userId)));
+        }
+
+        // Filter by status if provided
+        if (status) {
+            whereConditions.push(eq(ordersTable.status, status));
+        }
+
+        const finalWhereCondition = whereConditions.length > 0 ?
+            (whereConditions.length === 1 ? whereConditions[0] : and(...whereConditions)) :
+            undefined;
+
+        // Get orders
+        const orders = await db.select().from(ordersTable)
+            .where(finalWhereCondition)
+            .limit(parseInt(limit))
+            .offset(offset)
+            .orderBy(desc(ordersTable.createdAt));
+
+        // Get total count for pagination
+        const totalCount = await db.select({ count: sql`count(*)` }).from(ordersTable)
+            .where(finalWhereCondition);
+
+        res.status(200).json({
+            success: true,
+            data: orders,
+            pagination: {
+                page: parseInt(page),
+                limit: parseInt(limit),
+                total: parseInt(totalCount[0].count),
+                totalPages: Math.ceil(parseInt(totalCount[0].count) / parseInt(limit))
+            }
+        });
+
+    } catch (error) {
+        console.error('Error fetching orders:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message
+        });
+    }
+};
+
+// Get specific order with items
+export const getOrderById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const currentUserId = req.user.userId;
+        const userRole = req.user.role;
+
+        if (!id) {
+            return res.status(400).json({
+                success: false,
+                message: 'Order ID is required'
+            });
+        }
+
+        // Get order
+        let whereCondition = eq(ordersTable.id, parseInt(id));
+
+        // Non-admin users can only see their own orders
+        if (userRole !== 'admin') {
+            whereCondition = and(
+                eq(ordersTable.id, parseInt(id)),
+                eq(ordersTable.userId, currentUserId)
+            );
+        }
+
+        const order = await db.select().from(ordersTable)
+            .where(whereCondition);
+
+        if (order.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Order not found'
+            });
+        }
+
+        // Get order items
+        const orderItems = await db.select().from(orderItemsTable)
+            .where(eq(orderItemsTable.orderId, parseInt(id)))
+            .orderBy(orderItemsTable.createdAt);
+
+        res.status(200).json({
+            success: true,
+            data: {
+                order: order[0],
+                items: orderItems
+            }
+        });
+
+    } catch (error) {
+        console.error('Error fetching order:', error);
         res.status(500).json({
             success: false,
             message: 'Internal server error',

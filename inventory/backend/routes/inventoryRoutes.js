@@ -30,10 +30,10 @@ router.get('/stock/in-stock', authenticateToken, listInStockItems);     // GET /
 router.get('/stock/out-of-stock', authenticateToken, listOutOfStockItems); // GET /api/inventory/stock/out-of-stock
 router.get('/stock/low-stock', authenticateToken, listLowStockItems);   // GET /api/inventory/stock/low-stock
 
-// Write operations - require manager or admin role
-router.post('/items', authenticateToken, authorizeRoles('admin', 'manager'), addItem);                    // POST /api/inventory/items
-router.put('/items/:id', authenticateToken, authorizeRoles('admin', 'manager'), editItem);                // PUT /api/inventory/items/:id
-router.delete('/items/:id', authenticateToken, authorizeRoles('admin', 'manager'), deleteItem);           // DELETE /api/inventory/items/:id
+// Write operations - require admin role only
+router.post('/items', authenticateToken, authorizeRoles('admin'), addItem);                    // POST /api/inventory/items
+router.put('/items/:id', authenticateToken, authorizeRoles('admin'), editItem);                // PUT /api/inventory/items/:id
+router.delete('/items/:id', authenticateToken, authorizeRoles('admin'), deleteItem);           // DELETE /api/inventory/items/:id
 
 // Get dashboard statistics - require authentication
 router.get('/dashboard/stats', authenticateToken, async (req, res) => {
