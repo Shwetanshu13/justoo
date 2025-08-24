@@ -3,20 +3,27 @@ import {
     processOrderPlacement,
     processOrderCancellation,
     bulkUpdateQuantities,
-    checkStockAvailability
+    checkStockAvailability,
+    getAllOrders,
+    getOrderById,
+    getOrderByExternalId
 } from '../controllers/orderController.js';
-import { authenticateToken, authorizeRoles } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Order processing routes - require authentication
-router.post('/place-order', authenticateToken, processOrderPlacement);           // POST /api/orders/place-order
-router.post('/cancel-order', authenticateToken, authorizeRoles('admin', 'manager'), processOrderCancellation);       // POST /api/orders/cancel-order
+// Order viewing routes - no authentication required (external backend access)
+router.get('/', getAllOrders);                     // GET /api/orders - list orders
+router.get('/external/:externalId', getOrderByExternalId);  // GET /api/orders/external/:externalId - get order by external ID
+router.get('/:id', getOrderById);                  // GET /api/orders/:id - get specific order
 
-// Stock management routes - require manager or admin permissions
-router.post('/bulk-update', authenticateToken, authorizeRoles('admin', 'manager'), bulkUpdateQuantities);            // POST /api/orders/bulk-update
+// Order processing routes - no authentication required (external backend access)
+router.post('/place-order', processOrderPlacement);           // POST /api/orders/place-order
+router.post('/cancel-order', processOrderCancellation);       // POST /api/orders/cancel-order
 
-// Stock availability check - all authenticated users can check
-router.post('/check-availability', authenticateToken, checkStockAvailability);   // POST /api/orders/check-availability
+// Stock management routes - no authentication required (external backend access)
+router.post('/bulk-update', bulkUpdateQuantities);            // POST /api/orders/bulk-update
+
+// Stock availability check - no authentication required (external backend access)
+router.post('/check-availability', checkStockAvailability);   // POST /api/orders/check-availability
 
 export default router;
