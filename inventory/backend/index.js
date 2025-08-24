@@ -36,12 +36,12 @@ app.use((err, req, res, next) => {
 });
 
 // 404 handler
-app.use('*', (req, res) => {
-    res.status(404).json({
-        success: false,
-        message: 'Route not found'
-    });
-});
+// app.use('*', (req, res) => {
+//     res.status(404).json({
+//         success: false,
+//         message: 'Route not found'
+//     });
+// });
 
 // Start server
 app.listen(PORT, () => {

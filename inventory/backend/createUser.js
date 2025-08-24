@@ -6,7 +6,7 @@ import bcrypt from 'bcryptjs';
 // User creation function
 const createUser = async (userData) => {
     try {
-        const { username, email, password, role = 'employee' } = userData;
+        const { username, email, password, role = 'viewer' } = userData;
 
         // Validation
         if (!username || !email || !password) {

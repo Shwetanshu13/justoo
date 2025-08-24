@@ -5,24 +5,25 @@ import {
     bulkUpdateQuantities,
     checkStockAvailability,
     getAllOrders,
-    getOrderById
+    getOrderById,
+    getOrderByExternalId
 } from '../controllers/orderController.js';
-import { authenticateToken, authorizeRoles } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Order viewing routes - all authenticated users can view orders
-router.get('/', authenticateToken, getAllOrders);                     // GET /api/orders - list orders
-router.get('/:id', authenticateToken, getOrderById);                  // GET /api/orders/:id - get specific order
+// Order viewing routes - no authentication required (external backend access)
+router.get('/', getAllOrders);                     // GET /api/orders - list orders
+router.get('/external/:externalId', getOrderByExternalId);  // GET /api/orders/external/:externalId - get order by external ID
+router.get('/:id', getOrderById);                  // GET /api/orders/:id - get specific order
 
-// Order processing routes
-router.post('/place-order', authenticateToken, processOrderPlacement);           // POST /api/orders/place-order - all users can place orders
-router.post('/cancel-order', authenticateToken, authorizeRoles('admin'), processOrderCancellation);       // POST /api/orders/cancel-order - admin only
+// Order processing routes - no authentication required (external backend access)
+router.post('/place-order', processOrderPlacement);           // POST /api/orders/place-order
+router.post('/cancel-order', processOrderCancellation);       // POST /api/orders/cancel-order
 
-// Stock management routes - admin only
-router.post('/bulk-update', authenticateToken, authorizeRoles('admin'), bulkUpdateQuantities);            // POST /api/orders/bulk-update
+// Stock management routes - no authentication required (external backend access)
+router.post('/bulk-update', bulkUpdateQuantities);            // POST /api/orders/bulk-update
 
-// Stock availability check - all authenticated users can check
-router.post('/check-availability', authenticateToken, checkStockAvailability);   // POST /api/orders/check-availability
+// Stock availability check - no authentication required (external backend access)
+router.post('/check-availability', checkStockAvailability);   // POST /api/orders/check-availability
 
 export default router;

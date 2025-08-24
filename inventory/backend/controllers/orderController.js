@@ -1,12 +1,14 @@
 import { db } from '../db/index.js';
 import { itemTable, ordersTable, orderItemsTable } from '../db/schema.js';
-import { eq, sql, desc, and } from 'drizzle-orm';
+import { eq, sql, desc, and, like } from 'drizzle-orm';
 
 // Update item quantity when order is placed
 export const processOrderPlacement = async (req, res) => {
     try {
-        const { orderItems, notes } = req.body; // Array of { itemId, quantity }
-        const userId = req.user.userId;
+        const { orderItems, notes, externalUserId, externalOrderId } = req.body; // Array of { itemId, quantity }
+
+        // Use external user ID or default to system user (1)
+        const userId = externalUserId || 1;
 
         if (!orderItems || !Array.isArray(orderItems) || orderItems.length === 0) {
             return res.status(400).json({
@@ -119,13 +121,22 @@ export const processOrderPlacement = async (req, res) => {
         // Create order record if we have successful items
         let orderRecord = null;
         if (results.length > 0) {
-            const newOrder = await db.insert(ordersTable).values({
+            const orderData = {
                 userId,
                 status: 'placed',
                 totalAmount: totalAmount.toFixed(2),
                 itemCount: results.length,
                 notes: notes || null
-            }).returning();
+            };
+
+            // Add external order ID to notes if provided
+            if (externalOrderId) {
+                orderData.notes = orderData.notes ?
+                    `${orderData.notes} | External Order ID: ${externalOrderId}` :
+                    `External Order ID: ${externalOrderId}`;
+            }
+
+            const newOrder = await db.insert(ordersTable).values(orderData).returning();
 
             orderRecord = newOrder[0];
 
@@ -474,19 +485,19 @@ export const checkStockAvailability = async (req, res) => {
 // Get all orders with details (for viewing order history)
 export const getAllOrders = async (req, res) => {
     try {
-        const { page = 1, limit = 20, status, userId } = req.query;
+        const { page = 1, limit = 20, status, userId, externalUserId } = req.query;
         const offset = (parseInt(page) - 1) * parseInt(limit);
-        const currentUserId = req.user.userId;
-        const userRole = req.user.role;
 
         let whereConditions = [];
 
-        // Admin can see all orders, viewers can only see their own orders
-        if (userRole !== 'admin') {
-            whereConditions.push(eq(ordersTable.userId, currentUserId));
-        } else if (userId) {
-            // Admin can filter by specific user
+        // Filter by userId if provided (for external backend to query specific user's orders)
+        if (userId) {
             whereConditions.push(eq(ordersTable.userId, parseInt(userId)));
+        }
+
+        // Filter by externalUserId (search in notes field)
+        if (externalUserId) {
+            whereConditions.push(sql`${ordersTable.notes} LIKE ${`%External Order ID: ${externalUserId}%`}`);
         }
 
         // Filter by status if provided
@@ -534,8 +545,7 @@ export const getAllOrders = async (req, res) => {
 export const getOrderById = async (req, res) => {
     try {
         const { id } = req.params;
-        const currentUserId = req.user.userId;
-        const userRole = req.user.role;
+        const { userId, externalUserId } = req.query;
 
         if (!id) {
             return res.status(400).json({
@@ -544,16 +554,21 @@ export const getOrderById = async (req, res) => {
             });
         }
 
-        // Get order
-        let whereCondition = eq(ordersTable.id, parseInt(id));
+        let whereConditions = [eq(ordersTable.id, parseInt(id))];
 
-        // Non-admin users can only see their own orders
-        if (userRole !== 'admin') {
-            whereCondition = and(
-                eq(ordersTable.id, parseInt(id)),
-                eq(ordersTable.userId, currentUserId)
-            );
+        // Filter by userId if provided (for external backend to ensure access control)
+        if (userId) {
+            whereConditions.push(eq(ordersTable.userId, parseInt(userId)));
         }
+
+        // Filter by externalUserId (search in notes field)
+        if (externalUserId) {
+            whereConditions.push(sql`${ordersTable.notes} LIKE ${`%External Order ID: ${externalUserId}%`}`);
+        }
+
+        const whereCondition = whereConditions.length === 1 ?
+            whereConditions[0] :
+            and(...whereConditions);
 
         const order = await db.select().from(ordersTable)
             .where(whereCondition);
@@ -580,6 +595,52 @@ export const getOrderById = async (req, res) => {
 
     } catch (error) {
         console.error('Error fetching order:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message
+        });
+    }
+};
+
+// Get order by external order ID
+export const getOrderByExternalId = async (req, res) => {
+    try {
+        const { externalId } = req.params;
+
+        if (!externalId) {
+            return res.status(400).json({
+                success: false,
+                message: 'External order ID is required'
+            });
+        }
+
+        // Search for order by external ID in notes field
+        const order = await db.select().from(ordersTable)
+            .where(sql`${ordersTable.notes} LIKE ${`%External Order ID: ${externalId}%`}`);
+
+        if (order.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Order not found with the provided external ID'
+            });
+        }
+
+        // Get order items for the found order
+        const orderItems = await db.select().from(orderItemsTable)
+            .where(eq(orderItemsTable.orderId, order[0].id))
+            .orderBy(orderItemsTable.createdAt);
+
+        res.status(200).json({
+            success: true,
+            data: {
+                order: order[0],
+                items: orderItems
+            }
+        });
+
+    } catch (error) {
+        console.error('Error fetching order by external ID:', error);
         res.status(500).json({
             success: false,
             message: 'Internal server error',
