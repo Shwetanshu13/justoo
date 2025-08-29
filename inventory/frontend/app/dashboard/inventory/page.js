@@ -83,7 +83,7 @@ export default function InventoryPage() {
                         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
                             <Link
                                 href="/dashboard/inventory/add"
-                                className="block rounded-md bg-blue-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                                className="block rounded-md bg-blue-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-blue-600"
                             >
                                 <PlusIcon className="inline h-4 w-4 mr-1" />
                                 Add Item
