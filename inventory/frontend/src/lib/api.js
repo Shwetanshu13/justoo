@@ -45,15 +45,16 @@ export const authAPI = {
 };
 
 export const inventoryAPI = {
-    getAllItems: (params) => api.get('/inventory', { params }),
-    getItemById: (id) => api.get(`/inventory/${id}`),
-    addItem: (data) => api.post('/inventory', data),
-    updateItem: (id, data) => api.put(`/inventory/${id}`, data),
-    deleteItem: (id) => api.delete(`/inventory/${id}`),
-    getInStockItems: () => api.get('/inventory/in-stock'),
-    getOutOfStockItems: () => api.get('/inventory/out-of-stock'),
-    getLowStockItems: () => api.get('/inventory/low-stock'),
+    getAllItems: (params) => api.get('/inventory/items', { params }),
+    getItemById: (id) => api.get(`/inventory/items/${id}`),
+    addItem: (data) => api.post('/inventory/items', data),
+    updateItem: (id, data) => api.put(`/inventory/items/${id}`, data),
+    deleteItem: (id) => api.delete(`/inventory/items/${id}`),
+    getInStockItems: () => api.get('/inventory/stock/in-stock'),
+    getOutOfStockItems: () => api.get('/inventory/stock/out-of-stock'),
+    getLowStockItems: () => api.get('/inventory/stock/low-stock'),
     getDashboardStats: () => api.get('/inventory/dashboard/stats'),
+    getUnits: () => api.get('/inventory/units'),
 };
 
 export const orderAPI = {

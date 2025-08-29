@@ -2,21 +2,27 @@
 
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import DashboardLayout from '@/components/DashboardLayout';
+import LoadingSpinner from '@/components/LoadingSpinner';
 import { inventoryAPI } from '@/lib/api';
 import { UNITS } from '@/lib/utils';
 import toast from 'react-hot-toast';
 
-export default function AddItemPage() {
+export default function EditItemPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [item, setItem] = useState(null);
     const router = useRouter();
+    const params = useParams();
+    const itemId = params.id;
 
     const {
         register,
         handleSubmit,
         formState: { errors },
         setValue,
+        reset,
         watch
     } = useForm({
         defaultValues: {
@@ -32,6 +38,42 @@ export default function AddItemPage() {
         }
     });
 
+    // Load item data on mount
+    useEffect(() => {
+        const loadItem = async () => {
+            try {
+                setIsLoading(true);
+                const response = await inventoryAPI.getItemById(itemId);
+                const itemData = response.data.data;
+                setItem(itemData);
+
+                // Populate form with existing data
+                reset({
+                    name: itemData.name || '',
+                    description: itemData.description || '',
+                    price: itemData.price || '',
+                    quantity: itemData.quantity || '',
+                    minStockLevel: itemData.minStockLevel || 10,
+                    discount: itemData.discount || 0,
+                    unit: itemData.unit || 'pieces',
+                    category: itemData.category || '',
+                    isActive: itemData.isActive || 1
+                });
+            } catch (error) {
+                console.error('Error loading item:', error);
+                const message = error.response?.data?.message || 'Failed to load item';
+                toast.error(message);
+                router.push('/dashboard/inventory');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        if (itemId) {
+            loadItem();
+        }
+    }, [itemId, reset, router]);
+
     const onSubmit = async (data) => {
         setIsSubmitting(true);
         try {
@@ -45,25 +87,52 @@ export default function AddItemPage() {
                 isActive: parseInt(data.isActive)
             };
 
-            await inventoryAPI.addItem(itemData);
-            toast.success('Item added successfully!');
+            await inventoryAPI.updateItem(itemId, itemData);
+            toast.success('Item updated successfully!');
             router.push('/dashboard/inventory');
         } catch (error) {
-            const message = error.response?.data?.message || 'Failed to add item';
+            const message = error.response?.data?.message || 'Failed to update item';
             toast.error(message);
         } finally {
             setIsSubmitting(false);
         }
     };
 
+    if (isLoading) {
+        return (
+            <DashboardLayout>
+                <div className="flex items-center justify-center min-h-96">
+                    <LoadingSpinner />
+                </div>
+            </DashboardLayout>
+        );
+    }
+
+    if (!item) {
+        return (
+            <DashboardLayout>
+                <div className="text-center py-12">
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Item not found</h3>
+                    <p className="text-gray-500 mb-4">The item you're trying to edit could not be found.</p>
+                    <button
+                        onClick={() => router.push('/dashboard/inventory')}
+                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                    >
+                        Back to Inventory
+                    </button>
+                </div>
+            </DashboardLayout>
+        );
+    }
+
     return (
         <DashboardLayout>
             <div className="max-w-4xl mx-auto space-y-8">
                 {/* Header */}
                 <div className="pb-6 border-b border-gray-200">
-                    <h1 className="text-3xl font-bold text-gray-900">Add New Item</h1>
+                    <h1 className="text-3xl font-bold text-gray-900">Edit Item</h1>
                     <p className="mt-3 text-base text-gray-600">
-                        Add a new item to your inventory system with all the necessary details.
+                        Update the details for <span className="font-semibold text-gray-900">{item.name}</span>.
                     </p>
                 </div>
 
@@ -179,7 +248,7 @@ export default function AddItemPage() {
                             {/* Quantity */}
                             <div>
                                 <label htmlFor="quantity" className="block text-sm font-semibold text-gray-800 mb-2">
-                                    Initial Quantity *
+                                    Current Quantity *
                                 </label>
                                 <input
                                     type="number"
@@ -248,7 +317,7 @@ export default function AddItemPage() {
                         <div className="flex justify-end space-x-4 pt-8 border-t border-gray-200">
                             <button
                                 type="button"
-                                onClick={() => router.back()}
+                                onClick={() => router.push('/dashboard/inventory')}
                                 className="inline-flex justify-center items-center rounded-lg border border-gray-300 bg-white px-6 py-3 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
                             >
                                 Cancel
@@ -261,10 +330,10 @@ export default function AddItemPage() {
                                 {isSubmitting ? (
                                     <div className="flex items-center">
                                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                                        Adding...
+                                        Updating...
                                     </div>
                                 ) : (
-                                    'Add Item'
+                                    'Update Item'
                                 )}
                             </button>
                         </div>

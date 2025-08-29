@@ -7,8 +7,8 @@ import { formatCurrency } from '@/lib/utils';
 import {
     ChartBarIcon,
     DocumentChartBarIcon,
-    TrendingUpIcon,
-    TrendingDownIcon,
+    ArrowTrendingUpIcon,
+    ArrowTrendingDownIcon,
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 
@@ -28,7 +28,7 @@ export default function ReportsPage() {
                 inventoryAPI.getDashboardStats(),
                 orderAPI.getAllOrders({ limit: 10 })
             ]);
-
+            console.log(ordersResponse, statsResponse);
             setDashboardStats(statsResponse.data.data);
             setRecentOrders(ordersResponse.data.data);
         } catch (error) {
@@ -54,7 +54,7 @@ export default function ReportsPage() {
             title: 'Inventory Overview',
             stats: [
                 { label: 'Total Items', value: dashboardStats?.totalItems || 0 },
-                { label: 'Total Value', value: formatCurrency(dashboardStats?.totalValue || 0) },
+                { label: 'Total Value', value: formatCurrency(dashboardStats?.totalInventoryValue || 0) },
                 { label: 'In Stock', value: dashboardStats?.inStockItems || 0 },
                 { label: 'Out of Stock', value: dashboardStats?.outOfStockItems || 0 },
             ],
@@ -69,7 +69,7 @@ export default function ReportsPage() {
                 { label: 'Active Items', value: dashboardStats?.activeItems || 0 },
                 { label: 'Inactive Items', value: dashboardStats?.inactiveItems || 0 },
             ],
-            icon: TrendingDownIcon,
+            icon: ArrowTrendingDownIcon,
             color: 'red'
         },
         {
@@ -80,7 +80,7 @@ export default function ReportsPage() {
                 { label: 'Avg Order Value', value: formatCurrency(recentOrders.length > 0 ? recentOrders.reduce((sum, order) => sum + parseFloat(order.totalAmount), 0) / recentOrders.length : 0) },
                 { label: 'Items Ordered', value: recentOrders.reduce((sum, order) => sum + order.itemCount, 0) },
             ],
-            icon: TrendingUpIcon,
+            icon: ArrowTrendingUpIcon,
             color: 'green'
         }
     ];
