@@ -53,7 +53,7 @@ export const inventoryAPI = {
     getInStockItems: () => api.get('/inventory/in-stock'),
     getOutOfStockItems: () => api.get('/inventory/out-of-stock'),
     getLowStockItems: () => api.get('/inventory/low-stock'),
-    getDashboardStats: () => api.get('/inventory/dashboard'),
+    getDashboardStats: () => api.get('/inventory/dashboard/stats'),
 };
 
 export const orderAPI = {
