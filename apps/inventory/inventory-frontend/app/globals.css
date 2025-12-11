@@ -1,0 +1,205 @@
+@import "tailwindcss";
+
+:root {
+    --background: #e9edf7;
+    --background-strong: #f5f7ff;
+    --foreground: #071126;
+    --muted: #3d4c61;
+    --border: rgba(15, 23, 42, 0.08);
+    --card: #ffffff;
+    --card-muted: #f4f6fb;
+    --accent: #2563eb;
+    --accent-soft: #d6e4ff;
+    --accent-strong: #1d4ed8;
+    --warning: #f97316;
+    --success: #22c55e;
+    --shadow-soft: 0 10px 35px rgba(15, 23, 42, 0.08);
+    --shadow-strong: 0 35px 80px rgba(15, 23, 42, 0.15);
+}
+
+@theme inline {
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --font-sans: var(--font-geist-sans);
+    --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background: #050816;
+        --background-strong: #0b1120;
+        --foreground: #f8fbff;
+        --muted: #c7d8ff;
+        --border: rgba(148, 163, 184, 0.2);
+        --card: #10172a;
+        --card-muted: #111b2e;
+        --accent: #60a5fa;
+        --accent-soft: rgba(96, 165, 250, 0.12);
+        --accent-strong: #93c5fd;
+    }
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    min-height: 100vh;
+    margin: 0;
+    font-family: var(--font-geist-sans), "Inter", system-ui, -apple-system,
+        BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background-color: var(--background);
+    color: var(--foreground);
+    position: relative;
+    overflow-x: hidden;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(
+            circle at 20% 20%,
+            rgba(37, 99, 235, 0.12),
+            transparent 45%
+        ),
+        radial-gradient(
+            circle at 80% 0%,
+            rgba(129, 140, 248, 0.18),
+            transparent 50%
+        ),
+        radial-gradient(
+            circle at 80% 80%,
+            rgba(14, 165, 233, 0.15),
+            transparent 40%
+        );
+    z-index: -2;
+    pointer-events: none;
+}
+
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.92),
+        rgba(255, 255, 255, 0.75)
+    );
+    z-index: -1;
+    pointer-events: none;
+}
+
+.glass-panel {
+    background: var(--card);
+    border-radius: 1.25rem;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-soft);
+    backdrop-filter: blur(12px);
+}
+
+.gradient-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: linear-gradient(
+        120deg,
+        rgba(37, 99, 235, 0.12),
+        rgba(56, 189, 248, 0.18)
+    );
+    color: var(--accent-strong);
+}
+
+.section-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.section-heading h1,
+.section-heading h2,
+.section-heading h3 {
+    margin: 0;
+    letter-spacing: -0.02em;
+}
+
+.text-primary {
+    color: var(--foreground);
+}
+
+.text-secondary {
+    color: var(--muted);
+}
+
+.text-tertiary {
+    color: #5c6a84;
+    color: color-mix(in srgb, var(--muted) 75%, var(--foreground) 25%);
+}
+
+.frosted-divider {
+    border: none;
+    height: 1px;
+    width: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(15, 23, 42, 0.12),
+        transparent
+    );
+}
+
+.data-card {
+    border-radius: 1rem;
+    border: 1px solid var(--border);
+    background: linear-gradient(180deg, var(--card), var(--card-muted));
+    box-shadow: var(--shadow-soft);
+    color: var(--foreground);
+}
+
+.data-card--interactive {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.data-card--interactive:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-strong);
+}
+
+.badge-pill {
+    border-radius: 999px;
+    padding: 0.25rem 0.8rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(15, 23, 42, 0.2);
+    border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(15, 23, 42, 0.35);
+}

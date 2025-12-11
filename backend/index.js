@@ -14,10 +14,12 @@ const PORT = process.env.BACKEND_PORT || process.env.PORT || 3000;
 // CORS configuration - allow credentials with specific origins
 app.use(cors({
     origin: [
+        'http://localhost:3000', // Unified frontend
         'http://localhost:3001', // Customer frontend
         'http://localhost:3002', // Rider frontend
         'http://localhost:3003', // Admin frontend
         'http://localhost:3004', // Inventory frontend
+        process.env.FRONTEND_URL,
         process.env.ADMIN_FRONTEND_URL,
         process.env.CUSTOMER_FRONTEND_URL,
         process.env.INVENTORY_FRONTEND_URL,

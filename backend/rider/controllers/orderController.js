@@ -1,5 +1,5 @@
 import { db } from "../db/index.js";
-import { orders, orderItems, customerAddresses } from "../../../../packages/db/schema.js";
+import { orders, orderItems, customerAddresses } from "../../../packages/db/schema.js";
 import { eq, and, sql, inArray } from "drizzle-orm";
 
 // 0. Get available orders for riders to accept

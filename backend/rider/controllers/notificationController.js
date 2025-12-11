@@ -1,5 +1,5 @@
 import { db } from "../db/index.js";
-import { riderNotifications } from "../../../../packages/db/schema.js";
+import { riderNotifications } from "../../../packages/db/schema.js";
 import { eq, and, sql, desc } from "drizzle-orm";
 
 // Get notifications for the rider
