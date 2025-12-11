@@ -1,19 +1,21 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import DashboardLayout from '@/components/DashboardLayout';
-import LoadingSpinner from '@/components/LoadingSpinner';
-import { inventoryAPI } from '@/lib/api';
-import { formatCurrency, getStockStatus, UNITS } from '@/lib/utils';
-import { useAuth } from '@/contexts/AuthContext';
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
+import DashboardLayout from "@/components/DashboardLayout";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import { inventoryAPI } from "@/lib/api";
+import { formatCurrency, getStockStatus, UNITS } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
 import {
     PencilIcon,
     TrashIcon,
     ArrowLeftIcon,
-} from '@heroicons/react/24/outline';
-import toast from 'react-hot-toast';
-import Link from 'next/link';
+    CubeIcon,
+    TagIcon,
+} from "@heroicons/react/24/outline";
+import toast from "react-hot-toast";
+import Link from "next/link";
 
 export default function ItemDetailPage() {
     const [item, setItem] = useState(null);
@@ -22,7 +24,7 @@ export default function ItemDetailPage() {
     const params = useParams();
     const itemId = params.id;
     const { user } = useAuth();
-    const isAdmin = user?.role === 'admin';
+    const isAdmin = user?.role === "admin";
 
     useEffect(() => {
         const loadItem = async () => {
@@ -31,10 +33,11 @@ export default function ItemDetailPage() {
                 const response = await inventoryAPI.getItemById(itemId);
                 setItem(response.data.data);
             } catch (error) {
-                console.error('Error loading item:', error);
-                const message = error.response?.data?.message || 'Failed to load item';
+                console.error("Error loading item:", error);
+                const message =
+                    error.response?.data?.message || "Failed to load item";
                 toast.error(message);
-                router.push('/dashboard/inventory');
+                router.push("/dashboard/inventory");
             } finally {
                 setIsLoading(false);
             }
@@ -46,17 +49,17 @@ export default function ItemDetailPage() {
     }, [itemId, router]);
 
     const handleDelete = async () => {
-        if (!window.confirm('Are you sure you want to delete this item?')) {
+        if (!window.confirm("Are you sure you want to delete this item?")) {
             return;
         }
 
         try {
             await inventoryAPI.deleteItem(itemId);
-            toast.success('Item deleted successfully');
-            router.push('/dashboard/inventory');
+            toast.success("Item deleted successfully");
+            router.push("/dashboard/inventory");
         } catch (error) {
-            toast.error('Failed to delete item');
-            console.error('Delete item error:', error);
+            toast.error("Failed to delete item");
+            console.error("Delete item error:", error);
         }
     };
 
@@ -74,10 +77,14 @@ export default function ItemDetailPage() {
         return (
             <DashboardLayout>
                 <div className="text-center py-12">
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Item not found</h3>
-                    <p className="text-gray-500 mb-4">The item you're looking for could not be found.</p>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+                        Item not found
+                    </h3>
+                    <p className="text-gray-500 mb-4">
+                        The item you’re looking for could not be found.
+                    </p>
                     <button
-                        onClick={() => router.push('/dashboard/inventory')}
+                        onClick={() => router.push("/dashboard/inventory")}
                         className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
                     >
                         Back to Inventory
@@ -88,160 +95,186 @@ export default function ItemDetailPage() {
     }
 
     const stockStatus = getStockStatus(item.quantity, item.minStockLevel);
+    const statusStyles = {
+        in: "bg-emerald-50 text-emerald-600",
+        low: "bg-amber-50 text-amber-600",
+        out: "bg-rose-50 text-rose-600",
+    };
 
     return (
         <DashboardLayout>
             <div className="space-y-6">
-                {/* Header */}
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                        <button
-                            onClick={() => router.push('/dashboard/inventory')}
-                            className="inline-flex items-center text-gray-500 hover:text-gray-700"
-                        >
-                            <ArrowLeftIcon className="h-5 w-5 mr-1" />
-                            Back to Inventory
-                        </button>
-                        <div>
-                            <h1 className="text-2xl font-bold text-gray-900">{item.name}</h1>
-                            <p className="mt-1 text-sm text-gray-500">
-                                Item ID: {item.id}
-                            </p>
-                        </div>
-                    </div>
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                    <button
+                        onClick={() => router.push("/dashboard/inventory")}
+                        className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors"
+                    >
+                        <ArrowLeftIcon className="h-4 w-4" /> Back to inventory
+                    </button>
                     {isAdmin && (
-                        <div className="flex space-x-3">
+                        <div className="flex gap-3">
                             <Link
                                 href={`/dashboard/inventory/edit/${item.id}`}
-                                className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors"
                             >
-                                <PencilIcon className="h-4 w-4 mr-2" />
-                                Edit
+                                <PencilIcon className="h-4 w-4" /> Edit
                             </Link>
                             <button
                                 onClick={handleDelete}
-                                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                                className="inline-flex items-center gap-2 rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 transition-colors"
                             >
-                                <TrashIcon className="h-4 w-4 mr-2" />
-                                Delete
+                                <TrashIcon className="h-4 w-4" /> Delete
                             </button>
                         </div>
                     )}
                 </div>
 
-                {/* Item Details */}
-                <div className="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg overflow-hidden">
-                    <div className="px-6 py-6">
-                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                            {/* Basic Information */}
-                            <div className="space-y-4">
-                                <h3 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">
-                                    Basic Information
-                                </h3>
-
-                                <div>
-                                    <dt className="text-sm font-medium text-gray-500">Name</dt>
-                                    <dd className="mt-1 text-sm text-gray-900">{item.name}</dd>
+                <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div className="p-6 border-b border-slate-200">
+                        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                            <div>
+                                <div className="flex items-center gap-3 mb-2">
+                                    <h1 className="text-2xl font-bold text-slate-900">
+                                        {item.name}
+                                    </h1>
+                                    <span
+                                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                                            item.isActive
+                                                ? "bg-emerald-100 text-emerald-800"
+                                                : "bg-slate-100 text-slate-800"
+                                        }`}
+                                    >
+                                        {item.isActive ? "Active" : "Inactive"}
+                                    </span>
                                 </div>
+                                <p className="text-sm text-slate-500">
+                                    SKU:{" "}
+                                    <span className="font-mono text-slate-700">
+                                        {item.id}
+                                    </span>
+                                </p>
+                            </div>
+                            <div className="flex items-center">
+                                <span
+                                    className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${
+                                        statusStyles[stockStatus.status]
+                                    }`}
+                                >
+                                    {stockStatus.text}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
 
-                                <div>
-                                    <dt className="text-sm font-medium text-gray-500">Category</dt>
-                                    <dd className="mt-1 text-sm text-gray-900">{item.category || 'Uncategorized'}</dd>
+                    <div className="p-6">
+                        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                            <div className="space-y-6">
+                                <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                                    <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">
+                                        Category
+                                    </p>
+                                    <div className="flex items-center gap-3">
+                                        <span className="rounded-lg bg-white border border-slate-200 p-2 text-blue-600">
+                                            <CubeIcon className="h-5 w-5" />
+                                        </span>
+                                        <p className="text-lg font-semibold text-slate-900">
+                                            {item.category || "Uncategorized"}
+                                        </p>
+                                    </div>
                                 </div>
-
                                 {item.description && (
-                                    <div>
-                                        <dt className="text-sm font-medium text-gray-500">Description</dt>
-                                        <dd className="mt-1 text-sm text-gray-900">{item.description}</dd>
+                                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                                        <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">
+                                            Description
+                                        </p>
+                                        <p className="text-sm text-slate-600 leading-relaxed">
+                                            {item.description}
+                                        </p>
                                     </div>
                                 )}
-
-                                <div>
-                                    <dt className="text-sm font-medium text-gray-500">Status</dt>
-                                    <dd className="mt-1">
-                                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${item.isActive
-                                                ? 'bg-green-100 text-green-800'
-                                                : 'bg-red-100 text-red-800'
-                                            }`}>
-                                            {item.isActive ? 'Active' : 'Inactive'}
-                                        </span>
-                                    </dd>
+                                <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                                    <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">
+                                        Pricing
+                                    </p>
+                                    <div className="flex flex-col gap-1">
+                                        <p className="text-2xl font-bold text-slate-900">
+                                            {formatCurrency(item.price)}
+                                        </p>
+                                        {item.discount > 0 && (
+                                            <p className="text-xs font-medium text-emerald-600 bg-emerald-50 inline-block px-2 py-1 rounded-md w-fit">
+                                                {item.discount}% discount
+                                                applied
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
 
-                            {/* Pricing & Stock */}
-                            <div className="space-y-4">
-                                <h3 className="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">
-                                    Pricing & Stock
-                                </h3>
-
-                                <div>
-                                    <dt className="text-sm font-medium text-gray-500">Price</dt>
-                                    <dd className="mt-1 text-lg font-semibold text-gray-900">
-                                        {formatCurrency(item.price)}
-                                        {item.discount > 0 && (
-                                            <span className="ml-2 text-sm text-green-600">
-                                                ({item.discount}% discount)
-                                            </span>
-                                        )}
-                                    </dd>
-                                </div>
-
-                                <div>
-                                    <dt className="text-sm font-medium text-gray-500">Current Stock</dt>
-                                    <dd className="mt-1 text-sm text-gray-900">
-                                        <div className="flex items-center space-x-2">
-                                            <span className="font-medium">
-                                                {item.quantity} {UNITS[item.unit] || item.unit}
-                                            </span>
-                                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-${stockStatus.color}-100 text-${stockStatus.color}-800`}>
-                                                {stockStatus.text}
-                                            </span>
+                            <div className="space-y-6">
+                                <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                                    <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-4">
+                                        Stock Status
+                                    </p>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <p className="text-sm text-slate-500 mb-1">
+                                                Current stock
+                                            </p>
+                                            <p className="text-2xl font-bold text-slate-900">
+                                                {item.quantity}{" "}
+                                                <span className="text-sm font-normal text-slate-500">
+                                                    {UNITS[item.unit] ||
+                                                        item.unit}
+                                                </span>
+                                            </p>
                                         </div>
-                                    </dd>
+                                        <div>
+                                            <p className="text-sm text-slate-500 mb-1">
+                                                Minimum level
+                                            </p>
+                                            <p className="text-lg font-semibold text-slate-900">
+                                                {item.minStockLevel}
+                                            </p>
+                                        </div>
+                                    </div>
                                 </div>
-
-                                <div>
-                                    <dt className="text-sm font-medium text-gray-500">Minimum Stock Level</dt>
-                                    <dd className="mt-1 text-sm text-gray-900">
-                                        {item.minStockLevel} {UNITS[item.unit] || item.unit}
-                                    </dd>
+                                <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                                    <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">
+                                        Total Value
+                                    </p>
+                                    <p className="text-2xl font-bold text-slate-900">
+                                        {formatCurrency(
+                                            item.price * item.quantity
+                                        )}
+                                    </p>
                                 </div>
-
-                                <div>
-                                    <dt className="text-sm font-medium text-gray-500">Unit</dt>
-                                    <dd className="mt-1 text-sm text-gray-900">
+                                <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                                    <p className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">
+                                        Unit Type
+                                    </p>
+                                    <p className="text-lg font-semibold text-slate-900 capitalize">
                                         {UNITS[item.unit] || item.unit}
-                                    </dd>
-                                </div>
-
-                                <div>
-                                    <dt className="text-sm font-medium text-gray-500">Total Value</dt>
-                                    <dd className="mt-1 text-lg font-semibold text-gray-900">
-                                        {formatCurrency(item.price * item.quantity)}
-                                    </dd>
+                                    </p>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Timestamps */}
-                        <div className="mt-8 pt-6 border-t border-gray-200">
-                            <h3 className="text-lg font-medium text-gray-900 mb-4">
-                                Record Information
-                            </h3>
-                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                <div>
-                                    <dt className="text-sm font-medium text-gray-500">Created</dt>
-                                    <dd className="mt-1 text-sm text-gray-900">
-                                        {new Date(item.createdAt).toLocaleString()}
-                                    </dd>
-                                </div>
-                                <div>
-                                    <dt className="text-sm font-medium text-gray-500">Last Updated</dt>
-                                    <dd className="mt-1 text-sm text-gray-900">
-                                        {new Date(item.updatedAt).toLocaleString()}
-                                    </dd>
-                                </div>
+                        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2 pt-6 border-t border-slate-200">
+                            <div className="flex justify-between items-center">
+                                <p className="text-sm text-slate-500">
+                                    Created
+                                </p>
+                                <p className="text-sm font-medium text-slate-900">
+                                    {new Date(item.createdAt).toLocaleString()}
+                                </p>
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <p className="text-sm text-slate-500">
+                                    Last Updated
+                                </p>
+                                <p className="text-sm font-medium text-slate-900">
+                                    {new Date(item.updatedAt).toLocaleString()}
+                                </p>
                             </div>
                         </div>
                     </div>

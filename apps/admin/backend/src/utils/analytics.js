@@ -1,9 +1,21 @@
 // Analytics utility functions
-import db from '../config/dbConfig.js';
-import { orders, order_items, items, justoo_admins as admins, justoo_payments as payments } from '@justoo/db';
-import { eq, and, between, count, sum, avg, desc, asc, sql } from 'drizzle-orm';
+import db from "../config/dbConfig.js";
+import {
+    orders,
+    order_items,
+    items,
+    justoo_admins as admins,
+    justoo_payments as payments,
+    justoo_riders as riders,
+    inventory_users,
+} from "@justoo/db";
+import { eq, and, between, count, sum, avg, desc, asc, sql } from "drizzle-orm";
 
-export const getOrderAnalytics = async (period = 'daily', startDate, endDate) => {
+export const getOrderAnalytics = async (
+    period = "daily",
+    startDate,
+    endDate
+) => {
     try {
         // Base query conditions
         const baseConditions = [];
@@ -25,7 +37,7 @@ export const getOrderAnalytics = async (period = 'daily', startDate, endDate) =>
         const ordersByStatusResult = await db
             .select({
                 status: orders.status,
-                count: count()
+                count: count(),
             })
             .from(orders)
             .where(and(...baseConditions))
@@ -37,22 +49,20 @@ export const getOrderAnalytics = async (period = 'daily', startDate, endDate) =>
                 totalRevenue: sum(orders.totalAmount),
                 avgOrderValue: avg(orders.totalAmount),
                 maxOrderValue: sql`MAX(${orders.totalAmount})`,
-                minOrderValue: sql`MIN(${orders.totalAmount})`
+                minOrderValue: sql`MIN(${orders.totalAmount})`,
             })
             .from(orders)
-            .where(and(...baseConditions, eq(orders.status, 'delivered')));
+            .where(and(...baseConditions, eq(orders.status, "delivered")));
 
         // Daily revenue trend (last 30 days or within date range)
         let dailyRevenueQuery = db
             .select({
                 date: sql`DATE(${orders.createdAt})`,
                 revenue: sum(orders.totalAmount),
-                orderCount: count()
+                orderCount: count(),
             })
             .from(orders)
-            .where(and(
-                eq(orders.status, 'delivered')
-            ))
+            .where(and(eq(orders.status, "delivered")))
             .groupBy(sql`DATE(${orders.createdAt})`)
             .orderBy(sql`DATE(${orders.createdAt})`);
 
@@ -83,12 +93,12 @@ export const getOrderAnalytics = async (period = 'daily', startDate, endDate) =>
                 total: revenueResult[0]?.totalRevenue || 0,
                 average: revenueResult[0]?.avgOrderValue || 0,
                 highest: revenueResult[0]?.maxOrderValue || 0,
-                lowest: revenueResult[0]?.minOrderValue || 0
+                lowest: revenueResult[0]?.minOrderValue || 0,
             },
-            dailyTrend: dailyRevenueResult
+            dailyTrend: dailyRevenueResult,
         };
     } catch (error) {
-        console.error('Error fetching order analytics:', error);
+        console.error("Error fetching order analytics:", error);
         throw error;
     }
 };
@@ -108,36 +118,32 @@ export const getInventoryAnalytics = async (startDate, endDate) => {
         const lowStockResult = await db
             .select()
             .from(items)
-            .where(and(
-                sql`${items.quantity} <= ${items.minStockLevel}`,
-                ...baseConditions
-            ));
+            .where(
+                and(
+                    sql`${items.quantity} <= ${items.minStockLevel}`,
+                    ...baseConditions
+                )
+            );
 
         // Total items and value
         const inventoryStatsResult = await db
             .select({
                 totalItems: count(),
                 totalValue: sum(sql`${items.price} * ${items.quantity}`),
-                avgPrice: avg(items.price)
+                avgPrice: avg(items.price),
             })
             .from(items)
-            .where(and(
-                eq(items.isActive, 1),
-                ...baseConditions
-            ));
+            .where(and(eq(items.isActive, 1), ...baseConditions));
 
         // Category-wise distribution
         const categoryStatsResult = await db
             .select({
                 category: items.category,
                 itemCount: count(),
-                totalValue: sum(sql`${items.price} * ${items.quantity}`)
+                totalValue: sum(sql`${items.price} * ${items.quantity}`),
             })
             .from(items)
-            .where(and(
-                eq(items.isActive, 1),
-                ...baseConditions
-            ))
+            .where(and(eq(items.isActive, 1), ...baseConditions))
             .groupBy(items.category);
 
         // Top selling items (based on order_items)
@@ -146,11 +152,17 @@ export const getInventoryAnalytics = async (startDate, endDate) => {
                 itemId: order_items.itemId,
                 itemName: items.name,
                 totalSold: sum(order_items.quantity),
-                totalRevenue: sum(sql`${order_items.quantity} * ${order_items.unitPrice}`)
+                totalRevenue: sum(
+                    sql`${order_items.quantity} * ${order_items.unitPrice}`
+                ),
             })
             .from(order_items)
             .innerJoin(items, eq(order_items.itemId, items.id))
-            .where(startDate && endDate ? sql`${order_items.createdAt} >= ${startDate} AND ${order_items.createdAt} <= ${endDate}` : undefined)
+            .where(
+                startDate && endDate
+                    ? sql`${order_items.createdAt} >= ${startDate} AND ${order_items.createdAt} <= ${endDate}`
+                    : undefined
+            )
             .groupBy(order_items.itemId, items.name)
             .orderBy(desc(sum(order_items.quantity)))
             .limit(10);
@@ -161,10 +173,10 @@ export const getInventoryAnalytics = async (startDate, endDate) => {
             totalInventoryValue: inventoryStatsResult[0]?.totalValue || 0,
             averageItemPrice: inventoryStatsResult[0]?.avgPrice || 0,
             categoryDistribution: categoryStatsResult,
-            topSellingItems: topSellingResult
+            topSellingItems: topSellingResult,
         };
     } catch (error) {
-        console.error('Error fetching inventory analytics:', error);
+        console.error("Error fetching inventory analytics:", error);
         throw error;
     }
 };
@@ -184,7 +196,7 @@ export const getUserAnalytics = async (startDate, endDate) => {
         const usersByRoleResult = await db
             .select({
                 role: admins.role,
-                count: count()
+                count: count(),
             })
             .from(admins)
             .where(and(...baseConditions))
@@ -211,7 +223,22 @@ export const getUserAnalytics = async (startDate, endDate) => {
         const activeCustomersResult = await db
             .select({ count: sql`COUNT(DISTINCT ${orders.customerId})` })
             .from(orders)
-            .where(startDate && endDate ? sql`${orders.createdAt} >= ${startDate} AND ${orders.createdAt} <= ${endDate}` : undefined);
+            .where(
+                startDate && endDate
+                    ? sql`${orders.createdAt} >= ${startDate} AND ${orders.createdAt} <= ${endDate}`
+                    : undefined
+            );
+
+        // Active Riders
+        const activeRidersResult = await db
+            .select({ count: count() })
+            .from(riders)
+            .where(eq(riders.isActive, 1));
+
+        // Inventory Admins (from inventory_users table)
+        const inventoryAdminsResult = await db
+            .select({ count: count() })
+            .from(inventory_users);
 
         return {
             usersByRole: usersByRoleResult.reduce((acc, curr) => {
@@ -219,10 +246,12 @@ export const getUserAnalytics = async (startDate, endDate) => {
                 return acc;
             }, {}),
             recentRegistrations: recentRegistrationsResult[0]?.count || 0,
-            activeCustomers: activeCustomersResult[0]?.count || 0
+            activeCustomers: activeCustomersResult[0]?.count || 0,
+            activeRiders: activeRidersResult[0]?.count || 0,
+            inventoryAdminsCount: inventoryAdminsResult[0]?.count || 0,
         };
     } catch (error) {
-        console.error('Error fetching user analytics:', error);
+        console.error("Error fetching user analytics:", error);
         throw error;
     }
 };
@@ -230,7 +259,7 @@ export const getUserAnalytics = async (startDate, endDate) => {
 export const getPaymentAnalytics = async (startDate, endDate) => {
     try {
         // Base query conditions for payments
-        const paymentConditions = [eq(payments.status, 'completed')];
+        const paymentConditions = [eq(payments.status, "completed")];
         const orderConditions = [];
 
         if (startDate && endDate) {
@@ -247,7 +276,7 @@ export const getPaymentAnalytics = async (startDate, endDate) => {
             .select({
                 method: payments.method,
                 count: count(),
-                total: sum(payments.amount)
+                total: sum(payments.amount),
             })
             .from(payments)
             .where(and(...paymentConditions))
@@ -258,7 +287,7 @@ export const getPaymentAnalytics = async (startDate, endDate) => {
             .select({
                 status: orders.status,
                 count: count(),
-                totalAmount: sum(orders.totalAmount)
+                totalAmount: sum(orders.totalAmount),
             })
             .from(orders)
             .where(and(...orderConditions))
@@ -266,10 +295,10 @@ export const getPaymentAnalytics = async (startDate, endDate) => {
 
         return {
             paymentMethods: paymentMethodsResult,
-            orderStatus: orderStatusResult
+            orderStatus: orderStatusResult,
         };
     } catch (error) {
-        console.error('Error fetching payment analytics:', error);
+        console.error("Error fetching payment analytics:", error);
         throw error;
     }
 };

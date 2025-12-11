@@ -1,86 +1,162 @@
-'use client';
+"use client";
 
-import { Fragment } from 'react';
-import { Dialog, DialogPanel, Transition, TransitionChild } from '@headlessui/react';
-import { XMarkIcon } from '@heroicons/react/24/outline';
+import { Fragment } from "react";
+import {
+    Dialog,
+    DialogPanel,
+    Transition,
+    TransitionChild,
+} from "@headlessui/react";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 import {
     HomeIcon,
     CubeIcon,
     ShoppingCartIcon,
     ChartBarIcon,
     UserIcon,
-    Cog6ToothIcon
-} from '@heroicons/react/24/outline';
-import Link from 'next/link';
-import { useAuth } from '@/contexts/AuthContext';
+    Cog6ToothIcon,
+} from "@heroicons/react/24/outline";
+import Link from "next/link";
+import { useAuth } from "@/contexts/AuthContext";
 
 const navigation = [
-    { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
-    { name: 'Inventory', href: '/dashboard/inventory', icon: CubeIcon },
-    { name: 'Orders', href: '/dashboard/orders', icon: ShoppingCartIcon },
-    { name: 'Reports', href: '/dashboard/reports', icon: ChartBarIcon },
+    {
+        name: "Overview",
+        href: "/dashboard",
+        icon: HomeIcon,
+        description: "Pulse of your operations",
+    },
+    {
+        name: "Inventory",
+        href: "/dashboard/inventory",
+        icon: CubeIcon,
+        description: "Items, pricing & stock",
+    },
+    {
+        name: "Orders",
+        href: "/dashboard/orders",
+        icon: ShoppingCartIcon,
+        description: "Recent fulfillment activity",
+    },
+    {
+        name: "Reports",
+        href: "/dashboard/reports",
+        icon: ChartBarIcon,
+        description: "Insights & analytics",
+    },
 ];
 
 function classNames(...classes) {
-    return classes.filter(Boolean).join(' ');
+    return classes.filter(Boolean).join(" ");
 }
 
 export default function Sidebar({ sidebarOpen, setSidebarOpen, currentPath }) {
     const { user } = useAuth();
-    const isAdmin = user?.role === 'admin';
-
-    const allNavigation = [
-        ...navigation,
-    ];
+    const isActiveRoute = (href) => {
+        if (!currentPath) return false;
+        if (href === "/dashboard") {
+            return currentPath === "/dashboard";
+        }
+        return currentPath.startsWith(href);
+    };
 
     const SidebarContent = () => (
-        <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4 ring-1 ring-white/10">
-            <div className="flex h-16 shrink-0 items-center">
-                <div className="flex items-center">
-                    <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                        <CubeIcon className="h-5 w-5 text-white" />
+        <div className="flex grow flex-col gap-y-6 overflow-y-auto bg-white/80 px-6 pb-6 pt-8 backdrop-blur-2xl shadow-[0_20px_60px_rgba(15,23,42,0.15)]">
+            <div className="flex items-center justify-between">
+                <Link
+                    href="/dashboard"
+                    className="flex items-center gap-3"
+                    onClick={() => setSidebarOpen(false)}
+                >
+                    <div className="h-11 w-11 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-500 text-white flex items-center justify-center shadow-lg">
+                        <CubeIcon className="h-6 w-6" />
                     </div>
-                    <span className="ml-3 text-xl font-bold text-gray-900">Inventory</span>
-                </div>
+                    <div>
+                        <p className="text-xs uppercase tracking-[0.2em] text-gray-400">
+                            Justoo
+                        </p>
+                        <p className="text-lg font-semibold text-gray-900">
+                            Inventory OS
+                        </p>
+                    </div>
+                </Link>
+                <span className="gradient-chip text-xs">v2.0</span>
             </div>
+
             <nav className="flex flex-1 flex-col">
-                <ul role="list" className="flex flex-1 flex-col gap-y-7">
+                <ul role="list" className="flex flex-1 flex-col">
                     <li>
-                        <ul role="list" className="-mx-2 space-y-1">
-                            {allNavigation.map((item) => (
-                                <li key={item.name}>
-                                    <Link
-                                        href={item.href}
-                                        className={classNames(
-                                            currentPath === item.href
-                                                ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
-                                                : 'text-gray-700 hover:text-blue-700 hover:bg-gray-50',
-                                            'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
-                                        )}
-                                        onClick={() => setSidebarOpen(false)}
-                                    >
-                                        <item.icon
+                        <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3">
+                            Navigation
+                        </p>
+                        <ul role="list" className="space-y-2">
+                            {navigation.map((item) => {
+                                const active = isActiveRoute(item.href);
+                                return (
+                                    <li key={item.name}>
+                                        <Link
+                                            href={item.href}
                                             className={classNames(
-                                                currentPath === item.href ? 'text-blue-700' : 'text-gray-400 group-hover:text-blue-700',
-                                                'h-6 w-6 shrink-0'
+                                                "group relative block rounded-xl border border-transparent px-3 py-3 transition-all duration-200",
+                                                active
+                                                    ? "bg-blue-50 text-blue-700"
+                                                    : "hover:bg-slate-50 text-slate-600"
                                             )}
-                                            aria-hidden="true"
-                                        />
-                                        {item.name}
-                                    </Link>
-                                </li>
-                            ))}
+                                            onClick={() =>
+                                                setSidebarOpen(false)
+                                            }
+                                        >
+                                            <div className="flex items-start gap-3">
+                                                <div
+                                                    className={classNames(
+                                                        "flex h-10 w-10 items-center justify-center rounded-lg transition-colors",
+                                                        active
+                                                            ? "bg-blue-600 text-white shadow-md shadow-blue-200"
+                                                            : "bg-white border border-slate-200 text-slate-400 group-hover:border-blue-200 group-hover:text-blue-500"
+                                                    )}
+                                                >
+                                                    <item.icon
+                                                        className="h-5 w-5"
+                                                        aria-hidden="true"
+                                                    />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <p
+                                                        className={classNames(
+                                                            "text-sm font-semibold",
+                                                            active
+                                                                ? "text-slate-900"
+                                                                : "text-slate-600"
+                                                        )}
+                                                    >
+                                                        {item.name}
+                                                    </p>
+                                                    <p className="text-xs text-slate-400">
+                                                        {item.description}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </Link>
+                                    </li>
+                                );
+                            })}
                         </ul>
                     </li>
+
                     <li className="mt-auto">
-                        <div className="flex items-center gap-x-4 px-2 py-3 text-sm font-semibold leading-6 text-gray-900">
-                            <div className="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center">
-                                <UserIcon className="h-4 w-4 text-white" />
+                        <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+                            <div className="h-9 w-9 rounded-full bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-semibold text-sm shadow-sm">
+                                {user?.username?.charAt(0)?.toUpperCase() || (
+                                    <UserIcon className="h-4 w-4" />
+                                )}
                             </div>
-                            <span className="sr-only">Your profile</span>
-                            <div className="flex flex-col">
-                                <span aria-hidden="true">{user?.username}</span>
-                                <span className="text-xs text-gray-500 capitalize">{user?.role}</span>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-sm font-semibold text-slate-900 truncate">
+                                    {user?.username}
+                                </p>
+                                <p className="text-xs text-slate-500 capitalize truncate">
+                                    {user?.role}
+                                </p>
                             </div>
                         </div>
                     </li>
@@ -93,7 +169,10 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen, currentPath }) {
         <>
             {/* Mobile sidebar */}
             <Transition show={sidebarOpen} as={Fragment}>
-                <Dialog className="relative z-50 lg:hidden" onClose={setSidebarOpen}>
+                <Dialog
+                    className="relative z-50 lg:hidden"
+                    onClose={setSidebarOpen}
+                >
                     <TransitionChild
                         as={Fragment}
                         enter="transition-opacity ease-linear duration-300"
@@ -127,9 +206,20 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen, currentPath }) {
                                     leaveTo="opacity-0"
                                 >
                                     <div className="absolute left-full top-0 flex w-16 justify-center pt-5">
-                                        <button type="button" className="-m-2.5 p-2.5" onClick={() => setSidebarOpen(false)}>
-                                            <span className="sr-only">Close sidebar</span>
-                                            <XMarkIcon className="h-6 w-6 text-white" aria-hidden="true" />
+                                        <button
+                                            type="button"
+                                            className="-m-2.5 p-2.5"
+                                            onClick={() =>
+                                                setSidebarOpen(false)
+                                            }
+                                        >
+                                            <span className="sr-only">
+                                                Close sidebar
+                                            </span>
+                                            <XMarkIcon
+                                                className="h-6 w-6 text-white"
+                                                aria-hidden="true"
+                                            />
                                         </button>
                                     </div>
                                 </TransitionChild>

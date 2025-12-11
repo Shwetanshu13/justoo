@@ -1,6 +1,10 @@
-import { db } from '../db/index.js';
-import { items as itemTable, orders as ordersTable, orderItems as orderItemsTable } from '@justoo/db';
-import { eq, sql, desc, and, like } from 'drizzle-orm';
+import { db } from "../db/index.js";
+import {
+    items as itemTable,
+    orders as ordersTable,
+    orderItems as orderItemsTable,
+} from "@justoo/db";
+import { eq, sql, desc, and, like, inArray } from "drizzle-orm";
 
 // Update item quantity when order is placed
 export const processOrderPlacement = async (req, res) => {
@@ -10,10 +14,14 @@ export const processOrderPlacement = async (req, res) => {
         // Use external user ID or default to system user (1)
         const userId = externalUserId || 1;
 
-        if (!orderItems || !Array.isArray(orderItems) || orderItems.length === 0) {
+        if (
+            !orderItems ||
+            !Array.isArray(orderItems) ||
+            orderItems.length === 0
+        ) {
             return res.status(400).json({
                 success: false,
-                message: 'Order items array is required and must not be empty'
+                message: "Order items array is required and must not be empty",
             });
         }
 
@@ -22,7 +30,8 @@ export const processOrderPlacement = async (req, res) => {
             if (!item.itemId || !item.quantity || item.quantity <= 0) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Each order item must have itemId and positive quantity'
+                    message:
+                        "Each order item must have itemId and positive quantity",
                 });
             }
         }
@@ -38,13 +47,15 @@ export const processOrderPlacement = async (req, res) => {
                 const { itemId, quantity } = orderItem;
 
                 // Check if item exists and get current quantity
-                const currentItem = await db.select().from(itemTable)
+                const currentItem = await db
+                    .select()
+                    .from(itemTable)
                     .where(eq(itemTable.id, parseInt(itemId)));
 
                 if (currentItem.length === 0) {
                     errors.push({
                         itemId,
-                        error: 'Item not found'
+                        error: "Item not found",
                     });
                     continue;
                 }
@@ -55,7 +66,7 @@ export const processOrderPlacement = async (req, res) => {
                 if (item.isActive !== 1) {
                     errors.push({
                         itemId,
-                        error: 'Item is not active'
+                        error: "Item is not active",
                     });
                     continue;
                 }
@@ -64,7 +75,7 @@ export const processOrderPlacement = async (req, res) => {
                 if (item.quantity < quantity) {
                     errors.push({
                         itemId,
-                        error: `Insufficient stock. Available: ${item.quantity}, Requested: ${quantity}`
+                        error: `Insufficient stock. Available: ${item.quantity}, Requested: ${quantity}`,
                     });
                     continue;
                 }
@@ -80,15 +91,16 @@ export const processOrderPlacement = async (req, res) => {
                     quantity: quantity,
                     unitPrice: item.price,
                     totalPrice: itemTotal.toFixed(2),
-                    unit: item.unit
+                    unit: item.unit,
                 });
 
                 // Update quantity (subtract the ordered quantity)
                 const newQuantity = item.quantity - quantity;
-                const updatedItem = await db.update(itemTable)
+                const updatedItem = await db
+                    .update(itemTable)
                     .set({
                         quantity: newQuantity,
-                        updatedAt: new Date()
+                        updatedAt: new Date(),
                     })
                     .where(eq(itemTable.id, parseInt(itemId)))
                     .returning();
@@ -98,13 +110,12 @@ export const processOrderPlacement = async (req, res) => {
                     previousQuantity: item.quantity,
                     orderedQuantity: quantity,
                     newQuantity: newQuantity,
-                    item: updatedItem[0]
+                    item: updatedItem[0],
                 });
-
             } catch (error) {
                 errors.push({
                     itemId: orderItem.itemId,
-                    error: error.message
+                    error: error.message,
                 });
             }
         }
@@ -113,8 +124,8 @@ export const processOrderPlacement = async (req, res) => {
         if (errors.length > 0 && results.length === 0) {
             return res.status(400).json({
                 success: false,
-                message: 'Order processing failed',
-                errors
+                message: "Order processing failed",
+                errors,
             });
         }
 
@@ -123,20 +134,23 @@ export const processOrderPlacement = async (req, res) => {
         if (results.length > 0) {
             const orderData = {
                 userId,
-                status: 'placed',
+                status: "placed",
                 totalAmount: totalAmount.toFixed(2),
                 itemCount: results.length,
-                notes: notes || null
+                notes: notes || null,
             };
 
             // Add external order ID to notes if provided
             if (externalOrderId) {
-                orderData.notes = orderData.notes ?
-                    `${orderData.notes} | External Order ID: ${externalOrderId}` :
-                    `External Order ID: ${externalOrderId}`;
+                orderData.notes = orderData.notes
+                    ? `${orderData.notes} | External Order ID: ${externalOrderId}`
+                    : `External Order ID: ${externalOrderId}`;
             }
 
-            const newOrder = await db.insert(ordersTable).values(orderData).returning();
+            const newOrder = await db
+                .insert(ordersTable)
+                .values(orderData)
+                .returning();
 
             orderRecord = newOrder[0];
 
@@ -144,7 +158,7 @@ export const processOrderPlacement = async (req, res) => {
             for (const orderItemData of orderItemsData) {
                 await db.insert(orderItemsTable).values({
                     orderId: orderRecord.id,
-                    ...orderItemData
+                    ...orderItemData,
                 });
             }
         }
@@ -155,27 +169,30 @@ export const processOrderPlacement = async (req, res) => {
             data: {
                 order: orderRecord,
                 successful: results,
-                failed: errors
-            }
+                failed: errors,
+            },
         });
-
     } catch (error) {
-        console.error('Error processing order placement:', error);
+        console.error("Error processing order placement:", error);
         res.status(500).json({
             success: false,
-            message: 'Internal server error',
-            error: error.message
+            message: "Internal server error",
+            error: error.message,
         });
     }
-};// Update item quantity when order is cancelled
+}; // Update item quantity when order is cancelled
 export const processOrderCancellation = async (req, res) => {
     try {
         const { orderItems } = req.body; // Array of { itemId, quantity }
 
-        if (!orderItems || !Array.isArray(orderItems) || orderItems.length === 0) {
+        if (
+            !orderItems ||
+            !Array.isArray(orderItems) ||
+            orderItems.length === 0
+        ) {
             return res.status(400).json({
                 success: false,
-                message: 'Order items array is required and must not be empty'
+                message: "Order items array is required and must not be empty",
             });
         }
 
@@ -184,7 +201,8 @@ export const processOrderCancellation = async (req, res) => {
             if (!item.itemId || !item.quantity || item.quantity <= 0) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Each order item must have itemId and positive quantity'
+                    message:
+                        "Each order item must have itemId and positive quantity",
                 });
             }
         }
@@ -198,13 +216,15 @@ export const processOrderCancellation = async (req, res) => {
                 const { itemId, quantity } = orderItem;
 
                 // Check if item exists
-                const currentItem = await db.select().from(itemTable)
+                const currentItem = await db
+                    .select()
+                    .from(itemTable)
                     .where(eq(itemTable.id, parseInt(itemId)));
 
                 if (currentItem.length === 0) {
                     errors.push({
                         itemId,
-                        error: 'Item not found'
+                        error: "Item not found",
                     });
                     continue;
                 }
@@ -213,10 +233,11 @@ export const processOrderCancellation = async (req, res) => {
 
                 // Update quantity (add back the cancelled quantity)
                 const newQuantity = item.quantity + quantity;
-                const updatedItem = await db.update(itemTable)
+                const updatedItem = await db
+                    .update(itemTable)
                     .set({
                         quantity: newQuantity,
-                        updatedAt: new Date()
+                        updatedAt: new Date(),
                     })
                     .where(eq(itemTable.id, parseInt(itemId)))
                     .returning();
@@ -226,13 +247,12 @@ export const processOrderCancellation = async (req, res) => {
                     previousQuantity: item.quantity,
                     cancelledQuantity: quantity,
                     newQuantity: newQuantity,
-                    item: updatedItem[0]
+                    item: updatedItem[0],
                 });
-
             } catch (error) {
                 errors.push({
                     itemId: orderItem.itemId,
-                    error: error.message
+                    error: error.message,
                 });
             }
         }
@@ -241,8 +261,8 @@ export const processOrderCancellation = async (req, res) => {
         if (errors.length > 0 && results.length === 0) {
             return res.status(400).json({
                 success: false,
-                message: 'Order cancellation processing failed',
-                errors
+                message: "Order cancellation processing failed",
+                errors,
             });
         }
 
@@ -251,16 +271,15 @@ export const processOrderCancellation = async (req, res) => {
             message: `Order cancellation processed. ${results.length} items updated successfully.`,
             data: {
                 successful: results,
-                failed: errors
-            }
+                failed: errors,
+            },
         });
-
     } catch (error) {
-        console.error('Error processing order cancellation:', error);
+        console.error("Error processing order cancellation:", error);
         res.status(500).json({
             success: false,
-            message: 'Internal server error',
-            error: error.message
+            message: "Internal server error",
+            error: error.message,
         });
     }
 };
@@ -273,30 +292,37 @@ export const bulkUpdateQuantities = async (req, res) => {
         if (!updates || !Array.isArray(updates) || updates.length === 0) {
             return res.status(400).json({
                 success: false,
-                message: 'Updates array is required and must not be empty'
+                message: "Updates array is required and must not be empty",
             });
         }
 
         // Validate updates structure
         for (const update of updates) {
-            if (!update.itemId || update.quantity === undefined || !update.operation) {
+            if (
+                !update.itemId ||
+                update.quantity === undefined ||
+                !update.operation
+            ) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Each update must have itemId, quantity, and operation (set/add/subtract)'
+                    message:
+                        "Each update must have itemId, quantity, and operation (set/add/subtract)",
                 });
             }
 
-            if (!['set', 'add', 'subtract'].includes(update.operation)) {
+            if (!["set", "add", "subtract"].includes(update.operation)) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Operation must be either "set", "add", or "subtract"'
+                    message:
+                        'Operation must be either "set", "add", or "subtract"',
                 });
             }
 
-            if (update.quantity < 0 && update.operation === 'set') {
+            if (update.quantity < 0 && update.operation === "set") {
                 return res.status(400).json({
                     success: false,
-                    message: 'Quantity cannot be negative when operation is "set"'
+                    message:
+                        'Quantity cannot be negative when operation is "set"',
                 });
             }
         }
@@ -310,13 +336,15 @@ export const bulkUpdateQuantities = async (req, res) => {
                 const { itemId, quantity, operation } = update;
 
                 // Check if item exists
-                const currentItem = await db.select().from(itemTable)
+                const currentItem = await db
+                    .select()
+                    .from(itemTable)
                     .where(eq(itemTable.id, parseInt(itemId)));
 
                 if (currentItem.length === 0) {
                     errors.push({
                         itemId,
-                        error: 'Item not found'
+                        error: "Item not found",
                     });
                     continue;
                 }
@@ -326,18 +354,18 @@ export const bulkUpdateQuantities = async (req, res) => {
 
                 // Calculate new quantity based on operation
                 switch (operation) {
-                    case 'set':
+                    case "set":
                         newQuantity = quantity;
                         break;
-                    case 'add':
+                    case "add":
                         newQuantity = item.quantity + quantity;
                         break;
-                    case 'subtract':
+                    case "subtract":
                         newQuantity = item.quantity - quantity;
                         if (newQuantity < 0) {
                             errors.push({
                                 itemId,
-                                error: `Cannot subtract ${quantity} from current quantity ${item.quantity}. Result would be negative.`
+                                error: `Cannot subtract ${quantity} from current quantity ${item.quantity}. Result would be negative.`,
                             });
                             continue;
                         }
@@ -345,10 +373,11 @@ export const bulkUpdateQuantities = async (req, res) => {
                 }
 
                 // Update the item
-                const updatedItem = await db.update(itemTable)
+                const updatedItem = await db
+                    .update(itemTable)
                     .set({
                         quantity: newQuantity,
-                        updatedAt: new Date()
+                        updatedAt: new Date(),
                     })
                     .where(eq(itemTable.id, parseInt(itemId)))
                     .returning();
@@ -359,13 +388,12 @@ export const bulkUpdateQuantities = async (req, res) => {
                     previousQuantity: item.quantity,
                     changeAmount: quantity,
                     newQuantity: newQuantity,
-                    item: updatedItem[0]
+                    item: updatedItem[0],
                 });
-
             } catch (error) {
                 errors.push({
                     itemId: update.itemId,
-                    error: error.message
+                    error: error.message,
                 });
             }
         }
@@ -374,8 +402,8 @@ export const bulkUpdateQuantities = async (req, res) => {
         if (errors.length > 0 && results.length === 0) {
             return res.status(400).json({
                 success: false,
-                message: 'Bulk update failed',
-                errors
+                message: "Bulk update failed",
+                errors,
             });
         }
 
@@ -384,16 +412,15 @@ export const bulkUpdateQuantities = async (req, res) => {
             message: `Bulk update processed. ${results.length} items updated successfully.`,
             data: {
                 successful: results,
-                failed: errors
-            }
+                failed: errors,
+            },
         });
-
     } catch (error) {
-        console.error('Error processing bulk update:', error);
+        console.error("Error processing bulk update:", error);
         res.status(500).json({
             success: false,
-            message: 'Internal server error',
-            error: error.message
+            message: "Internal server error",
+            error: error.message,
         });
     }
 };
@@ -406,7 +433,7 @@ export const checkStockAvailability = async (req, res) => {
         if (!items || !Array.isArray(items) || items.length === 0) {
             return res.status(400).json({
                 success: false,
-                message: 'Items array is required and must not be empty'
+                message: "Items array is required and must not be empty",
             });
         }
 
@@ -421,13 +448,15 @@ export const checkStockAvailability = async (req, res) => {
             }
 
             // Get current item
-            const currentItem = await db.select().from(itemTable)
+            const currentItem = await db
+                .select()
+                .from(itemTable)
                 .where(eq(itemTable.id, parseInt(itemId)));
 
             if (currentItem.length === 0) {
                 unavailableItems.push({
                     itemId,
-                    reason: 'Item not found'
+                    reason: "Item not found",
                 });
                 continue;
             }
@@ -437,7 +466,7 @@ export const checkStockAvailability = async (req, res) => {
             if (item.isActive !== 1) {
                 unavailableItems.push({
                     itemId,
-                    reason: 'Item is not active'
+                    reason: "Item is not active",
                 });
                 continue;
             }
@@ -450,13 +479,13 @@ export const checkStockAvailability = async (req, res) => {
                 currentQuantity: item.quantity,
                 requiredQuantity,
                 isAvailable,
-                shortfall: isAvailable ? 0 : requiredQuantity - item.quantity
+                shortfall: isAvailable ? 0 : requiredQuantity - item.quantity,
             });
 
             if (!isAvailable) {
                 unavailableItems.push({
                     itemId,
-                    reason: `Insufficient stock. Available: ${item.quantity}, Required: ${requiredQuantity}`
+                    reason: `Insufficient stock. Available: ${item.quantity}, Required: ${requiredQuantity}`,
                 });
             }
         }
@@ -468,16 +497,15 @@ export const checkStockAvailability = async (req, res) => {
             data: {
                 allAvailable,
                 stockCheck: results,
-                unavailableItems
-            }
+                unavailableItems,
+            },
         });
-
     } catch (error) {
-        console.error('Error checking stock availability:', error);
+        console.error("Error checking stock availability:", error);
         res.status(500).json({
             success: false,
-            message: 'Internal server error',
-            error: error.message
+            message: "Internal server error",
+            error: error.message,
         });
     }
 };
@@ -485,7 +513,13 @@ export const checkStockAvailability = async (req, res) => {
 // Get all orders with details (for viewing order history)
 export const getAllOrders = async (req, res) => {
     try {
-        const { page = 1, limit = 20, status, userId, externalUserId } = req.query;
+        const {
+            page = 1,
+            limit = 20,
+            status,
+            userId,
+            externalUserId,
+        } = req.query;
         const offset = (parseInt(page) - 1) * parseInt(limit);
 
         let whereConditions = [];
@@ -497,7 +531,11 @@ export const getAllOrders = async (req, res) => {
 
         // Filter by externalUserId (search in notes field)
         if (externalUserId) {
-            whereConditions.push(sql`${ordersTable.notes} LIKE ${`%External Order ID: ${externalUserId}%`}`);
+            whereConditions.push(
+                sql`${
+                    ordersTable.notes
+                } LIKE ${`%External Order ID: ${externalUserId}%`}`
+            );
         }
 
         // Filter by status if provided
@@ -505,19 +543,40 @@ export const getAllOrders = async (req, res) => {
             whereConditions.push(eq(ordersTable.status, status));
         }
 
-        const finalWhereCondition = whereConditions.length > 0 ?
-            (whereConditions.length === 1 ? whereConditions[0] : and(...whereConditions)) :
-            undefined;
+        const finalWhereCondition =
+            whereConditions.length > 0
+                ? whereConditions.length === 1
+                    ? whereConditions[0]
+                    : and(...whereConditions)
+                : undefined;
 
         // Get orders
-        const orders = await db.select().from(ordersTable)
+        const orders = await db
+            .select()
+            .from(ordersTable)
             .where(finalWhereCondition)
             .limit(parseInt(limit))
             .offset(offset)
             .orderBy(desc(ordersTable.createdAt));
 
+        // Fetch items for these orders
+        if (orders.length > 0) {
+            const orderIds = orders.map((order) => order.id);
+            const items = await db
+                .select()
+                .from(orderItemsTable)
+                .where(inArray(orderItemsTable.orderId, orderIds));
+
+            // Attach items to orders
+            orders.forEach((order) => {
+                order.items = items.filter((item) => item.orderId === order.id);
+            });
+        }
+
         // Get total count for pagination
-        const totalCount = await db.select({ count: sql`count(*)` }).from(ordersTable)
+        const totalCount = await db
+            .select({ count: sql`count(*)` })
+            .from(ordersTable)
             .where(finalWhereCondition);
 
         res.status(200).json({
@@ -527,16 +586,17 @@ export const getAllOrders = async (req, res) => {
                 page: parseInt(page),
                 limit: parseInt(limit),
                 total: parseInt(totalCount[0].count),
-                totalPages: Math.ceil(parseInt(totalCount[0].count) / parseInt(limit))
-            }
+                totalPages: Math.ceil(
+                    parseInt(totalCount[0].count) / parseInt(limit)
+                ),
+            },
         });
-
     } catch (error) {
-        console.error('Error fetching orders:', error);
+        console.error("Error fetching orders:", error);
         res.status(500).json({
             success: false,
-            message: 'Internal server error',
-            error: error.message
+            message: "Internal server error",
+            error: error.message,
         });
     }
 };
@@ -550,7 +610,7 @@ export const getOrderById = async (req, res) => {
         if (!id) {
             return res.status(400).json({
                 success: false,
-                message: 'Order ID is required'
+                message: "Order ID is required",
             });
         }
 
@@ -563,25 +623,31 @@ export const getOrderById = async (req, res) => {
 
         // Filter by externalUserId (search in notes field)
         if (externalUserId) {
-            whereConditions.push(sql`${ordersTable.notes} LIKE ${`%External Order ID: ${externalUserId}%`}`);
+            whereConditions.push(
+                sql`${
+                    ordersTable.notes
+                } LIKE ${`%External Order ID: ${externalUserId}%`}`
+            );
         }
 
-        const whereCondition = whereConditions.length === 1 ?
-            whereConditions[0] :
-            and(...whereConditions);
+        const whereCondition =
+            whereConditions.length === 1
+                ? whereConditions[0]
+                : and(...whereConditions);
 
-        const order = await db.select().from(ordersTable)
-            .where(whereCondition);
+        const order = await db.select().from(ordersTable).where(whereCondition);
 
         if (order.length === 0) {
             return res.status(404).json({
                 success: false,
-                message: 'Order not found'
+                message: "Order not found",
             });
         }
 
         // Get order items
-        const orderItems = await db.select().from(orderItemsTable)
+        const orderItems = await db
+            .select()
+            .from(orderItemsTable)
             .where(eq(orderItemsTable.orderId, parseInt(id)))
             .orderBy(orderItemsTable.createdAt);
 
@@ -589,16 +655,15 @@ export const getOrderById = async (req, res) => {
             success: true,
             data: {
                 order: order[0],
-                items: orderItems
-            }
+                items: orderItems,
+            },
         });
-
     } catch (error) {
-        console.error('Error fetching order:', error);
+        console.error("Error fetching order:", error);
         res.status(500).json({
             success: false,
-            message: 'Internal server error',
-            error: error.message
+            message: "Internal server error",
+            error: error.message,
         });
     }
 };
@@ -611,23 +676,31 @@ export const getOrderByExternalId = async (req, res) => {
         if (!externalId) {
             return res.status(400).json({
                 success: false,
-                message: 'External order ID is required'
+                message: "External order ID is required",
             });
         }
 
         // Search for order by external ID in notes field
-        const order = await db.select().from(ordersTable)
-            .where(sql`${ordersTable.notes} LIKE ${`%External Order ID: ${externalId}%`}`);
+        const order = await db
+            .select()
+            .from(ordersTable)
+            .where(
+                sql`${
+                    ordersTable.notes
+                } LIKE ${`%External Order ID: ${externalId}%`}`
+            );
 
         if (order.length === 0) {
             return res.status(404).json({
                 success: false,
-                message: 'Order not found with the provided external ID'
+                message: "Order not found with the provided external ID",
             });
         }
 
         // Get order items for the found order
-        const orderItems = await db.select().from(orderItemsTable)
+        const orderItems = await db
+            .select()
+            .from(orderItemsTable)
             .where(eq(orderItemsTable.orderId, order[0].id))
             .orderBy(orderItemsTable.createdAt);
 
@@ -635,16 +708,15 @@ export const getOrderByExternalId = async (req, res) => {
             success: true,
             data: {
                 order: order[0],
-                items: orderItems
-            }
+                items: orderItems,
+            },
         });
-
     } catch (error) {
-        console.error('Error fetching order by external ID:', error);
+        console.error("Error fetching order by external ID:", error);
         res.status(500).json({
             success: false,
-            message: 'Internal server error',
-            error: error.message
+            message: "Internal server error",
+            error: error.message,
         });
     }
 };

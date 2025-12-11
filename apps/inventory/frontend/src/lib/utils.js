@@ -1,22 +1,23 @@
-import { format } from 'date-fns';
+import { format } from "date-fns";
 
 // Format currency
 export const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-IN', {
-        style: 'currency',
-        currency: 'INR',
+    const value = typeof amount === "string" ? parseFloat(amount) : amount;
+    return new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
         minimumFractionDigits: 2,
-    }).format(amount);
+    }).format(value || 0);
 };
 
 // Format date
 export const formatDate = (date) => {
-    return format(new Date(date), 'MMM dd, yyyy');
+    return format(new Date(date), "MMM dd, yyyy");
 };
 
 // Format date and time
 export const formatDateTime = (date) => {
-    return format(new Date(date), 'MMM dd, yyyy HH:mm');
+    return format(new Date(date), "MMM dd, yyyy HH:mm");
 };
 
 // Capitalize first letter
@@ -26,9 +27,11 @@ export const capitalize = (str) => {
 
 // Get stock status
 export const getStockStatus = (quantity, minStockLevel) => {
-    if (quantity === 0) return { status: 'out', color: 'red', text: 'Out of Stock' };
-    if (quantity <= minStockLevel) return { status: 'low', color: 'yellow', text: 'Low Stock' };
-    return { status: 'in', color: 'green', text: 'In Stock' };
+    if (quantity === 0)
+        return { status: "out", color: "red", text: "Out of Stock" };
+    if (quantity <= minStockLevel)
+        return { status: "low", color: "yellow", text: "Low Stock" };
+    return { status: "in", color: "green", text: "In Stock" };
 };
 
 // Validate email
@@ -48,26 +51,31 @@ export const debounce = (func, delay) => {
 
 // Units mapping
 export const UNITS = {
-    kg: 'Kilogram',
-    grams: 'Grams',
-    ml: 'Milliliter',
-    litre: 'Liter',
-    pieces: 'Pieces',
-    dozen: 'Dozen',
-    packet: 'Packet',
-    bottle: 'Bottle',
-    can: 'Can'
+    kg: "Kilogram",
+    grams: "Grams",
+    ml: "Milliliter",
+    litre: "Liter",
+    pieces: "Pieces",
+    dozen: "Dozen",
+    packet: "Packet",
+    bottle: "Bottle",
+    can: "Can",
 };
 
 // Role mapping
 export const ROLES = {
-    admin: 'Administrator',
-    viewer: 'Viewer'
+    admin: "Administrator",
+    viewer: "Viewer",
 };
 
 // Order status mapping
 export const ORDER_STATUS = {
-    placed: { text: 'Placed', color: 'blue' },
-    cancelled: { text: 'Cancelled', color: 'red' },
-    completed: { text: 'Completed', color: 'green' }
+    placed: { text: "Placed", color: "blue" },
+    confirmed: { text: "Confirmed", color: "indigo" },
+    preparing: { text: "Preparing", color: "amber" },
+    ready: { text: "Ready", color: "purple" },
+    out_for_delivery: { text: "Out for Delivery", color: "orange" },
+    delivered: { text: "Delivered", color: "emerald" },
+    completed: { text: "Completed", color: "emerald" },
+    cancelled: { text: "Cancelled", color: "rose" },
 };
