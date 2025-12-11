@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { Fragment } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { Dialog, Transition } from '@headlessui/react';
+import { Fragment } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { Dialog, Transition } from "@headlessui/react";
 import {
     HomeIcon,
     UsersIcon,
@@ -13,21 +13,31 @@ import {
     Cog6ToothIcon,
     XMarkIcon,
     ShieldCheckIcon,
-} from '@heroicons/react/24/outline';
-import { useAuth } from '@/contexts/AuthContext';
-import Link from 'next/link';
+} from "@heroicons/react/24/outline";
+import { useAuth } from "@/contexts/AuthContext";
+import Link from "next/link";
 
 const navigation = [
-    { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
-    { name: 'Orders', href: '/dashboard/orders', icon: DocumentTextIcon },
-    { name: 'Riders', href: '/dashboard/riders', icon: TruckIcon },
-    { name: 'Admins', href: '/dashboard/admins', icon: UsersIcon, superAdminOnly: true },
-    { name: 'Inventory Admins', href: '/dashboard/inventory-admins', icon: ShieldCheckIcon, superAdminOnly: true },
-    { name: 'Analytics', href: '/dashboard/analytics', icon: ChartBarIcon },
+    { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
+    { name: "Orders", href: "/dashboard/orders", icon: DocumentTextIcon },
+    { name: "Riders", href: "/dashboard/riders", icon: TruckIcon },
+    {
+        name: "Admins",
+        href: "/dashboard/admins",
+        icon: UsersIcon,
+        superAdminOnly: true,
+    },
+    {
+        name: "Inventory Admins",
+        href: "/dashboard/inventory-admins",
+        icon: ShieldCheckIcon,
+        superAdminOnly: true,
+    },
+    { name: "Analytics", href: "/dashboard/analytics", icon: ChartBarIcon },
 ];
 
 function classNames(...classes) {
-    return classes.filter(Boolean).join(' ');
+    return classes.filter(Boolean).join(" ");
 }
 
 export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
@@ -35,44 +45,50 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
     const { user } = useAuth();
 
     // Filter navigation based on user role
-    const filteredNavigation = navigation.filter(item => {
-        if (item.superAdminOnly && user?.role !== 'superadmin') {
+    const filteredNavigation = navigation.filter((item) => {
+        if (item.superAdminOnly && user?.role !== "superadmin") {
             return false;
         }
         return true;
     });
 
     const SidebarContent = () => (
-        <div className="flex flex-col h-0 flex-1 bg-gray-800">
-            <div className="flex items-center h-16 flex-shrink-0 px-4 bg-gray-900">
-                <div className="flex items-center">
-                    <ShieldCheckIcon className="h-8 w-8 text-white" />
-                    <span className="ml-2 text-white text-lg font-semibold">
-                        Admin Panel
+        <div className="flex flex-col h-full bg-white border-r border-gray-200">
+            <div className="flex items-center h-16 flex-shrink-0 px-6 border-b border-gray-200">
+                <div className="flex items-center gap-3">
+                    <div className="p-1.5 bg-primary-600 rounded-lg">
+                        <ShieldCheckIcon className="h-6 w-6 text-white" />
+                    </div>
+                    <span className="text-gray-900 text-lg font-bold tracking-tight">
+                        Justoo Admin
                     </span>
                 </div>
             </div>
 
-            <div className="flex-1 flex flex-col overflow-y-auto">
-                <nav className="flex-1 px-2 py-4 bg-gray-800 space-y-1">
+            <div className="flex-1 flex flex-col overflow-y-auto pt-5 pb-4">
+                <nav className="mt-2 flex-1 px-3 space-y-1">
                     {filteredNavigation.map((item) => {
-                        const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+                        const isActive =
+                            pathname === item.href ||
+                            pathname.startsWith(item.href + "/");
                         return (
                             <Link
                                 key={item.name}
                                 href={item.href}
                                 className={classNames(
                                     isActive
-                                        ? 'bg-gray-900 text-white'
-                                        : 'text-gray-300 hover:bg-gray-700 hover:text-white',
-                                    'group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors duration-200'
+                                        ? "bg-primary-50 text-primary-600"
+                                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
+                                    "group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200"
                                 )}
                                 onClick={() => setSidebarOpen(false)}
                             >
                                 <item.icon
                                     className={classNames(
-                                        isActive ? 'text-gray-300' : 'text-gray-400 group-hover:text-gray-300',
-                                        'mr-3 flex-shrink-0 h-6 w-6'
+                                        isActive
+                                            ? "text-primary-600"
+                                            : "text-gray-400 group-hover:text-gray-500",
+                                        "mr-3 flex-shrink-0 h-5 w-5 transition-colors duration-200"
                                     )}
                                     aria-hidden="true"
                                 />
@@ -81,20 +97,22 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
                         );
                     })}
                 </nav>
+            </div>
 
-                <div className="flex-shrink-0 flex bg-gray-700 p-4">
-                    <div className="flex items-center">
-                        <div className="flex-shrink-0">
-                            <div className="h-8 w-8 rounded-full bg-gray-500 flex items-center justify-center">
-                                <span className="text-sm font-medium text-white">
-                                    {user?.username?.[0]?.toUpperCase()}
-                                </span>
-                            </div>
+            <div className="flex-shrink-0 border-t border-gray-200 p-4">
+                <div className="flex items-center group w-full">
+                    <div className="inline-block h-9 w-9 rounded-full overflow-hidden bg-gray-100">
+                        <div className="h-full w-full flex items-center justify-center bg-primary-100 text-primary-600 font-medium">
+                            {user?.username?.[0]?.toUpperCase()}
                         </div>
-                        <div className="ml-3">
-                            <p className="text-sm font-medium text-white">{user?.username}</p>
-                            <p className="text-xs font-medium text-gray-300 capitalize">{user?.role}</p>
-                        </div>
+                    </div>
+                    <div className="ml-3">
+                        <p className="text-sm font-medium text-gray-700 group-hover:text-gray-900">
+                            {user?.username}
+                        </p>
+                        <p className="text-xs font-medium text-gray-500 group-hover:text-gray-700 capitalize">
+                            {user?.role}
+                        </p>
                     </div>
                 </div>
             </div>
@@ -105,7 +123,11 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
         <>
             {/* Mobile sidebar */}
             <Transition.Root show={sidebarOpen} as={Fragment}>
-                <Dialog as="div" className="relative z-40 md:hidden" onClose={setSidebarOpen}>
+                <Dialog
+                    as="div"
+                    className="relative z-40 md:hidden"
+                    onClose={setSidebarOpen}
+                >
                     <Transition.Child
                         as={Fragment}
                         enter="transition-opacity ease-linear duration-300"
@@ -115,7 +137,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
                         leaveFrom="opacity-100"
                         leaveTo="opacity-0"
                     >
-                        <div className="fixed inset-0 bg-gray-600 bg-opacity-75" />
+                        <div className="fixed inset-0 bg-gray-600 bg-opacity-75 backdrop-blur-sm" />
                     </Transition.Child>
 
                     <div className="fixed inset-0 flex z-40">
@@ -142,22 +164,32 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
                                         <button
                                             type="button"
                                             className="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
-                                            onClick={() => setSidebarOpen(false)}
+                                            onClick={() =>
+                                                setSidebarOpen(false)
+                                            }
                                         >
-                                            <span className="sr-only">Close sidebar</span>
-                                            <XMarkIcon className="h-6 w-6 text-white" aria-hidden="true" />
+                                            <span className="sr-only">
+                                                Close sidebar
+                                            </span>
+                                            <XMarkIcon
+                                                className="h-6 w-6 text-white"
+                                                aria-hidden="true"
+                                            />
                                         </button>
                                     </div>
                                 </Transition.Child>
                                 <SidebarContent />
                             </Dialog.Panel>
                         </Transition.Child>
+                        <div className="flex-shrink-0 w-14">
+                            {/* Force sidebar to shrink to fit close icon */}
+                        </div>
                     </div>
                 </Dialog>
             </Transition.Root>
 
             {/* Static sidebar for desktop */}
-            <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0">
+            <div className="hidden md:flex md:w-72 md:flex-col md:fixed md:inset-y-0">
                 <SidebarContent />
             </div>
         </>
