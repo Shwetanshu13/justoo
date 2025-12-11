@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@/admin/*": ["./src/admin/*"],
+      "@/inventory/*": ["./src/inventory/*"]
+    }
+  },
+  "exclude": ["node_modules"]
+}
