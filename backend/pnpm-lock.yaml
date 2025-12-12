@@ -11,9 +11,6 @@ importers:
       '@dotenvx/dotenvx':
         specifier: ^1.49.0
         version: 1.51.1
-      '@justoo/db':
-        specifier: file:../packages/db
-        version: file:../packages/db(@neondatabase/serverless@1.0.2)(@types/pg@8.16.0)(pg@8.16.3)
       '@neondatabase/serverless':
         specifier: ^1.0.1
         version: 1.0.2
@@ -386,9 +383,6 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
-
-  '@justoo/db@file:../packages/db':
-    resolution: {directory: ../packages/db, type: directory}
 
   '@mongodb-js/saslprep@1.4.0':
     resolution: {integrity: sha512-ZHzx7Z3rdlWL1mECydvpryWN/ETXJiCxdgQKTAH+djzIPe77HdnSizKBDi1TVDXZjXyOj2IqEG/vPw71ULF06w==}
@@ -1483,40 +1477,6 @@ snapshots:
 
   '@esbuild/win32-x64@0.25.12':
     optional: true
-
-  '@justoo/db@file:../packages/db(@neondatabase/serverless@1.0.2)(@types/pg@8.16.0)(pg@8.16.3)':
-    dependencies:
-      drizzle-orm: 0.44.7(@neondatabase/serverless@1.0.2)(@types/pg@8.16.0)(pg@8.16.3)
-    transitivePeerDependencies:
-      - '@aws-sdk/client-rds-data'
-      - '@cloudflare/workers-types'
-      - '@electric-sql/pglite'
-      - '@libsql/client'
-      - '@libsql/client-wasm'
-      - '@neondatabase/serverless'
-      - '@op-engineering/op-sqlite'
-      - '@opentelemetry/api'
-      - '@planetscale/database'
-      - '@prisma/client'
-      - '@tidbcloud/serverless'
-      - '@types/better-sqlite3'
-      - '@types/pg'
-      - '@types/sql.js'
-      - '@upstash/redis'
-      - '@vercel/postgres'
-      - '@xata.io/client'
-      - better-sqlite3
-      - bun-types
-      - expo-sqlite
-      - gel
-      - knex
-      - kysely
-      - mysql2
-      - pg
-      - postgres
-      - prisma
-      - sql.js
-      - sqlite3
 
   '@mongodb-js/saslprep@1.4.0':
     dependencies:
