@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/admin/contexts/AuthContext";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
     UsersIcon,
     ShoppingBagIcon,
@@ -112,6 +112,9 @@ const StatsCard = ({
         orange: "bg-orange-50 text-orange-600",
     };
 
+    // Fallback in case an icon isn't provided to avoid runtime element type errors
+    const ResolvedIcon = Icon || CurrencyDollarIcon;
+
     return (
         <div className="bg-white overflow-hidden rounded-xl border border-gray-200 hover:shadow-md transition-shadow duration-200">
             <div className="p-5">
@@ -125,16 +128,17 @@ const StatsCard = ({
                         </p>
                     </div>
                     <div className={`p-3 rounded-lg ${colorClasses[color]}`}>
-                        <Icon className="w-6 h-6" />
+                        <ResolvedIcon className="w-6 h-6" />
                     </div>
                 </div>
                 {change && (
                     <div className="mt-4 flex items-center text-sm">
                         <span
-                            className={`flex items-center font-medium ${changeType === "increase"
+                            className={`flex items-center font-medium ${
+                                changeType === "increase"
                                     ? "text-green-600"
                                     : "text-red-600"
-                                }`}
+                            }`}
                         >
                             {changeType === "increase" ? (
                                 <ArrowTrendingUpIcon className="w-4 h-4 mr-1" />
@@ -153,72 +157,6 @@ const StatsCard = ({
     );
 };
 
-const RecentActivity = ({ activities }) => {
-    return (
-        <div className="bg-white rounded-xl border border-gray-200 h-full">
-            <div className="px-6 py-5 border-b border-gray-200">
-                <h3 className="text-base font-semibold leading-6 text-gray-900">
-                    Recent Activity
-                </h3>
-            </div>
-            <div className="px-6 py-6">
-                <div className="flow-root">
-                    <ul className="-mb-8">
-                        {activities.map((activity, index) => (
-                            <li key={activity.id}>
-                                <div className="relative pb-8">
-                                    {index !== activities.length - 1 && (
-                                        <span
-                                            className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200"
-                                            aria-hidden="true"
-                                        />
-                                    )}
-                                    <div className="relative flex space-x-3">
-                                        <div>
-                                            <span
-                                                className={`h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-white ${activity.type === "order"
-                                                        ? "bg-blue-500"
-                                                        : activity.type ===
-                                                            "admin"
-                                                            ? "bg-indigo-500"
-                                                            : activity.type ===
-                                                                "rider"
-                                                                ? "bg-purple-500"
-                                                                : "bg-gray-500"
-                                                    }`}
-                                            >
-                                                {activity.type === "order" && (
-                                                    <ShoppingBagIcon className="w-4 h-4 text-white" />
-                                                )}
-                                                {activity.type === "admin" && (
-                                                    <UsersIcon className="w-4 h-4 text-white" />
-                                                )}
-                                                {activity.type === "rider" && (
-                                                    <TruckIcon className="w-4 h-4 text-white" />
-                                                )}
-                                            </span>
-                                        </div>
-                                        <div className="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
-                                            <div>
-                                                <p className="text-sm text-gray-600">
-                                                    {activity.description}
-                                                </p>
-                                            </div>
-                                            <div className="text-right text-sm whitespace-nowrap text-gray-400">
-                                                {activity.time}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            </div>
-        </div>
-    );
-};
-
 export default function Dashboard() {
     const { user } = useAuth();
     const [stats, setStats] = useState({
@@ -227,9 +165,80 @@ export default function Dashboard() {
         activeRiders: 0,
         inventoryAdmins: 0,
     });
-    const [activities, setActivities] = useState([]);
+    const [dailyTrend, setDailyTrend] = useState([]);
     const [chartData, setChartData] = useState(null);
+    const [chartSummary, setChartSummary] = useState({
+        totalRevenue: 0,
+        averageRevenue: 0,
+        days: 0,
+    });
+    // Default to all to ensure older months (e.g., September) are visible immediately
+    const [selectedRange, setSelectedRange] = useState("all");
     const [loading, setLoading] = useState(true);
+
+    const ranges = [
+        { key: "7d", label: "7D" },
+        { key: "30d", label: "30D" },
+        { key: "90d", label: "90D" },
+        { key: "all", label: "All" },
+    ];
+
+    const filterTrend = (trend, range) => {
+        if (!Array.isArray(trend)) return [];
+        if (range === "all") return trend;
+
+        const limitMap = {
+            "7d": 7,
+            "30d": 30,
+            "90d": 90,
+        };
+        const limit = limitMap[range] || trend.length;
+        return trend.slice(-limit);
+    };
+
+    const buildChartData = (trend, range) => {
+        const filtered = filterTrend(trend, range);
+        const labels = filtered.map((item) => {
+            const date = new Date(item.date);
+            return date.toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+            });
+        });
+        const revenueData = filtered.map((item) => Number(item.revenue) || 0);
+
+        return {
+            labels,
+            datasets: [
+                {
+                    label: "Revenue",
+                    data: revenueData,
+                    backgroundColor: "#4f46e5",
+                    borderRadius: 4,
+                    barThickness: 24,
+                },
+            ],
+        };
+    };
+
+    const buildChartSummary = (trend, range) => {
+        const filtered = filterTrend(trend, range);
+        const totalRevenue = filtered.reduce(
+            (sum, item) => sum + (Number(item.revenue) || 0),
+            0
+        );
+        const days = filtered.length || 0;
+        return {
+            totalRevenue,
+            averageRevenue: days ? totalRevenue / days : 0,
+            days,
+        };
+    };
+
+    useEffect(() => {
+        setChartData(buildChartData(dailyTrend, selectedRange));
+        setChartSummary(buildChartSummary(dailyTrend, selectedRange));
+    }, [dailyTrend, selectedRange]);
 
     useEffect(() => {
         fetchDashboardData();
@@ -248,58 +257,13 @@ export default function Dashboard() {
                 inventoryAdmins: payload?.users?.inventoryAdminsCount ?? 0,
             });
 
-            // Process chart data
+            // Store trend for chart usage
             const dailyTrend = payload?.orders?.dailyTrend || [];
-            const labels = dailyTrend.map((item) => {
-                const date = new Date(item.date);
-                return date.toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                });
-            });
-            const revenueData = dailyTrend.map((item) => item.revenue);
-
-            setChartData({
-                labels: labels,
-                datasets: [
-                    {
-                        label: "Revenue",
-                        data: revenueData,
-                        backgroundColor: "#4f46e5",
-                        borderRadius: 4,
-                        barThickness: 24,
-                    },
-                ],
-            });
-
-            setActivities(
-                payload?.recentActivities ?? [
-                    {
-                        id: 1,
-                        type: "order",
-                        description: "New order #ORD-001 placed",
-                        time: "2 minutes ago",
-                    },
-                    {
-                        id: 2,
-                        type: "admin",
-                        description: "New inventory admin added",
-                        time: "1 hour ago",
-                    },
-                    {
-                        id: 3,
-                        type: "rider",
-                        description: "Rider John completed delivery",
-                        time: "2 hours ago",
-                    },
-                    {
-                        id: 4,
-                        type: "order",
-                        description: "Order #ORD-002 delivered",
-                        time: "3 hours ago",
-                    },
-                ]
+            // Sort by date ascending to ensure full history (e.g., September) appears correctly
+            const sortedTrend = [...dailyTrend].sort(
+                (a, b) => new Date(a.date) - new Date(b.date)
             );
+            setDailyTrend(sortedTrend);
         } catch (err) {
             console.error("Dashboard data fetch error:", err);
             toast.error("Failed to load dashboard data");
@@ -332,55 +296,60 @@ export default function Dashboard() {
                 <StatsCard
                     title="Total Orders"
                     value={stats.totalOrders.toLocaleString()}
-                    change="+12%"
-                    changeType="increase"
-                    icon={ShoppingBagIcon}
                     color="blue"
+                    icon={ShoppingBagIcon}
                 />
                 <StatsCard
                     title="Total Revenue"
                     value={`₹${stats.totalRevenue.toLocaleString()}`}
-                    change="+8%"
-                    changeType="increase"
-                    icon={CurrencyDollarIcon}
                     color="green"
+                    icon={CurrencyDollarIcon}
                 />
                 <StatsCard
                     title="Active Riders"
                     value={stats.activeRiders}
-                    change="+2"
-                    changeType="increase"
-                    icon={TruckIcon}
                     color="purple"
+                    icon={TruckIcon}
                 />
                 {user?.role === "superadmin" && (
                     <StatsCard
                         title="Inventory Admins"
                         value={stats.inventoryAdmins}
-                        change="+1"
-                        changeType="increase"
-                        icon={UsersIcon}
                         color="orange"
+                        icon={UsersIcon}
                     />
                 )}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2">
-                    <div className="bg-white rounded-xl border border-gray-200 p-6 h-full">
-                        <div className="flex items-center justify-between mb-6">
-                            <h3 className="text-base font-semibold leading-6 text-gray-900">
-                                Revenue Overview
-                            </h3>
-                            <ChartBarIcon className="h-5 w-5 text-gray-400" />
-                        </div>
-                        <div className="h-80 w-full">
-                            <RevenueChart chartData={chartData} />
-                        </div>
+            <div className="bg-white rounded-xl border border-gray-200 p-6 h-full">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-4">
+                    <div>
+                        <h3 className="text-base font-semibold leading-6 text-gray-900">
+                            Revenue Overview
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                            Track daily revenue performance.
+                        </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        {ranges.map((range) => (
+                            <button
+                                key={range.key}
+                                onClick={() => setSelectedRange(range.key)}
+                                className={`rounded-lg px-3 py-1.5 text-sm font-medium border transition ${
+                                    selectedRange === range.key
+                                        ? "border-blue-200 bg-blue-50 text-blue-700"
+                                        : "border-gray-200 text-gray-600 hover:bg-gray-50"
+                                }`}
+                            >
+                                {range.label}
+                            </button>
+                        ))}
                     </div>
                 </div>
-                <div className="lg:col-span-1">
-                    <RecentActivity activities={activities} />
+
+                <div className="h-80 w-full">
+                    <RevenueChart chartData={chartData} />
                 </div>
             </div>
         </div>

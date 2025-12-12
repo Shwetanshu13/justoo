@@ -1,7 +1,13 @@
 // Order Controller - Read Only for Admin Dashboard
 import db from '../../config/db.js';
-import { orders, orderItems, justooAdmins as admins, items } from '../../db/schema.js';
-import { eq, and, desc, asc, count, sum, sql, between } from 'drizzle-orm';
+import {
+    orders,
+    orderItems,
+    customers,
+    customerAddresses,
+    items,
+} from '../../db/schema.js';
+import { eq, and, desc, asc, count, sum, sql, between, inArray } from 'drizzle-orm';
 import { errorResponse, successResponse } from '../../utils/response.js';
 
 // Get all orders with pagination and filtering
@@ -49,9 +55,15 @@ export const getAllOrders = async (req, res) => {
                 itemCount: orders.itemCount,
                 notes: orders.notes,
                 createdAt: orders.createdAt,
-                updatedAt: orders.updatedAt
+                updatedAt: orders.updatedAt,
+                customerName: customers.name,
+                customerEmail: customers.email,
+                customerPhone: customers.phone,
+                deliveryAddress: customerAddresses.fullAddress,
             })
-            .from(orders);
+            .from(orders)
+            .leftJoin(customers, eq(customers.id, orders.customerId))
+            .leftJoin(customerAddresses, eq(customerAddresses.id, orders.deliveryAddressId));
 
         // Apply conditions
         if (conditions.length > 0) {
@@ -65,6 +77,46 @@ export const getAllOrders = async (req, res) => {
         // Get orders with pagination
         const ordersList = await query.limit(limitNum).offset(offset);
 
+        // Fetch order items in bulk
+        const orderIds = ordersList.map((o) => o.id);
+        let itemsByOrder = {};
+        if (orderIds.length > 0) {
+            const orderItemsRows = await db
+                .select({
+                    orderId: orderItems.orderId,
+                    itemId: orderItems.itemId,
+                    itemName: orderItems.itemName,
+                    quantity: orderItems.quantity,
+                    unitPrice: orderItems.unitPrice,
+                    totalPrice: orderItems.totalPrice,
+                    unit: orderItems.unit,
+                    catalogName: items.name,
+                    catalogPrice: items.price,
+                })
+                .from(orderItems)
+                .leftJoin(items, eq(items.id, orderItems.itemId))
+                .where(inArray(orderItems.orderId, orderIds));
+
+            itemsByOrder = orderItemsRows.reduce((acc, row) => {
+                const key = row.orderId;
+                if (!acc[key]) acc[key] = [];
+                acc[key].push({
+                    itemId: row.itemId,
+                    name: row.itemName || row.catalogName,
+                    quantity: row.quantity,
+                    price: Number(row.unitPrice ?? row.catalogPrice ?? 0),
+                    total: Number(row.totalPrice ?? (row.quantity || 0) * Number(row.unitPrice ?? row.catalogPrice ?? 0)),
+                    unit: row.unit,
+                });
+                return acc;
+            }, {});
+        }
+
+        const enrichedOrders = ordersList.map((o) => ({
+            ...o,
+            items: itemsByOrder[o.id] || [],
+        }));
+
         // Get total count
         let countQuery = db.select({ count: count() }).from(orders);
         if (conditions.length > 0) {
@@ -72,8 +124,8 @@ export const getAllOrders = async (req, res) => {
         }
         const totalOrders = await countQuery;
 
-        return successResponse(res, 'Orders retrieved successfully', {
-            orders: ordersList,
+        return successResponse(res, {
+            orders: enrichedOrders,
             pagination: {
                 currentPage: pageNum,
                 totalPages: Math.ceil(totalOrders[0].count / limitNum),
@@ -81,7 +133,7 @@ export const getAllOrders = async (req, res) => {
                 hasNext: pageNum * limitNum < totalOrders[0].count,
                 hasPrev: pageNum > 1
             }
-        });
+        }, 'Orders retrieved successfully');
     } catch (error) {
         console.error('Error getting orders:', error);
         return errorResponse(res, 'Failed to retrieve orders', 500);
@@ -97,10 +149,25 @@ export const getOrderById = async (req, res) => {
             return errorResponse(res, 'Order ID is required', 400);
         }
 
-        // Get order details
+        // Get order details with customer and address
         const order = await db
-            .select()
+            .select({
+                id: orders.id,
+                customerId: orders.customerId,
+                status: orders.status,
+                totalAmount: orders.totalAmount,
+                itemCount: orders.itemCount,
+                notes: orders.notes,
+                createdAt: orders.createdAt,
+                updatedAt: orders.updatedAt,
+                customerName: customers.name,
+                customerEmail: customers.email,
+                customerPhone: customers.phone,
+                deliveryAddress: customerAddresses.fullAddress,
+            })
             .from(orders)
+            .leftJoin(customers, eq(customers.id, orders.customerId))
+            .leftJoin(customerAddresses, eq(customerAddresses.id, orders.deliveryAddressId))
             .where(eq(orders.id, parseInt(id)))
             .limit(1);
 
@@ -110,14 +177,32 @@ export const getOrderById = async (req, res) => {
 
         // Get order items
         const items = await db
-            .select()
+            .select({
+                orderId: orderItems.orderId,
+                itemId: orderItems.itemId,
+                itemName: orderItems.itemName,
+                quantity: orderItems.quantity,
+                unitPrice: orderItems.unitPrice,
+                totalPrice: orderItems.totalPrice,
+                unit: orderItems.unit,
+                catalogName: items.name,
+                catalogPrice: items.price,
+            })
             .from(orderItems)
+            .leftJoin(items, eq(items.id, orderItems.itemId))
             .where(eq(orderItems.orderId, parseInt(id)));
 
-        return successResponse(res, 'Order retrieved successfully', {
+        return successResponse(res, {
             order: order[0],
-            items: items
-        });
+            items: items.map((row) => ({
+                itemId: row.itemId,
+                name: row.itemName || row.catalogName,
+                quantity: row.quantity,
+                price: Number(row.unitPrice ?? row.catalogPrice ?? 0),
+                total: Number(row.totalPrice ?? (row.quantity || 0) * Number(row.unitPrice ?? row.catalogPrice ?? 0)),
+                unit: row.unit,
+            }))
+        }, 'Order retrieved successfully');
     } catch (error) {
         console.error('Error getting order:', error);
         return errorResponse(res, 'Failed to retrieve order', 500);

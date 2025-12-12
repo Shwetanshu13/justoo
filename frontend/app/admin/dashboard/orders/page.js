@@ -141,20 +141,22 @@ const OrderDetailsModal = ({ isOpen, onClose, order }) => {
                                             </tr>
                                         </thead>
                                         <tbody className="bg-white divide-y divide-gray-200">
-                                            {order.items?.map((item, index) => (
-                                                <tr key={index}>
-                                                    <td className="px-4 py-2 text-sm text-gray-900">{item.name}</td>
-                                                    <td className="px-4 py-2 text-sm text-gray-900">{item.quantity}</td>
-                                                    <td className="px-4 py-2 text-sm text-gray-900">₹{item.price}</td>
-                                                    <td className="px-4 py-2 text-sm text-gray-900">₹{(item.quantity * item.price).toFixed(2)}</td>
-                                                </tr>
-                                            )) || (
-                                                    <tr>
-                                                        <td colSpan="4" className="px-4 py-2 text-sm text-gray-500 text-center">
-                                                            No items available
-                                                        </td>
+                                            {order.items?.length ? (
+                                                order.items.map((item, index) => (
+                                                    <tr key={index}>
+                                                        <td className="px-4 py-2 text-sm text-gray-900">{item.name}</td>
+                                                        <td className="px-4 py-2 text-sm text-gray-900">{item.quantity}</td>
+                                                        <td className="px-4 py-2 text-sm text-gray-900">₹{item.price?.toFixed ? item.price.toFixed(2) : Number(item.price ?? 0).toFixed(2)}</td>
+                                                        <td className="px-4 py-2 text-sm text-gray-900">₹{(item.total ?? item.quantity * Number(item.price ?? 0)).toFixed(2)}</td>
                                                     </tr>
-                                                )}
+                                                ))
+                                            ) : (
+                                                <tr>
+                                                    <td colSpan="4" className="px-4 py-2 text-sm text-gray-500 text-center">
+                                                        No items available
+                                                    </td>
+                                                </tr>
+                                            )}
                                         </tbody>
                                     </table>
                                 </div>
@@ -218,23 +220,29 @@ export default function OrdersPage() {
         try {
             setLoading(true);
             const response = await api.get('/orders');
-            console.log(response);
             const ok = response?.data?.success;
-            const payload = response?.data?.message?.orders;
-            // console.log(payload);
-            if (ok && payload) {
+            const payload = response?.data?.data?.orders;
+
+            if (ok && Array.isArray(payload)) {
                 const normalized = payload.map((o) => ({
                     id: o.id,
                     order_id: o.id,
                     customer_name: o.customerName || '',
                     customer_email: o.customerEmail || '',
+                    customer_phone: o.customerPhone || '',
                     total_amount: Number(o.totalAmount ?? 0),
                     status: o.status,
                     created_at: o.createdAt,
                     delivery_address: o.deliveryAddress,
-                    items: o.items || [],
+                    items: (o.items || []).map((item) => ({
+                        name: item.name,
+                        quantity: item.quantity,
+                        price: Number(item.price ?? 0),
+                        total: Number(
+                            item.total ?? item.quantity * Number(item.price ?? 0) ?? 0
+                        ),
+                    })),
                 }));
-                console.log(normalized);
                 setOrders(normalized);
             } else {
                 setOrders([
