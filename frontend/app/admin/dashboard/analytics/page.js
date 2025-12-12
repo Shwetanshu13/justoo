@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { api } from '@/admin/lib/api';
-import toast from 'react-hot-toast';
+import { useState, useEffect } from "react";
+import { api } from "@/admin/lib/api";
+import toast from "react-hot-toast";
 import {
     ChartBarIcon,
     CurrencyRupeeIcon,
@@ -12,15 +12,16 @@ import {
     CalendarDaysIcon,
     ArrowTrendingUpIcon,
     ArrowTrendingDownIcon,
-} from '@heroicons/react/24/outline';
+    BanknotesIcon,
+} from "@heroicons/react/24/outline";
 
-const MetricCard = ({ title, value, change, changeType, icon: Icon, color = 'blue' }) => {
+const MetricCard = ({ title, value, icon: Icon, color = "blue" }) => {
     const colorClasses = {
-        blue: 'bg-blue-50 text-blue-600',
-        green: 'bg-green-50 text-green-600',
-        purple: 'bg-purple-50 text-purple-600',
-        orange: 'bg-orange-50 text-orange-600',
-        red: 'bg-red-50 text-red-600',
+        blue: "bg-blue-50 text-blue-600",
+        green: "bg-green-50 text-green-600",
+        purple: "bg-purple-50 text-purple-600",
+        orange: "bg-orange-50 text-orange-600",
+        red: "bg-red-50 text-red-600",
     };
 
     return (
@@ -28,29 +29,21 @@ const MetricCard = ({ title, value, change, changeType, icon: Icon, color = 'blu
             <div className="p-5">
                 <div className="flex items-center">
                     <div className="flex-shrink-0">
-                        <div className={`w-8 h-8 rounded-md flex items-center justify-center ${colorClasses[color]}`}>
+                        <div
+                            className={`w-8 h-8 rounded-md flex items-center justify-center ${colorClasses[color]}`}
+                        >
                             <Icon className="w-5 h-5" />
                         </div>
                     </div>
                     <div className="ml-5 w-0 flex-1">
                         <dl>
-                            <dt className="text-sm font-medium text-gray-500 truncate">{title}</dt>
+                            <dt className="text-sm font-medium text-gray-500 truncate">
+                                {title}
+                            </dt>
                             <dd className="flex items-baseline">
-                                <div className="text-2xl font-semibold text-gray-900">{value}</div>
-                                {change && (
-                                    <div className={`ml-2 flex items-baseline text-sm font-semibold ${changeType === 'increase' ? 'text-green-600' : 'text-red-600'
-                                        }`}>
-                                        {changeType === 'increase' ? (
-                                            <ArrowTrendingUpIcon className="self-center flex-shrink-0 h-4 w-4 text-green-500" />
-                                        ) : (
-                                            <ArrowTrendingDownIcon className="self-center flex-shrink-0 h-4 w-4 text-red-500" />
-                                        )}
-                                        <span className="sr-only">
-                                            {changeType === 'increase' ? 'Increased' : 'Decreased'} by
-                                        </span>
-                                        {change}
-                                    </div>
-                                )}
+                                <div className="text-2xl font-semibold text-gray-900">
+                                    {value}
+                                </div>
                             </dd>
                         </dl>
                     </div>
@@ -60,20 +53,66 @@ const MetricCard = ({ title, value, change, changeType, icon: Icon, color = 'blu
     );
 };
 
-const ChartPlaceholder = ({ title, description }) => {
+const SparkLineChart = ({ data = [], color = "#4f46e5" }) => {
+    if (!data.length) {
+        return <div className="text-sm text-gray-500">No data</div>;
+    }
+
+    const values = data.map((d) => Number(d.value) || 0);
+    const maxVal = Math.max(...values, 1);
+    const points = data.map((d, i) => {
+        const x = (i / Math.max(data.length - 1, 1)) * 100;
+        const y = 100 - (Number(d.value) / maxVal) * 100;
+        return `${x},${y}`;
+    });
+
     return (
-        <div className="bg-white shadow rounded-lg p-6">
-            <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg leading-6 font-medium text-gray-900">{title}</h3>
-                <ChartBarIcon className="h-5 w-5 text-gray-400" />
-            </div>
-            <div className="h-64 flex items-center justify-center bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
-                <div className="text-center">
-                    <ChartBarIcon className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-                    <p className="text-gray-500 font-medium">{title}</p>
-                    <p className="text-sm text-gray-400 mt-1">{description}</p>
-                </div>
-            </div>
+        <svg viewBox="0 0 100 100" className="w-full h-40">
+            <polyline
+                fill="none"
+                stroke={color}
+                strokeWidth="2"
+                points={points.join(" ")}
+                strokeLinecap="round"
+            />
+            {data.map((d, i) => {
+                const x = (i / Math.max(data.length - 1, 1)) * 100;
+                const y = 100 - (Number(d.value) / maxVal) * 100;
+                return <circle key={i} cx={x} cy={y} r="1.8" fill={color} />;
+            })}
+        </svg>
+    );
+};
+
+const BarChart = ({ data = [], color = "#6366f1" }) => {
+    if (!data.length) {
+        return <div className="text-sm text-gray-500">No data</div>;
+    }
+    const maxVal = Math.max(...data.map((d) => Number(d.value) || 0), 1);
+    return (
+        <div className="space-y-3">
+            {data.map((d) => {
+                const width = (Number(d.value) / maxVal) * 100;
+                return (
+                    <div key={d.label}>
+                        <div className="flex justify-between text-xs text-gray-600 mb-1">
+                            <span className="font-medium text-gray-800">
+                                {d.label}
+                            </span>
+                            <span>{d.value}</span>
+                        </div>
+                        <div className="h-2 w-full bg-gray-100 rounded-full">
+                            <div
+                                className="h-2 rounded-full"
+                                style={{
+                                    width: `${width}%`,
+                                    backgroundColor: color,
+                                }}
+                            ></div>
+                        </div>
+                    </div>
+                );
+            })}
         </div>
     );
 };
@@ -87,19 +126,32 @@ const TopProducts = ({ products }) => {
                 </h3>
                 <div className="space-y-3">
                     {products.map((product, index) => (
-                        <div key={product.id} className="flex items-center justify-between">
+                        <div
+                            key={product.id}
+                            className="flex items-center justify-between"
+                        >
                             <div className="flex items-center">
                                 <div className="flex-shrink-0 h-8 w-8 bg-gray-200 rounded-md flex items-center justify-center">
-                                    <span className="text-sm font-medium text-gray-600">{index + 1}</span>
+                                    <span className="text-sm font-medium text-gray-600">
+                                        {index + 1}
+                                    </span>
                                 </div>
                                 <div className="ml-3">
-                                    <p className="text-sm font-medium text-gray-900">{product.name}</p>
-                                    <p className="text-sm text-gray-500">{product.category}</p>
+                                    <p className="text-sm font-medium text-gray-900">
+                                        {product.name}
+                                    </p>
+                                    <p className="text-sm text-gray-500">
+                                        {product.category}
+                                    </p>
                                 </div>
                             </div>
                             <div className="text-right">
-                                <p className="text-sm font-medium text-gray-900">₹{product.revenue}</p>
-                                <p className="text-sm text-gray-500">{product.sales} sold</p>
+                                <p className="text-sm font-medium text-gray-900">
+                                    ₹{product.revenue}
+                                </p>
+                                <p className="text-sm text-gray-500">
+                                    {product.sales} sold
+                                </p>
                             </div>
                         </div>
                     ))}
@@ -112,16 +164,16 @@ const TopProducts = ({ products }) => {
 const RecentOrders = ({ orders }) => {
     const getStatusColor = (status) => {
         switch (status?.toLowerCase()) {
-            case 'delivered':
-                return 'bg-green-100 text-green-800';
-            case 'out_for_delivery':
-                return 'bg-blue-100 text-blue-800';
-            case 'preparing':
-                return 'bg-yellow-100 text-yellow-800';
-            case 'cancelled':
-                return 'bg-red-100 text-red-800';
+            case "delivered":
+                return "bg-green-100 text-green-800";
+            case "out_for_delivery":
+                return "bg-blue-100 text-blue-800";
+            case "preparing":
+                return "bg-yellow-100 text-yellow-800";
+            case "cancelled":
+                return "bg-red-100 text-red-800";
             default:
-                return 'bg-gray-100 text-gray-800';
+                return "bg-gray-100 text-gray-800";
         }
     };
 
@@ -133,19 +185,32 @@ const RecentOrders = ({ orders }) => {
                 </h3>
                 <div className="space-y-3">
                     {orders.map((order) => (
-                        <div key={order.id} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+                        <div
+                            key={order.id}
+                            className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0"
+                        >
                             <div className="flex items-center">
                                 <div className="flex-shrink-0">
                                     <ShoppingBagIcon className="h-5 w-5 text-gray-400" />
                                 </div>
                                 <div className="ml-3">
-                                    <p className="text-sm font-medium text-gray-900">{order.order_id}</p>
-                                    <p className="text-sm text-gray-500">{order.customer_name}</p>
+                                    <p className="text-sm font-medium text-gray-900">
+                                        {order.order_id}
+                                    </p>
+                                    <p className="text-sm text-gray-500">
+                                        {order.customer_name}
+                                    </p>
                                 </div>
                             </div>
                             <div className="text-right">
-                                <p className="text-sm font-medium text-gray-900">₹{order.total_amount}</p>
-                                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+                                <p className="text-sm font-medium text-gray-900">
+                                    ₹{order.total_amount}
+                                </p>
+                                <span
+                                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
+                                        order.status
+                                    )}`}
+                                >
                                     {order.status}
                                 </span>
                             </div>
@@ -165,10 +230,15 @@ export default function AnalyticsPage() {
         activeRiders: 0,
         totalCustomers: 0,
         conversionRate: 0,
+        revenueChange: 0,
     });
     const [topProducts, setTopProducts] = useState([]);
     const [recentOrders, setRecentOrders] = useState([]);
-    const [dateRange, setDateRange] = useState('30'); // days
+    const [revenueTrend, setRevenueTrend] = useState([]);
+    const [orderStatusDist, setOrderStatusDist] = useState([]);
+    const [paymentMethods, setPaymentMethods] = useState([]);
+    const [categoryDistribution, setCategoryDistribution] = useState([]);
+    const [dateRange, setDateRange] = useState("30"); // days
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -179,21 +249,33 @@ export default function AnalyticsPage() {
         try {
             setLoading(true);
 
-            // Fetch real analytics data from backend
-            const response = await api.get(`/analytics/dashboard?days=${dateRange}`);
-            const data = response.data.data;
-            console.log(response);
+            const [dashboardRes, ordersRes] = await Promise.all([
+                api.get(`/analytics/dashboard?days=${dateRange}`),
+                api.get("/orders", { params: { limit: 5, sortOrder: "desc" } }),
+            ]);
 
-            // Transform the data to match frontend expectations
-            const totalRevenue = parseFloat(data.orders?.revenue?.total || 0);
-            const totalOrders = data.orders?.totalOrders || 0;
-            const averageOrderValue = parseFloat(data.orders?.revenue?.average || 0);
-            const activeRiders = data.users?.activeCustomers || 0;
-            const totalCustomers = data.users?.recentRegistrations || 0;
+            const dashboardData =
+                dashboardRes.data?.data || dashboardRes.data || {};
 
-            // Calculate conversion rate (simplified calculation)
-            const conversionRate = totalOrders > 0 && totalCustomers > 0
-                ? ((totalOrders / totalCustomers) * 100)
+            // Guard against missing orders block
+            const ordersData = dashboardData.orders || {};
+            const usersData = dashboardData.users || {};
+            const inventoryData = dashboardData.inventory || {};
+            const paymentsData = dashboardData.payments || {};
+
+            const totalRevenue = Number(ordersData.revenue?.total || 0);
+            const totalOrders = Number(ordersData.totalOrders || 0);
+            const averageOrderValue = Number(ordersData.revenue?.average || 0);
+            const activeRiders = Number(usersData.activeRiders || 0);
+            const totalCustomers = Number(
+                usersData.activeCustomers || usersData.recentRegistrations || 0
+            );
+
+            const trendArr = ordersData.dailyTrend || [];
+            const firstPoint = trendArr[0]?.revenue || 0;
+            const lastPoint = trendArr[trendArr.length - 1]?.revenue || 0;
+            const revenueChange = firstPoint
+                ? ((lastPoint - firstPoint) / firstPoint) * 100
                 : 0;
 
             setAnalytics({
@@ -202,59 +284,65 @@ export default function AnalyticsPage() {
                 averageOrderValue,
                 activeRiders,
                 totalCustomers,
-                conversionRate: parseFloat(conversionRate.toFixed(2)),
+                revenueChange: Number(revenueChange.toFixed(2)),
             });
 
-            // Transform top products data
-            const topProducts = data.inventory?.topSellingItems?.map((item, index) => ({
-                id: item.itemId,
-                name: item.itemName || 'Unknown Product',
-                category: 'General', // Category not available in current data
-                sales: parseInt(item.totalSold || 0),
-                revenue: parseFloat(item.totalRevenue || 0)
-            })) || [];
+            const trend = (ordersData.dailyTrend || []).map((item) => ({
+                label: item.date,
+                value: Number(item.revenue || 0),
+            }));
+            setRevenueTrend(trend);
 
-            // If no top products, show a message
-            if (topProducts.length === 0) {
-                setTopProducts([{
-                    id: 0,
-                    name: 'No products sold yet',
-                    category: 'N/A',
-                    sales: 0,
-                    revenue: 0
-                }]);
-            } else {
-                setTopProducts(topProducts);
-            }
+            const orderStatus = ordersData.ordersByStatus || {};
+            setOrderStatusDist(
+                Object.keys(orderStatus).map((key) => ({
+                    label: key,
+                    value: Number(orderStatus[key] || 0),
+                }))
+            );
 
-            // Transform recent orders data - use daily trend data
-            const recentOrders = data.orders?.dailyTrend?.slice(-5).map((trend, index) => ({
-                id: index + 1,
-                order_id: `ORD-${String(trend.date || new Date().toISOString().slice(0, 10)).slice(-4)}-${String(index + 1).padStart(3, '0')}`,
-                customer_name: 'Customer', // Customer name not available in current data
-                total_amount: parseFloat(trend.revenue || 0),
-                status: 'delivered'
-            })) || [];
+            setPaymentMethods(
+                (paymentsData.paymentMethods || []).map((p) => ({
+                    label: p.method || "Unknown",
+                    value: Number(p.total || 0),
+                }))
+            );
 
-            // If no recent orders, show a message
-            if (recentOrders.length === 0) {
-                setRecentOrders([{
-                    id: 0,
-                    order_id: 'No orders yet',
-                    customer_name: 'N/A',
-                    total_amount: 0,
-                    status: 'pending'
-                }]);
-            } else {
-                setRecentOrders(recentOrders);
-            }
+            setCategoryDistribution(
+                (inventoryData.categoryDistribution || []).map((c) => ({
+                    label: c.category || "Uncategorized",
+                    value: Number(c.itemCount || 0),
+                }))
+            );
 
+            const topProductsMapped = (inventoryData.topSellingItems || []).map(
+                (item) => ({
+                    id: item.itemId,
+                    name: item.itemName || "Unknown Product",
+                    category: "General",
+                    sales: Number(item.totalSold || 0),
+                    revenue: Number(item.totalRevenue || 0),
+                })
+            );
+            setTopProducts(topProductsMapped);
+
+            const ordersList = ordersRes.data?.data?.orders || [];
+            const recentOrdersMapped = ordersList.map((order) => ({
+                id: order.id,
+                order_id: order.id,
+                customer_name:
+                    order.customerName || order.customerEmail || "Customer",
+                total_amount: Number(order.totalAmount || 0),
+                status: order.status || "unknown",
+            }));
+            setRecentOrders(recentOrdersMapped);
         } catch (error) {
-            console.error('Error fetching analytics:', error);
-            const errorMessage = error.response?.data?.message || 'Failed to fetch analytics data';
+            console.error("Error fetching analytics:", error);
+            const errorMessage =
+                error.response?.data?.message ||
+                "Failed to fetch analytics data";
             toast.error(errorMessage);
 
-            // Set fallback data in case of error
             setAnalytics({
                 totalRevenue: 0,
                 totalOrders: 0,
@@ -262,9 +350,14 @@ export default function AnalyticsPage() {
                 activeRiders: 0,
                 totalCustomers: 0,
                 conversionRate: 0,
+                revenueChange: 0,
             });
             setTopProducts([]);
             setRecentOrders([]);
+            setRevenueTrend([]);
+            setOrderStatusDist([]);
+            setPaymentMethods([]);
+            setCategoryDistribution([]);
         } finally {
             setLoading(false);
         }
@@ -309,15 +402,23 @@ export default function AnalyticsPage() {
                 <MetricCard
                     title="Total Revenue"
                     value={`₹${analytics.totalRevenue.toLocaleString()}`}
-                    change="+12.3%"
-                    changeType="increase"
+                    change={
+                        analytics.revenueChange
+                            ? `${analytics.revenueChange > 0 ? "+" : ""}${
+                                  analytics.revenueChange
+                              }%`
+                            : null
+                    }
+                    changeType={
+                        analytics.revenueChange >= 0 ? "increase" : "decrease"
+                    }
                     icon={CurrencyRupeeIcon}
                     color="green"
                 />
                 <MetricCard
                     title="Total Orders"
                     value={analytics.totalOrders.toLocaleString()}
-                    change="+8.1%"
+                    change={null}
                     changeType="increase"
                     icon={ShoppingBagIcon}
                     color="blue"
@@ -325,7 +426,7 @@ export default function AnalyticsPage() {
                 <MetricCard
                     title="Average Order Value"
                     value={`₹${analytics.averageOrderValue.toFixed(2)}`}
-                    change="+4.2%"
+                    change={null}
                     changeType="increase"
                     icon={ChartBarIcon}
                     color="purple"
@@ -333,7 +434,7 @@ export default function AnalyticsPage() {
                 <MetricCard
                     title="Active Riders"
                     value={analytics.activeRiders}
-                    change="+2"
+                    change={null}
                     changeType="increase"
                     icon={TruckIcon}
                     color="orange"
@@ -341,42 +442,76 @@ export default function AnalyticsPage() {
                 <MetricCard
                     title="Total Customers"
                     value={analytics.totalCustomers}
-                    change="+15.7%"
+                    change={null}
                     changeType="increase"
                     icon={UsersIcon}
                     color="blue"
-                />
-                <MetricCard
-                    title="Conversion Rate"
-                    value={`${analytics.conversionRate}%`}
-                    change="-0.3%"
-                    changeType="decrease"
-                    icon={CalendarDaysIcon}
-                    color="red"
                 />
             </div>
 
             {/* Charts Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                <ChartPlaceholder
-                    title="Revenue Trends"
-                    description="Monthly revenue comparison and growth trends"
-                />
-                <ChartPlaceholder
-                    title="Order Analytics"
-                    description="Order volume and delivery performance metrics"
-                />
+                <div className="bg-white shadow rounded-lg p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 className="text-lg leading-6 font-medium text-gray-900">
+                                Revenue Trends
+                            </h3>
+                            <p className="text-sm text-gray-500">
+                                Delivered order revenue over time
+                            </p>
+                        </div>
+                        <CurrencyRupeeIcon className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <SparkLineChart data={revenueTrend} color="#4f46e5" />
+                </div>
+
+                <div className="bg-white shadow rounded-lg p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 className="text-lg leading-6 font-medium text-gray-900">
+                                Order Status
+                            </h3>
+                            <p className="text-sm text-gray-500">
+                                Distribution of orders by status
+                            </p>
+                        </div>
+                        <ShoppingBagIcon className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <BarChart data={orderStatusDist} color="#22c55e" />
+                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                <ChartPlaceholder
-                    title="Customer Demographics"
-                    description="Customer distribution and behavior analysis"
-                />
-                <ChartPlaceholder
-                    title="Product Performance"
-                    description="Best selling products and category insights"
-                />
+                <div className="bg-white shadow rounded-lg p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 className="text-lg leading-6 font-medium text-gray-900">
+                                Payment Mix
+                            </h3>
+                            <p className="text-sm text-gray-500">
+                                Completed payments by method
+                            </p>
+                        </div>
+                        <BanknotesIcon className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <BarChart data={paymentMethods} color="#f59e0b" />
+                </div>
+
+                <div className="bg-white shadow rounded-lg p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 className="text-lg leading-6 font-medium text-gray-900">
+                                Product Performance
+                            </h3>
+                            <p className="text-sm text-gray-500">
+                                Items by category
+                            </p>
+                        </div>
+                        <ChartBarIcon className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <BarChart data={categoryDistribution} color="#3b82f6" />
+                </div>
             </div>
 
             {/* Data Tables */}
@@ -403,26 +538,6 @@ export default function AnalyticsPage() {
                         <UsersIcon className="h-4 w-4 mr-2" />
                         Customer Report (Excel)
                     </button>
-                </div>
-            </div>
-
-            {/* Note about chart integration */}
-            <div className="mt-6 bg-blue-50 border border-blue-200 rounded-md p-4">
-                <div className="flex">
-                    <div className="flex-shrink-0">
-                        <ChartBarIcon className="h-5 w-5 text-blue-400" />
-                    </div>
-                    <div className="ml-3">
-                        <h3 className="text-sm font-medium text-blue-800">
-                            Chart Integration
-                        </h3>
-                        <div className="mt-2 text-sm text-blue-700">
-                            <p>
-                                Interactive charts can be integrated using libraries like Chart.js, Recharts, or D3.js.
-                                The placeholders above show where the actual charts would be rendered with real data.
-                            </p>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>

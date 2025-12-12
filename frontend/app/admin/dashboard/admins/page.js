@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/admin/contexts/AuthContext';
-import { api } from '@/admin/lib/api';
-import toast from 'react-hot-toast';
+import { useState, useEffect } from "react";
+import { useAuth } from "@/admin/contexts/AuthContext";
+import { api } from "@/admin/lib/api";
+import toast from "react-hot-toast";
 import {
     PlusIcon,
     PencilIcon,
@@ -11,30 +11,30 @@ import {
     MagnifyingGlassIcon,
     UserIcon,
     ShieldCheckIcon,
-} from '@heroicons/react/24/outline';
+} from "@heroicons/react/24/outline";
 
 const AdminCard = ({ admin, onEdit, onDelete, currentUserId }) => {
     const getRoleColor = (role) => {
         switch (role) {
-            case 'superadmin':
-                return 'bg-red-100 text-red-800';
-            case 'admin':
-                return 'bg-blue-100 text-blue-800';
-            case 'inventory_admin':
-                return 'bg-green-100 text-green-800';
+            case "superadmin":
+                return "bg-red-100 text-red-800";
+            case "admin":
+                return "bg-blue-100 text-blue-800";
+            case "inventory_admin":
+                return "bg-green-100 text-green-800";
             default:
-                return 'bg-gray-100 text-gray-800';
+                return "bg-gray-100 text-gray-800";
         }
     };
 
     const formatDate = (dateString) => {
-        if (!dateString) return 'N/A';
+        if (!dateString) return "N/A";
         const parsed = new Date(dateString);
-        if (isNaN(parsed.getTime())) return 'N/A';
-        return parsed.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
+        if (isNaN(parsed.getTime())) return "N/A";
+        return parsed.toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
         });
     };
 
@@ -50,11 +50,19 @@ const AdminCard = ({ admin, onEdit, onDelete, currentUserId }) => {
                     <div className="ml-4 flex-1">
                         <div className="flex items-center justify-between">
                             <div>
-                                <h3 className="text-lg font-medium text-gray-900">{admin.username}</h3>
-                                <p className="text-sm text-gray-500">{admin.email}</p>
+                                <h3 className="text-lg font-medium text-gray-900">
+                                    {admin.username}
+                                </h3>
+                                <p className="text-sm text-gray-500">
+                                    {admin.email}
+                                </p>
                             </div>
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${getRoleColor(admin.role)}`}>
-                                {admin.role.replace('_', ' ')}
+                            <span
+                                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${getRoleColor(
+                                    admin.role
+                                )}`}
+                            >
+                                {admin.role.replace("_", " ")}
                             </span>
                         </div>
                         <div className="mt-2 flex items-center text-sm text-gray-500">
@@ -89,26 +97,26 @@ const AdminCard = ({ admin, onEdit, onDelete, currentUserId }) => {
 
 const AdminModal = ({ isOpen, onClose, onSubmit, admin, loading }) => {
     const [formData, setFormData] = useState({
-        username: '',
-        email: '',
-        password: '',
-        role: 'inventory_admin',
+        username: "",
+        email: "",
+        password: "",
+        role: "inventory_admin",
     });
 
     useEffect(() => {
         if (admin) {
             setFormData({
-                username: admin.username || '',
-                email: admin.email || '',
-                password: '',
-                role: admin.role || 'inventory_admin',
+                username: admin.username || "",
+                email: admin.email || "",
+                password: "",
+                role: admin.role || "inventory_admin",
             });
         } else {
             setFormData({
-                username: '',
-                email: '',
-                password: '',
-                role: 'inventory_admin',
+                username: "",
+                email: "",
+                password: "",
+                role: "inventory_admin",
             });
         }
     }, [admin, isOpen]);
@@ -123,7 +131,10 @@ const AdminModal = ({ isOpen, onClose, onSubmit, admin, loading }) => {
     return (
         <div className="fixed inset-0 z-50 overflow-y-auto">
             <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={onClose}></div>
+                <div
+                    className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+                    onClick={onClose}
+                ></div>
 
                 <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
                     <form onSubmit={handleSubmit}>
@@ -131,7 +142,7 @@ const AdminModal = ({ isOpen, onClose, onSubmit, admin, loading }) => {
                             <div className="sm:flex sm:items-start">
                                 <div className="mt-3 text-center sm:mt-0 sm:text-left w-full">
                                     <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-                                        {admin ? 'Edit Admin' : 'Add New Admin'}
+                                        {admin ? "Edit Admin" : "Add New Admin"}
                                     </h3>
 
                                     <div className="space-y-4">
@@ -143,7 +154,13 @@ const AdminModal = ({ isOpen, onClose, onSubmit, admin, loading }) => {
                                                 type="text"
                                                 required
                                                 value={formData.username}
-                                                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                                                onChange={(e) =>
+                                                    setFormData({
+                                                        ...formData,
+                                                        username:
+                                                            e.target.value,
+                                                    })
+                                                }
                                                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                                                 placeholder="Enter username"
                                             />
@@ -157,7 +174,12 @@ const AdminModal = ({ isOpen, onClose, onSubmit, admin, loading }) => {
                                                 type="email"
                                                 required
                                                 value={formData.email}
-                                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                                onChange={(e) =>
+                                                    setFormData({
+                                                        ...formData,
+                                                        email: e.target.value,
+                                                    })
+                                                }
                                                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                                                 placeholder="Enter email"
                                             />
@@ -165,13 +187,21 @@ const AdminModal = ({ isOpen, onClose, onSubmit, admin, loading }) => {
 
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                Password {admin && '(Leave blank to keep current)'}
+                                                Password{" "}
+                                                {admin &&
+                                                    "(Leave blank to keep current)"}
                                             </label>
                                             <input
                                                 type="password"
                                                 required={!admin}
                                                 value={formData.password}
-                                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                                onChange={(e) =>
+                                                    setFormData({
+                                                        ...formData,
+                                                        password:
+                                                            e.target.value,
+                                                    })
+                                                }
                                                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                                                 placeholder="Enter password"
                                             />
@@ -183,12 +213,23 @@ const AdminModal = ({ isOpen, onClose, onSubmit, admin, loading }) => {
                                             </label>
                                             <select
                                                 value={formData.role}
-                                                onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                                                onChange={(e) =>
+                                                    setFormData({
+                                                        ...formData,
+                                                        role: e.target.value,
+                                                    })
+                                                }
                                                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                                             >
-                                                <option value="inventory_admin">Inventory Admin</option>
-                                                <option value="admin">Admin</option>
-                                                <option value="superadmin">Super Admin</option>
+                                                <option value="inventory_admin">
+                                                    Inventory Admin
+                                                </option>
+                                                <option value="admin">
+                                                    Admin
+                                                </option>
+                                                <option value="superadmin">
+                                                    Super Admin
+                                                </option>
                                             </select>
                                         </div>
                                     </div>
@@ -202,7 +243,11 @@ const AdminModal = ({ isOpen, onClose, onSubmit, admin, loading }) => {
                                 disabled={loading}
                                 className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50"
                             >
-                                {loading ? 'Saving...' : (admin ? 'Update' : 'Create')}
+                                {loading
+                                    ? "Saving..."
+                                    : admin
+                                    ? "Update"
+                                    : "Create"}
                             </button>
                             <button
                                 type="button"
@@ -223,8 +268,8 @@ export default function AdminsPage() {
     const { user } = useAuth();
     const [admins, setAdmins] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [selectedRole, setSelectedRole] = useState('all');
+    const [searchTerm, setSearchTerm] = useState("");
+    const [selectedRole, setSelectedRole] = useState("all");
     const [showModal, setShowModal] = useState(false);
     const [editingAdmin, setEditingAdmin] = useState(null);
     const [submitting, setSubmitting] = useState(false);
@@ -236,11 +281,13 @@ export default function AdminsPage() {
     const fetchAdmins = async () => {
         try {
             setLoading(true);
-            const response = await api.get('/');
+            const response = await api.get("/");
             const responseData = response.data || response;
 
             if (responseData.success) {
-                const adminsList = Array.isArray(responseData.data) ? responseData.data : [];
+                const adminsList = Array.isArray(responseData.data)
+                    ? responseData.data
+                    : [];
                 // Normalize date keys for the UI
                 const normalized = adminsList.map((admin) => ({
                     ...admin,
@@ -249,11 +296,11 @@ export default function AdminsPage() {
                 }));
                 setAdmins(normalized);
             } else {
-                toast.error(responseData.error || 'Failed to fetch admins');
+                toast.error(responseData.error || "Failed to fetch admins");
             }
         } catch (error) {
-            console.error('Error fetching admins:', error);
-            toast.error('Failed to fetch admins');
+            console.error("Error fetching admins:", error);
+            toast.error("Failed to fetch admins");
         } finally {
             setLoading(false);
         }
@@ -270,20 +317,22 @@ export default function AdminsPage() {
     };
 
     const handleDeleteAdmin = async (admin) => {
-        if (window.confirm(`Are you sure you want to delete ${admin.username}?`)) {
+        if (
+            window.confirm(`Are you sure you want to delete ${admin.username}?`)
+        ) {
             try {
                 const response = await api.delete(`/${admin.id}`);
                 const responseData = response.data || response;
 
                 if (responseData.success) {
-                    toast.success('Admin deleted successfully');
+                    toast.success("Admin deleted successfully");
                     fetchAdmins();
                 } else {
-                    toast.error(responseData.error || 'Failed to delete admin');
+                    toast.error(responseData.error || "Failed to delete admin");
                 }
             } catch (error) {
-                console.error('Error deleting admin:', error);
-                toast.error('Failed to delete admin');
+                console.error("Error deleting admin:", error);
+                toast.error("Failed to delete admin");
             }
         }
     };
@@ -300,38 +349,51 @@ export default function AdminsPage() {
                 }
                 response = await api.put(`/${editingAdmin.id}`, updateData);
             } else {
-                response = await api.post('/add', formData);
+                response = await api.post("/add", formData);
             }
 
             const responseData = response.data || response;
 
             if (responseData.success) {
-                toast.success(`Admin ${editingAdmin ? 'updated' : 'created'} successfully`);
+                toast.success(
+                    `Admin ${editingAdmin ? "updated" : "created"} successfully`
+                );
                 setShowModal(false);
                 fetchAdmins();
             } else {
-                toast.error(responseData.error || `Failed to ${editingAdmin ? 'update' : 'create'} admin`);
+                toast.error(
+                    responseData.error ||
+                        `Failed to ${editingAdmin ? "update" : "create"} admin`
+                );
             }
         } catch (error) {
-            console.error('Error submitting admin:', error);
-            toast.error(`Failed to ${editingAdmin ? 'update' : 'create'} admin`);
+            console.error("Error submitting admin:", error);
+            toast.error(
+                `Failed to ${editingAdmin ? "update" : "create"} admin`
+            );
         } finally {
             setSubmitting(false);
         }
     };
 
-    const filteredAdmins = admins.filter(admin => {
-        const matchesSearch = admin.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const filteredAdmins = admins.filter((admin) => {
+        const matchesSearch =
+            admin.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
             admin.email.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesRole = selectedRole === 'all' || admin.role === selectedRole;
+        const matchesRole =
+            selectedRole === "all" || admin.role === selectedRole;
         return matchesSearch && matchesRole;
     });
 
-    if (user?.role !== 'superadmin') {
+    if (user?.role !== "superadmin") {
         return (
             <div className="text-center py-12">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h2>
-                <p className="text-gray-600">You don't have permission to manage admins.</p>
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                    Access Denied
+                </h2>
+                <p className="text-gray-600">
+                    You don't have permission to manage admins.
+                </p>
             </div>
         );
     }
@@ -379,18 +441,23 @@ export default function AdminsPage() {
                         <div>
                             <select
                                 value={selectedRole}
-                                onChange={(e) => setSelectedRole(e.target.value)}
+                                onChange={(e) =>
+                                    setSelectedRole(e.target.value)
+                                }
                                 className="block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
                             >
                                 <option value="all">All Roles</option>
                                 <option value="superadmin">Super Admin</option>
                                 <option value="admin">Admin</option>
-                                <option value="inventory_admin">Inventory Admin</option>
+                                <option value="inventory_admin">
+                                    Inventory Admin
+                                </option>
                             </select>
                         </div>
 
                         <div className="text-sm text-gray-500 flex items-center">
-                            Showing {filteredAdmins.length} of {admins.length} admins
+                            Showing {filteredAdmins.length} of {admins.length}{" "}
+                            admins
                         </div>
                     </div>
                 </div>
@@ -404,12 +471,13 @@ export default function AdminsPage() {
             ) : filteredAdmins.length === 0 ? (
                 <div className="text-center py-12">
                     <UserIcon className="mx-auto h-12 w-12 text-gray-400" />
-                    <h3 className="mt-2 text-sm font-medium text-gray-900">No admins found</h3>
+                    <h3 className="mt-2 text-sm font-medium text-gray-900">
+                        No admins found
+                    </h3>
                     <p className="mt-1 text-sm text-gray-500">
-                        {searchTerm || selectedRole !== 'all'
-                            ? 'Try adjusting your search or filter criteria.'
-                            : 'Get started by adding a new admin.'
-                        }
+                        {searchTerm || selectedRole !== "all"
+                            ? "Try adjusting your search or filter criteria."
+                            : "Get started by adding a new admin."}
                     </p>
                 </div>
             ) : (
