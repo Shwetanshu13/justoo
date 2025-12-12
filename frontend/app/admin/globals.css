@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Professional Two-Color Design System: Indigo (Primary) + Gray (Neutral) */
+
 @layer base {
     body {
         @apply bg-gray-50 text-gray-900 antialiased;
@@ -9,15 +11,149 @@
 }
 
 @layer components {
+    /* Cards */
     .card {
-        @apply bg-white rounded-xl shadow-sm border border-gray-200;
+        @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6;
     }
 
+    .card-hover {
+        @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md hover:border-gray-300 transition-all duration-200;
+    }
+
+    /* Buttons */
     .btn-primary {
-        @apply inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200;
+        @apply inline-flex justify-center items-center px-4 py-2 text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
     }
 
+    .btn-secondary {
+        @apply inline-flex justify-center items-center px-4 py-2 text-sm font-medium rounded-lg text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-150;
+    }
+
+    .btn-outline {
+        @apply inline-flex justify-center items-center px-4 py-2 text-sm font-medium rounded-lg text-indigo-600 bg-white border border-indigo-200 hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-150;
+    }
+
+    .btn-ghost {
+        @apply inline-flex justify-center items-center px-4 py-2 text-sm font-medium rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none transition-colors duration-150;
+    }
+
+    .btn-danger {
+        @apply inline-flex justify-center items-center px-4 py-2 text-sm font-medium rounded-lg text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-150;
+    }
+
+    /* Form Elements */
     .input-field {
-        @apply block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm;
+        @apply block w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent sm:text-sm transition-shadow duration-150;
+    }
+
+    .input-label {
+        @apply block text-sm font-medium text-gray-700 mb-1;
+    }
+
+    /* Badges - Two color variants only */
+    .badge {
+        @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    }
+
+    .badge-primary {
+        @apply bg-indigo-100 text-indigo-800;
+    }
+
+    .badge-success {
+        @apply bg-indigo-50 text-indigo-700 border border-indigo-200;
+    }
+
+    .badge-warning {
+        @apply bg-gray-100 text-gray-700 border border-gray-300;
+    }
+
+    .badge-error {
+        @apply bg-gray-800 text-white;
+    }
+
+    .badge-neutral {
+        @apply bg-gray-100 text-gray-600;
+    }
+
+    /* Stats Card */
+    .stats-card {
+        @apply bg-white rounded-lg border border-gray-200 p-5;
+    }
+
+    /* Table */
+    .table-container {
+        @apply bg-white rounded-lg border border-gray-200 overflow-hidden;
+    }
+
+    .table-modern {
+        @apply min-w-full divide-y divide-gray-200;
+    }
+
+    .table-modern thead {
+        @apply bg-gray-50;
+    }
+
+    .table-modern th {
+        @apply px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider;
+    }
+
+    .table-modern td {
+        @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900;
+    }
+
+    .table-modern tbody tr {
+        @apply border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors duration-150;
+    }
+
+    /* Status Indicators */
+    .status-dot {
+        @apply h-2 w-2 rounded-full;
+    }
+
+    .status-active {
+        @apply bg-indigo-500;
+    }
+
+    .status-inactive {
+        @apply bg-gray-400;
+    }
+
+    .status-busy {
+        @apply bg-gray-600;
+    }
+
+    /* Icon Containers */
+    .icon-container {
+        @apply h-10 w-10 rounded-lg flex items-center justify-center;
+    }
+
+    .icon-container-primary {
+        @apply bg-indigo-100 text-indigo-600;
+    }
+
+    .icon-container-neutral {
+        @apply bg-gray-100 text-gray-600;
+    }
+
+    /* Dividers */
+    .divider {
+        @apply border-t border-gray-200;
+    }
+
+    /* Empty State */
+    .empty-state {
+        @apply text-center py-12 px-4;
+    }
+
+    .empty-state-icon {
+        @apply mx-auto h-12 w-12 text-gray-300;
+    }
+
+    .empty-state-title {
+        @apply mt-2 text-sm font-medium text-gray-900;
+    }
+
+    .empty-state-description {
+        @apply mt-1 text-sm text-gray-500;
     }
 }

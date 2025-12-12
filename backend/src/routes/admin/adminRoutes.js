@@ -1,7 +1,10 @@
-import express from 'express';
-import auth from '../../middlewares/adminAuth.js';
-import { requireSuperAdmin, requireAnyAdmin } from '../../middlewares/roleMiddleware.js';
-import * as adminController from '../../controllers/admin/adminController.js';
+import express from "express";
+import auth from "../../middlewares/adminAuth.js";
+import {
+    requireSuperAdmin,
+    requireAnyAdmin,
+} from "../../middlewares/roleMiddleware.js";
+import * as adminController from "../../controllers/admin/adminController.js";
 
 const router = express.Router();
 
@@ -10,19 +13,20 @@ router.use(auth);
 router.use(requireAnyAdmin);
 
 // Admin management (SuperAdmin only)
-router.post('/add', requireSuperAdmin, adminController.addAdmin);
-router.delete('/:id', requireSuperAdmin, adminController.removeAdmin);
-router.get('/', adminController.getAllAdmins);
+router.post("/add", requireSuperAdmin, adminController.addAdmin);
+router.put("/:id", requireSuperAdmin, adminController.updateAdmin);
+router.delete("/:id", requireSuperAdmin, adminController.removeAdmin);
+router.get("/", adminController.getAllAdmins);
 
 // User management (Any Admin)
-router.get('/users', adminController.getAllUsers);
-router.delete('/users/:id', requireSuperAdmin, adminController.deleteUser);
+router.get("/users", adminController.getAllUsers);
+router.delete("/users/:id", requireSuperAdmin, adminController.deleteUser);
 
 // Analytics endpoints (Any Admin)
-router.get('/analytics/orders', adminController.orderAnalytics);
-router.get('/analytics/inventory', adminController.inventoryAnalytics);
-router.get('/analytics/users', adminController.userAnalytics);
-router.get('/analytics/payments', adminController.paymentAnalytics);
-router.get('/analytics/dashboard', adminController.getDashboard);
+router.get("/analytics/orders", adminController.orderAnalytics);
+router.get("/analytics/inventory", adminController.inventoryAnalytics);
+router.get("/analytics/users", adminController.userAnalytics);
+router.get("/analytics/payments", adminController.paymentAnalytics);
+router.get("/analytics/dashboard", adminController.getDashboard);
 
 export default router;

@@ -56,7 +56,7 @@ export default function ItemDetailPage() {
         try {
             await inventoryAPI.deleteItem(itemId);
             toast.success("Item deleted successfully");
-            router.push("/dashboard/inventory");
+            router.push("/inventory/dashboard/inventory");
         } catch (error) {
             toast.error("Failed to delete item");
             console.error("Delete item error:", error);
@@ -84,7 +84,9 @@ export default function ItemDetailPage() {
                         The item you’re looking for could not be found.
                     </p>
                     <button
-                        onClick={() => router.push("/dashboard/inventory")}
+                        onClick={() =>
+                            router.push("/inventory/dashboard/inventory")
+                        }
                         className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
                     >
                         Back to Inventory
@@ -106,7 +108,9 @@ export default function ItemDetailPage() {
             <div className="space-y-6">
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     <button
-                        onClick={() => router.push("/dashboard/inventory")}
+                        onClick={() =>
+                            router.push("/inventory/dashboard/inventory")
+                        }
                         className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors"
                     >
                         <ArrowLeftIcon className="h-4 w-4" /> Back to inventory
@@ -114,7 +118,7 @@ export default function ItemDetailPage() {
                     {isAdmin && (
                         <div className="flex gap-3">
                             <Link
-                                href={`/dashboard/inventory/edit/${item.id}`}
+                                href={`/inventory/dashboard/inventory/edit/${item.id}`}
                                 className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors"
                             >
                                 <PencilIcon className="h-4 w-4" /> Edit
@@ -138,10 +142,11 @@ export default function ItemDetailPage() {
                                         {item.name}
                                     </h1>
                                     <span
-                                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${item.isActive
+                                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                                            item.isActive
                                                 ? "bg-emerald-100 text-emerald-800"
                                                 : "bg-slate-100 text-slate-800"
-                                            }`}
+                                        }`}
                                     >
                                         {item.isActive ? "Active" : "Inactive"}
                                     </span>
@@ -155,8 +160,9 @@ export default function ItemDetailPage() {
                             </div>
                             <div className="flex items-center">
                                 <span
-                                    className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${statusStyles[stockStatus.status]
-                                        }`}
+                                    className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${
+                                        statusStyles[stockStatus.status]
+                                    }`}
                                 >
                                     {stockStatus.text}
                                 </span>

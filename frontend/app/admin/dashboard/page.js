@@ -6,10 +6,10 @@ import {
     UsersIcon,
     ShoppingBagIcon,
     TruckIcon,
-    CurrencyDollarIcon,
+    CurrencyRupeeIcon,
     ChartBarIcon,
-    ArrowTrendingUpIcon,
-    ArrowTrendingDownIcon,
+    ArrowUpIcon,
+    ArrowDownIcon,
 } from "@heroicons/react/24/outline";
 import { adminAPI } from "@/admin/lib/api";
 import toast from "react-hot-toast";
@@ -44,20 +44,45 @@ const RevenueChart = ({ chartData }) => {
             title: {
                 display: false,
             },
+            tooltip: {
+                backgroundColor: "#1f2937",
+                titleColor: "#fff",
+                bodyColor: "#d1d5db",
+                borderColor: "#374151",
+                borderWidth: 1,
+                cornerRadius: 8,
+                padding: 12,
+                titleFont: {
+                    family: "'Inter', sans-serif",
+                    size: 13,
+                    weight: "600",
+                },
+                bodyFont: {
+                    family: "'Inter', sans-serif",
+                    size: 12,
+                },
+                displayColors: false,
+                callbacks: {
+                    label: (context) =>
+                        `Revenue: ₹${context.parsed.y.toLocaleString()}`,
+                },
+            },
         },
         scales: {
             y: {
                 beginAtZero: true,
                 grid: {
                     color: "#f3f4f6",
+                    drawBorder: false,
                 },
                 ticks: {
-                    callback: (value) => "₹" + value,
+                    callback: (value) => "₹" + value.toLocaleString(),
                     font: {
                         family: "'Inter', sans-serif",
                         size: 11,
                     },
                     color: "#6b7280",
+                    padding: 8,
                 },
                 border: {
                     display: false,
@@ -73,11 +98,19 @@ const RevenueChart = ({ chartData }) => {
                         size: 11,
                     },
                     color: "#6b7280",
+                    padding: 4,
                 },
                 border: {
                     display: false,
                 },
             },
+        },
+        interaction: {
+            intersect: false,
+            mode: "index",
+        },
+        animation: {
+            duration: 500,
         },
     };
 
@@ -88,6 +121,7 @@ const RevenueChart = ({ chartData }) => {
                 label: "Revenue",
                 data: [],
                 backgroundColor: "#4f46e5",
+                hoverBackgroundColor: "#4338ca",
                 borderRadius: 4,
                 barThickness: 24,
             },
@@ -97,122 +131,39 @@ const RevenueChart = ({ chartData }) => {
     return <Bar options={options} data={chartData || defaultData} />;
 };
 
-const StatsCard = ({
-    title,
-    value,
-    change,
-    changeType,
-    icon: Icon,
-    color = "blue",
-}) => {
-    const colorClasses = {
-        blue: "bg-blue-50 text-blue-600",
-        green: "bg-green-50 text-green-600",
-        purple: "bg-purple-50 text-purple-600",
-        orange: "bg-orange-50 text-orange-600",
-    };
-
+const StatsCard = ({ title, value, change, changeType, icon: Icon }) => {
     return (
-        <div className="bg-white overflow-hidden rounded-xl border border-gray-200 hover:shadow-md transition-shadow duration-200">
-            <div className="p-5">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <p className="text-sm font-medium text-gray-500 truncate">
-                            {title}
-                        </p>
-                        <p className="mt-1 text-2xl font-semibold text-gray-900">
-                            {value}
-                        </p>
-                    </div>
-                    <div className={`p-3 rounded-lg ${colorClasses[color]}`}>
-                        <Icon className="w-6 h-6" />
-                    </div>
-                </div>
-                {change && (
-                    <div className="mt-4 flex items-center text-sm">
-                        <span
-                            className={`flex items-center font-medium ${changeType === "increase"
-                                    ? "text-green-600"
-                                    : "text-red-600"
+        <div className="bg-white rounded-lg border border-gray-200 p-5">
+            <div className="flex items-center justify-between">
+                <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-500">{title}</p>
+                    <p className="mt-1 text-2xl font-semibold text-gray-900">
+                        {value}
+                    </p>
+                    {change && (
+                        <div className="mt-2 flex items-center text-xs">
+                            <span
+                                className={`inline-flex items-center gap-1 font-medium ${
+                                    changeType === "increase"
+                                        ? "text-indigo-600"
+                                        : "text-gray-500"
                                 }`}
-                        >
-                            {changeType === "increase" ? (
-                                <ArrowTrendingUpIcon className="w-4 h-4 mr-1" />
-                            ) : (
-                                <ArrowTrendingDownIcon className="w-4 h-4 mr-1" />
-                            )}
-                            {change}
-                        </span>
-                        <span className="ml-2 text-gray-400">
-                            vs last month
-                        </span>
-                    </div>
-                )}
-            </div>
-        </div>
-    );
-};
-
-const RecentActivity = ({ activities }) => {
-    return (
-        <div className="bg-white rounded-xl border border-gray-200 h-full">
-            <div className="px-6 py-5 border-b border-gray-200">
-                <h3 className="text-base font-semibold leading-6 text-gray-900">
-                    Recent Activity
-                </h3>
-            </div>
-            <div className="px-6 py-6">
-                <div className="flow-root">
-                    <ul className="-mb-8">
-                        {activities.map((activity, index) => (
-                            <li key={activity.id}>
-                                <div className="relative pb-8">
-                                    {index !== activities.length - 1 && (
-                                        <span
-                                            className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200"
-                                            aria-hidden="true"
-                                        />
-                                    )}
-                                    <div className="relative flex space-x-3">
-                                        <div>
-                                            <span
-                                                className={`h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-white ${activity.type === "order"
-                                                        ? "bg-blue-500"
-                                                        : activity.type ===
-                                                            "admin"
-                                                            ? "bg-indigo-500"
-                                                            : activity.type ===
-                                                                "rider"
-                                                                ? "bg-purple-500"
-                                                                : "bg-gray-500"
-                                                    }`}
-                                            >
-                                                {activity.type === "order" && (
-                                                    <ShoppingBagIcon className="w-4 h-4 text-white" />
-                                                )}
-                                                {activity.type === "admin" && (
-                                                    <UsersIcon className="w-4 h-4 text-white" />
-                                                )}
-                                                {activity.type === "rider" && (
-                                                    <TruckIcon className="w-4 h-4 text-white" />
-                                                )}
-                                            </span>
-                                        </div>
-                                        <div className="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
-                                            <div>
-                                                <p className="text-sm text-gray-600">
-                                                    {activity.description}
-                                                </p>
-                                            </div>
-                                            <div className="text-right text-sm whitespace-nowrap text-gray-400">
-                                                {activity.time}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
+                            >
+                                {changeType === "increase" ? (
+                                    <ArrowUpIcon className="h-3 w-3" />
+                                ) : (
+                                    <ArrowDownIcon className="h-3 w-3" />
+                                )}
+                                {change}
+                            </span>
+                            <span className="ml-1.5 text-gray-400">
+                                vs last period
+                            </span>
+                        </div>
+                    )}
+                </div>
+                <div className="h-12 w-12 rounded-lg bg-indigo-50 flex items-center justify-center">
+                    <Icon className="h-6 w-6 text-indigo-600" />
                 </div>
             </div>
         </div>
@@ -227,9 +178,56 @@ export default function Dashboard() {
         activeRiders: 0,
         inventoryAdmins: 0,
     });
-    const [activities, setActivities] = useState([]);
+    const [dailyTrend, setDailyTrend] = useState([]);
     const [chartData, setChartData] = useState(null);
+    const [selectedRange, setSelectedRange] = useState("all");
     const [loading, setLoading] = useState(true);
+
+    const ranges = [
+        { key: "7d", label: "7 Days" },
+        { key: "30d", label: "30 Days" },
+        { key: "90d", label: "90 Days" },
+        { key: "all", label: "All Time" },
+    ];
+
+    const filterTrend = (trend, range) => {
+        if (!Array.isArray(trend)) return [];
+        if (range === "all") return trend;
+
+        const limitMap = { "7d": 7, "30d": 30, "90d": 90 };
+        const limit = limitMap[range] || trend.length;
+        return trend.slice(-limit);
+    };
+
+    const buildChartData = (trend, range) => {
+        const filtered = filterTrend(trend, range);
+        const labels = filtered.map((item) => {
+            const date = new Date(item.date);
+            return date.toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+            });
+        });
+        const revenueData = filtered.map((item) => Number(item.revenue) || 0);
+
+        return {
+            labels,
+            datasets: [
+                {
+                    label: "Revenue",
+                    data: revenueData,
+                    backgroundColor: "#4f46e5",
+                    hoverBackgroundColor: "#4338ca",
+                    borderRadius: 4,
+                    barThickness: 24,
+                },
+            ],
+        };
+    };
+
+    useEffect(() => {
+        setChartData(buildChartData(dailyTrend, selectedRange));
+    }, [dailyTrend, selectedRange]);
 
     useEffect(() => {
         fetchDashboardData();
@@ -240,7 +238,7 @@ export default function Dashboard() {
             setLoading(true);
             const resp = await adminAPI.getDashboardAnalytics();
             const payload = resp?.data?.data || {};
-            // Map expected stats from dashboard payload if available
+
             setStats({
                 totalOrders: payload?.orders?.totalOrders ?? 0,
                 totalRevenue: payload?.orders?.revenue?.total ?? 0,
@@ -248,62 +246,14 @@ export default function Dashboard() {
                 inventoryAdmins: payload?.users?.inventoryAdminsCount ?? 0,
             });
 
-            // Process chart data
             const dailyTrend = payload?.orders?.dailyTrend || [];
-            const labels = dailyTrend.map((item) => {
-                const date = new Date(item.date);
-                return date.toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                });
-            });
-            const revenueData = dailyTrend.map((item) => item.revenue);
-
-            setChartData({
-                labels: labels,
-                datasets: [
-                    {
-                        label: "Revenue",
-                        data: revenueData,
-                        backgroundColor: "#4f46e5",
-                        borderRadius: 4,
-                        barThickness: 24,
-                    },
-                ],
-            });
-
-            setActivities(
-                payload?.recentActivities ?? [
-                    {
-                        id: 1,
-                        type: "order",
-                        description: "New order #ORD-001 placed",
-                        time: "2 minutes ago",
-                    },
-                    {
-                        id: 2,
-                        type: "admin",
-                        description: "New inventory admin added",
-                        time: "1 hour ago",
-                    },
-                    {
-                        id: 3,
-                        type: "rider",
-                        description: "Rider John completed delivery",
-                        time: "2 hours ago",
-                    },
-                    {
-                        id: 4,
-                        type: "order",
-                        description: "Order #ORD-002 delivered",
-                        time: "3 hours ago",
-                    },
-                ]
+            const sortedTrend = [...dailyTrend].sort(
+                (a, b) => new Date(a.date) - new Date(b.date)
             );
+            setDailyTrend(sortedTrend);
         } catch (err) {
             console.error("Dashboard data fetch error:", err);
             toast.error("Failed to load dashboard data");
-            // Keep dummy data for fallback if needed, or just empty
         } finally {
             setLoading(false);
         }
@@ -312,75 +262,80 @@ export default function Dashboard() {
     if (loading) {
         return (
             <div className="flex items-center justify-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+                <div className="h-8 w-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
             </div>
         );
     }
 
     return (
-        <div>
-            <div className="mb-8">
-                <h1 className="text-2xl font-bold text-gray-900">
-                    Welcome back, {user?.username}!
+        <div className="space-y-6">
+            {/* Header */}
+            <div className="border-b border-gray-200 pb-5">
+                <h1 className="text-2xl font-semibold text-gray-900">
+                    Welcome back, {user?.username}
                 </h1>
                 <p className="mt-1 text-sm text-gray-500">
-                    Here's what's happening with your business today.
+                    Here's an overview of your business performance
                 </p>
             </div>
 
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+            {/* Stats Grid */}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <StatsCard
                     title="Total Orders"
                     value={stats.totalOrders.toLocaleString()}
-                    change="+12%"
-                    changeType="increase"
                     icon={ShoppingBagIcon}
-                    color="blue"
                 />
                 <StatsCard
                     title="Total Revenue"
                     value={`₹${stats.totalRevenue.toLocaleString()}`}
-                    change="+8%"
-                    changeType="increase"
-                    icon={CurrencyDollarIcon}
-                    color="green"
+                    icon={CurrencyRupeeIcon}
                 />
                 <StatsCard
                     title="Active Riders"
-                    value={stats.activeRiders}
-                    change="+2"
-                    changeType="increase"
+                    value={stats.activeRiders.toString()}
                     icon={TruckIcon}
-                    color="purple"
                 />
                 {user?.role === "superadmin" && (
                     <StatsCard
                         title="Inventory Admins"
-                        value={stats.inventoryAdmins}
-                        change="+1"
-                        changeType="increase"
+                        value={stats.inventoryAdmins.toString()}
                         icon={UsersIcon}
-                        color="orange"
                     />
                 )}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2">
-                    <div className="bg-white rounded-xl border border-gray-200 p-6 h-full">
-                        <div className="flex items-center justify-between mb-6">
-                            <h3 className="text-base font-semibold leading-6 text-gray-900">
-                                Revenue Overview
-                            </h3>
-                            <ChartBarIcon className="h-5 w-5 text-gray-400" />
-                        </div>
-                        <div className="h-80 w-full">
-                            <RevenueChart chartData={chartData} />
-                        </div>
+            {/* Revenue Chart */}
+            <div className="bg-white rounded-lg border border-gray-200">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-5 border-b border-gray-200">
+                    <div>
+                        <h2 className="text-base font-semibold text-gray-900">
+                            Revenue Overview
+                        </h2>
+                        <p className="text-sm text-gray-500">
+                            Track daily revenue performance
+                        </p>
+                    </div>
+                    <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-lg">
+                        {ranges.map((range) => (
+                            <button
+                                key={range.key}
+                                onClick={() => setSelectedRange(range.key)}
+                                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                                    selectedRange === range.key
+                                        ? "bg-white text-gray-900 shadow-sm"
+                                        : "text-gray-600 hover:text-gray-900"
+                                }`}
+                            >
+                                {range.label}
+                            </button>
+                        ))}
                     </div>
                 </div>
-                <div className="lg:col-span-1">
-                    <RecentActivity activities={activities} />
+                <div className="p-5">
+                    <div className="h-72">
+                        <RevenueChart chartData={chartData} />
+                    </div>
                 </div>
             </div>
         </div>

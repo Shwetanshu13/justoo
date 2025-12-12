@@ -13,27 +13,50 @@ import {
     Cog6ToothIcon,
     XMarkIcon,
     ShieldCheckIcon,
+    SparklesIcon,
 } from "@heroicons/react/24/outline";
 import { useAuth } from "@/admin/contexts/AuthContext";
 import Link from "next/link";
 
 const navigation = [
-    { name: "Dashboard", href: "/admin/dashboard", icon: HomeIcon },
-    { name: "Orders", href: "/admin/dashboard/orders", icon: DocumentTextIcon },
-    { name: "Riders", href: "/admin/dashboard/riders", icon: TruckIcon },
+    {
+        name: "Dashboard",
+        href: "/admin/dashboard",
+        icon: HomeIcon,
+        gradient: "from-blue-500 to-cyan-500",
+    },
+    {
+        name: "Orders",
+        href: "/admin/dashboard/orders",
+        icon: DocumentTextIcon,
+        gradient: "from-violet-500 to-purple-500",
+    },
+    {
+        name: "Riders",
+        href: "/admin/dashboard/riders",
+        icon: TruckIcon,
+        gradient: "from-orange-500 to-amber-500",
+    },
     {
         name: "Admins",
         href: "/admin/dashboard/admins",
         icon: UsersIcon,
+        gradient: "from-pink-500 to-rose-500",
         superAdminOnly: true,
     },
     {
         name: "Inventory Admins",
         href: "/admin/dashboard/inventory-admins",
         icon: ShieldCheckIcon,
+        gradient: "from-teal-500 to-emerald-500",
         superAdminOnly: true,
     },
-    { name: "Analytics", href: "/admin/dashboard/analytics", icon: ChartBarIcon },
+    {
+        name: "Analytics",
+        href: "/admin/dashboard/analytics",
+        icon: ChartBarIcon,
+        gradient: "from-indigo-500 to-blue-500",
+    },
 ];
 
 function classNames(...classes) {
@@ -53,20 +76,27 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
     });
 
     const SidebarContent = () => (
-        <div className="flex flex-col h-full bg-white border-r border-gray-200">
-            <div className="flex items-center h-16 flex-shrink-0 px-6 border-b border-gray-200">
+        <div className="flex flex-col h-full bg-gradient-to-b from-white via-white to-gray-50/80 border-r border-gray-100">
+            {/* Logo Section */}
+            <div className="flex items-center h-16 flex-shrink-0 px-6 border-b border-gray-100 bg-white">
                 <div className="flex items-center gap-3">
-                    <div className="p-1.5 bg-primary-600 rounded-lg">
-                        <ShieldCheckIcon className="h-6 w-6 text-white" />
+                    <div className="p-2 bg-gradient-to-br from-primary-600 via-primary-500 to-purple-600 rounded-xl shadow-lg shadow-primary-500/30">
+                        <SparklesIcon className="h-5 w-5 text-white" />
                     </div>
-                    <span className="text-gray-900 text-lg font-bold tracking-tight">
-                        Justoo Admin
-                    </span>
+                    <div>
+                        <span className="text-gray-900 text-lg font-bold tracking-tight bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text">
+                            Justoo
+                        </span>
+                        <span className="text-xs font-medium text-primary-600 ml-1.5 px-1.5 py-0.5 bg-primary-50 rounded-md">
+                            Admin
+                        </span>
+                    </div>
                 </div>
             </div>
 
-            <div className="flex-1 flex flex-col overflow-y-auto pt-5 pb-4">
-                <nav className="mt-2 flex-1 px-3 space-y-1">
+            {/* Navigation */}
+            <div className="flex-1 flex flex-col overflow-y-auto pt-6 pb-4">
+                <nav className="flex-1 px-4 space-y-1.5">
                     {filteredNavigation.map((item) => {
                         const isActive =
                             pathname === item.href ||
@@ -77,40 +107,55 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
                                 href={item.href}
                                 className={classNames(
                                     isActive
-                                        ? "bg-primary-50 text-primary-600"
-                                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
-                                    "group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200"
+                                        ? "bg-gradient-to-r from-primary-50 to-purple-50 text-primary-700 shadow-sm border border-primary-100/50"
+                                        : "text-gray-600 hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 hover:text-gray-900 border border-transparent",
+                                    "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200"
                                 )}
                                 onClick={() => setSidebarOpen(false)}
                             >
-                                <item.icon
+                                <div
                                     className={classNames(
                                         isActive
-                                            ? "text-primary-600"
-                                            : "text-gray-400 group-hover:text-gray-500",
-                                        "mr-3 flex-shrink-0 h-5 w-5 transition-colors duration-200"
+                                            ? `bg-gradient-to-br ${item.gradient} shadow-lg`
+                                            : "bg-gray-100 group-hover:bg-gradient-to-br group-hover:" +
+                                                  item.gradient,
+                                        "p-2 rounded-lg mr-3 transition-all duration-200"
                                     )}
-                                    aria-hidden="true"
-                                />
-                                {item.name}
+                                >
+                                    <item.icon
+                                        className={classNames(
+                                            isActive
+                                                ? "text-white"
+                                                : "text-gray-500 group-hover:text-white",
+                                            "flex-shrink-0 h-4 w-4 transition-colors duration-200"
+                                        )}
+                                        aria-hidden="true"
+                                    />
+                                </div>
+                                <span className="font-medium">{item.name}</span>
+                                {isActive && (
+                                    <div className="ml-auto h-2 w-2 rounded-full bg-gradient-to-r from-primary-500 to-purple-500"></div>
+                                )}
                             </Link>
                         );
                     })}
                 </nav>
             </div>
 
-            <div className="flex-shrink-0 border-t border-gray-200 p-4">
-                <div className="flex items-center group w-full">
-                    <div className="inline-block h-9 w-9 rounded-full overflow-hidden bg-gray-100">
-                        <div className="h-full w-full flex items-center justify-center bg-primary-100 text-primary-600 font-medium">
+            {/* User Profile Card */}
+            <div className="flex-shrink-0 border-t border-gray-100 p-4 bg-gradient-to-r from-gray-50 to-slate-50">
+                <div className="flex items-center group w-full p-3 rounded-xl hover:bg-white hover:shadow-md transition-all duration-200 cursor-pointer">
+                    <div className="inline-block h-10 w-10 rounded-xl overflow-hidden bg-gradient-to-br from-primary-500 to-purple-600 shadow-lg shadow-primary-500/25">
+                        <div className="h-full w-full flex items-center justify-center text-white font-semibold text-sm">
                             {user?.username?.[0]?.toUpperCase()}
                         </div>
                     </div>
-                    <div className="ml-3">
-                        <p className="text-sm font-medium text-gray-700 group-hover:text-gray-900">
+                    <div className="ml-3 flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-gray-900 truncate">
                             {user?.username}
                         </p>
-                        <p className="text-xs font-medium text-gray-500 group-hover:text-gray-700 capitalize">
+                        <p className="text-xs font-medium text-gray-500 capitalize flex items-center gap-1">
+                            <span className="h-1.5 w-1.5 rounded-full bg-green-500"></span>
                             {user?.role}
                         </p>
                     </div>

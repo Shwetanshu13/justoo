@@ -106,7 +106,7 @@ export default function InventoryPage() {
                     </div>
                     {isAdmin && (
                         <Link
-                            href="/dashboard/inventory/add"
+                            href="/inventory/dashboard/inventory/add"
                             className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors shadow-sm"
                         >
                             <PlusIcon className="h-4 w-4" />
@@ -258,7 +258,7 @@ export default function InventoryPage() {
                                                 key={item.id}
                                                 onClick={() =>
                                                     router.push(
-                                                        `/dashboard/inventory/${item.id}`
+                                                        `/inventory/dashboard/inventory/${item.id}`
                                                     )
                                                 }
                                                 className="hover:bg-slate-50 transition-colors cursor-pointer"
@@ -313,11 +313,12 @@ export default function InventoryPage() {
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <span
-                                                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusStyles[
-                                                            stockStatus
-                                                                .status
+                                                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                                            statusStyles[
+                                                                stockStatus
+                                                                    .status
                                                             ]
-                                                            }`}
+                                                        }`}
                                                     >
                                                         {stockStatus.text}
                                                     </span>

@@ -47,7 +47,6 @@ export default function Dashboard() {
         {
             name: "Total Items",
             stat: stats?.totalItems || 0,
-            trend: "+12%",
             icon: CubeIcon,
             color: "text-blue-600",
             bg: "bg-blue-50",
@@ -55,7 +54,6 @@ export default function Dashboard() {
         {
             name: "In Stock",
             stat: stats?.inStockItems || 0,
-            trend: "Good",
             icon: ChartBarIcon,
             color: "text-emerald-600",
             bg: "bg-emerald-50",
@@ -63,7 +61,6 @@ export default function Dashboard() {
         {
             name: "Out of Stock",
             stat: stats?.outOfStockItems || 0,
-            trend: "Action needed",
             icon: ExclamationTriangleIcon,
             color: "text-rose-600",
             bg: "bg-rose-50",
@@ -71,7 +68,6 @@ export default function Dashboard() {
         {
             name: "Low Stock",
             stat: stats?.lowStockItems || 0,
-            trend: "Warning",
             icon: ExclamationTriangleIcon,
             color: "text-amber-600",
             bg: "bg-amber-50",
@@ -142,12 +138,13 @@ export default function Dashboard() {
                                 </div>
                                 {item.trend && (
                                     <span
-                                        className={`text-xs font-medium px-2 py-1 rounded-full ${item.name === "Out of Stock"
-                                            ? "bg-rose-50 text-rose-600"
-                                            : item.name === "Low Stock"
+                                        className={`text-xs font-medium px-2 py-1 rounded-full ${
+                                            item.name === "Out of Stock"
+                                                ? "bg-rose-50 text-rose-600"
+                                                : item.name === "Low Stock"
                                                 ? "bg-amber-50 text-amber-600"
                                                 : "bg-emerald-50 text-emerald-600"
-                                            }`}
+                                        }`}
                                     >
                                         {item.trend}
                                     </span>
@@ -166,11 +163,11 @@ export default function Dashboard() {
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+                    <div className="lg:col-span-3 bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
                         <h3 className="text-lg font-bold text-slate-900 mb-4">
                             Quick Actions
                         </h3>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                             {quickActions.map((action) => (
                                 <button
                                     key={action.label}
@@ -192,47 +189,6 @@ export default function Dashboard() {
                                     </div>
                                 </button>
                             ))}
-                        </div>
-                    </div>
-
-                    <div className="bg-slate-900 rounded-xl p-6 text-white">
-                        <div className="flex items-center gap-2 mb-6">
-                            <BoltIcon className="h-5 w-5 text-yellow-400" />
-                            <h3 className="font-bold">System Status</h3>
-                        </div>
-                        <div className="space-y-4">
-                            <div className="flex justify-between items-center border-b border-white/10 pb-3">
-                                <span className="text-slate-300 text-sm">
-                                    Database
-                                </span>
-                                <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                                    Operational
-                                </span>
-                            </div>
-                            <div className="flex justify-between items-center border-b border-white/10 pb-3">
-                                <span className="text-slate-300 text-sm">
-                                    API Gateway
-                                </span>
-                                <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                                    Operational
-                                </span>
-                            </div>
-                            <div className="flex justify-between items-center pb-1">
-                                <span className="text-slate-300 text-sm">
-                                    Sync Service
-                                </span>
-                                <span className="flex items-center gap-1.5 text-xs font-medium text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                                    Operational
-                                </span>
-                            </div>
-                        </div>
-                        <div className="mt-6 pt-4 border-t border-white/10">
-                            <p className="text-xs text-slate-400">
-                                Last checked: Just now
-                            </p>
                         </div>
                     </div>
                 </div>

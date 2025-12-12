@@ -13,13 +13,12 @@ import {
     BanknotesIcon,
 } from "@heroicons/react/24/outline";
 import toast from "react-hot-toast";
-import { formatCurrency, formatDateTime, ORDER_STATUS } from "@/inventory/lib/utils";
-import DashboardLayout from "@/inventory/components/DashboardLayout";
+import {
+    formatCurrency,
+    formatDateTime,
+    ORDER_STATUS,
+} from "@/inventory/lib/utils";
 import LoadingSpinner from "@/inventory/components/LoadingSpinner";
-import { orderAPI } from "@/inventory/lib/api";
-import DashboardLayout from "@/inventory/components/DashboardLayout";
-import LoadingSpinner from "@/inventory/components/LoadingSpinner";
-import { orderAPI } from "@/inventory/lib/api";
 
 export default function OrderDetailsPage({ params }) {
     const router = useRouter();
@@ -99,8 +98,9 @@ export default function OrderDetailsPage({ params }) {
                     </div>
                     <div className="flex items-center gap-3">
                         <span
-                            className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${statusColors[statusInfo.color]
-                                }`}
+                            className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${
+                                statusColors[statusInfo.color]
+                            }`}
                         >
                             {statusInfo.text}
                         </span>
