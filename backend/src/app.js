@@ -29,7 +29,6 @@ import inventoryOrderRoutes from './routes/inventory/orderRoutes.js';
 import riderAuthRoute from './routes/rider/authRoute.js';
 import riderOrderRoute from './routes/rider/orderRoute.js';
 import riderRoute from './routes/rider/riderRoute.js';
-import riderNotificationRoute from './routes/rider/notificationRoute.js';
 import riderDeliveryRoute from './routes/rider/deliveryRoute.js';
 
 const app = express();
@@ -73,7 +72,6 @@ app.use('/api/inventory/orders', inventoryOrderRoutes);
 app.use('/api/rider/auth', riderAuthRoute);
 app.use('/api/rider/order', riderOrderRoute);
 app.use('/api/rider/rider', riderRoute);
-app.use('/api/rider/notifications', riderNotificationRoute);
 app.use('/api/rider/delivery', riderDeliveryRoute);
 
 // Health

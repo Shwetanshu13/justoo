@@ -3,7 +3,7 @@ import Cookies from "js-cookie";
 
 const API_BASE_URL =
     (process.env.NEXT_PUBLIC_INVENTORY_API_URL || "http://localhost:3000") +
-    "/inventory/api";
+    "/api/inventory";
 
 export const api = axios.create({
     baseURL: API_BASE_URL,
@@ -47,37 +47,36 @@ export const authAPI = {
 };
 
 export const inventoryAPI = {
-    getAllItems: (params) => api.get("/inventory/items", { params }),
-    getItemById: (id) => api.get(`/inventory/items/${id}`),
+    getAllItems: (params) => api.get("/items", { params }),
+    getItemById: (id) => api.get(`/items/${id}`),
     addItem: (data) => {
         // Check if data is FormData (for file uploads)
         if (data instanceof FormData) {
-            return api.post("/inventory/items", data, {
+            return api.post("/items", data, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
             });
         }
-        return api.post("/inventory/items", data);
+        return api.post("/items", data);
     },
     updateItem: (id, data) => {
         // Check if data is FormData (for file uploads)
         if (data instanceof FormData) {
-            return api.put(`/inventory/items/${id}`, data, {
+            return api.put(`/items/${id}`, data, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
             });
         }
-        return api.put(`/inventory/items/${id}`, data);
+        return api.put(`/items/${id}`, data);
     },
-    deleteItem: (id) => api.delete(`/inventory/items/${id}`),
-    getInStockItems: () => api.get("/inventory/stock/in-stock"),
-    getOutOfStockItems: () => api.get("/inventory/stock/out-of-stock"),
-    getLowStockItems: () => api.get("/inventory/stock/low-stock"),
-    getDashboardStats: () => api.get("/inventory/dashboard/stats"),
-    getNotifications: () => api.get("/inventory/dashboard/notifications"),
-    getUnits: () => api.get("/inventory/units"),
+    deleteItem: (id) => api.delete(`/items/${id}`),
+    getInStockItems: () => api.get("/stock/in-stock"),
+    getOutOfStockItems: () => api.get("/stock/out-of-stock"),
+    getLowStockItems: () => api.get("/stock/low-stock"),
+    getDashboardStats: () => api.get("/dashboard/stats"),
+    getUnits: () => api.get("/units"),
 };
 
 export const orderAPI = {

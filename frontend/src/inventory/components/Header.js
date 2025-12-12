@@ -26,19 +26,6 @@ export default function Header({ setSidebarOpen, user }) {
     const { logout } = useAuth();
     const router = useRouter();
     const pathname = usePathname();
-    const [notifications, setNotifications] = useState([]);
-
-    useEffect(() => {
-        const fetchNotifications = async () => {
-            try {
-                const response = await inventoryAPI.getNotifications();
-                setNotifications(response.data.data);
-            } catch (error) {
-                console.error("Failed to fetch notifications", error);
-            }
-        };
-        fetchNotifications();
-    }, []);
 
     const pageTitle = useMemo(() => {
         if (!pathname) return "Inventory Management System";
@@ -130,65 +117,6 @@ export default function Header({ setSidebarOpen, user }) {
                                     </button>
                                 </MenuItem>
                             ))}
-                        </MenuItems>
-                    </Menu>
-                    <Menu as="div" className="relative">
-                        <MenuButton className="relative rounded-2xl border border-slate-200 bg-white p-2 text-gray-400 hover:text-gray-500 outline-none">
-                            <span className="sr-only">View notifications</span>
-                            <BellIcon className="h-6 w-6" aria-hidden="true" />
-                            {notifications.length > 0 && (
-                                <span className="absolute -right-1 -top-1 inline-flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[10px] text-white">
-                                    {notifications.length}
-                                </span>
-                            )}
-                        </MenuButton>
-                        <MenuItems
-                            transition
-                            className="absolute right-0 z-10 mt-2.5 w-80 origin-top-right rounded-xl bg-white py-2 shadow-lg ring-1 ring-gray-900/5 transition focus:outline-none data-[closed]:scale-95 data-[closed]:transform data-[closed]:opacity-0 data-[enter]:duration-100 data-[leave]:duration-75 data-[enter]:ease-out data-[leave]:ease-in"
-                        >
-                            <div className="px-4 py-2 border-b border-gray-100">
-                                <h3 className="text-sm font-semibold text-gray-900">
-                                    Notifications
-                                </h3>
-                            </div>
-                            <div className="max-h-96 overflow-y-auto">
-                                {notifications.length === 0 ? (
-                                    <div className="px-4 py-6 text-center text-sm text-gray-500">
-                                        No new notifications
-                                    </div>
-                                ) : (
-                                    notifications.map((notification) => (
-                                        <MenuItem key={notification.id}>
-                                            <button
-                                                onClick={() =>
-                                                    router.push(
-                                                        notification.link
-                                                    )
-                                                }
-                                                className="group flex w-full items-start gap-x-3 px-4 py-3 text-left hover:bg-gray-50"
-                                            >
-                                                <div
-                                                    className={`mt-1 flex-none rounded-full p-1 ${notification.type ===
-                                                            "critical"
-                                                            ? "bg-rose-50 text-rose-600"
-                                                            : "bg-amber-50 text-amber-600"
-                                                        }`}
-                                                >
-                                                    <ExclamationTriangleIcon className="h-4 w-4" />
-                                                </div>
-                                                <div>
-                                                    <p className="text-sm font-medium text-gray-900">
-                                                        {notification.title}
-                                                    </p>
-                                                    <p className="text-xs text-gray-500 mt-0.5">
-                                                        {notification.message}
-                                                    </p>
-                                                </div>
-                                            </button>
-                                        </MenuItem>
-                                    ))
-                                )}
-                            </div>
                         </MenuItems>
                     </Menu>
                     <div

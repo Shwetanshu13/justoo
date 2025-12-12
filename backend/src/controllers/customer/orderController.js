@@ -1,8 +1,11 @@
 import db from '../../config/db.js';
-import { orders, orderItems, items, customerAddresses, justooPayments, riderNotifications, justooRiders } from '../../db/schema.js';
+import { orders, orderItems, items, customerAddresses, justooPayments } from '../../db/schema.js';
 import { eq, and, sql, desc, inArray } from 'drizzle-orm';
-import { successResponse, errorResponse, getPaginationData, generateOrderNumber } from '../../utils/response.js';
+import { successResponse, errorResponse } from '../../utils/response.js';
 import { carts } from './cartController.js';
+
+// Simple local order number generator to avoid external dependency
+const generateOrderNumber = () => `ORD-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
 
 // Create new order
 export const createOrder = async (req, res) => {
@@ -130,41 +133,6 @@ export const createOrder = async (req, res) => {
         // Clear customer's cart
         carts.delete(customerId);
 
-        // Create notifications for all active riders
-        try {
-            const activeRiders = await db
-                .select({ id: justooRiders.id, name: justooRiders.name })
-                .from(justooRiders)
-                .where(
-                    and(
-                        eq(justooRiders.isActive, 1),
-                        eq(justooRiders.status, 'active')
-                    )
-                );
-
-            if (activeRiders.length > 0) {
-                const notifications = activeRiders.map(rider => ({
-                    riderId: rider.id,
-                    type: 'order',
-                    title: 'New Order Available',
-                    message: `A new order #${orderNumber} is available for delivery. Total: ₹${totalAmount}`,
-                    data: JSON.stringify({
-                        orderId: newOrder.id,
-                        orderNumber,
-                        totalAmount,
-                        itemCount: cart.itemCount,
-                        deliveryAddress: address[0]
-                    }),
-                    sentAt: new Date()
-                }));
-
-                await db.insert(riderNotifications).values(notifications);
-            }
-        } catch (notificationError) {
-            console.error('Error creating rider notifications:', notificationError);
-            // Don't fail the order creation if notifications fail
-        }
-
         // Get complete order details
         const orderDetails = await getOrderDetails(newOrder.id);
 
@@ -219,23 +187,8 @@ export const getCustomerOrders = async (req, res) => {
 
         const customerOrders = await query.limit(parseInt(limit)).offset(offset);
 
-        // Get total count
-        let countQuery = db
-            .select({ count: sql`count(*)` })
-            .from(orders)
-            .where(eq(orders.customerId, customerId));
-
-        if (status) {
-            countQuery = countQuery.where(eq(orders.status, status));
-        }
-
-        const totalResult = await countQuery;
-        const totalOrders = parseInt(totalResult[0].count);
-        const pagination = getPaginationData(page, limit, totalOrders);
-
         return successResponse(res, 'Orders retrieved successfully', {
-            orders: customerOrders,
-            pagination
+            orders: customerOrders
         });
     } catch (error) {
         console.error('Get customer orders error:', error);

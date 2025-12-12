@@ -180,7 +180,7 @@ export default function AnalyticsPage() {
             setLoading(true);
 
             // Fetch real analytics data from backend
-            const response = await api.get(`/admin/analytics/dashboard?days=${dateRange}`);
+            const response = await api.get(`/analytics/dashboard?days=${dateRange}`);
             const data = response.data.data;
             console.log(response);
 

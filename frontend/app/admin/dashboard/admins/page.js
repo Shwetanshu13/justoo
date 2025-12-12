@@ -233,7 +233,7 @@ export default function AdminsPage() {
     const fetchAdmins = async () => {
         try {
             setLoading(true);
-            const response = await api.get('/admin');
+            const response = await api.get('/');
             console.log(response);
             if (response.data.success) {
 

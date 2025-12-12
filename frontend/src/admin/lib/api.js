@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_BASE_URL = (process.env.NEXT_PUBLIC_ADMIN_BACKEND_API_URL || "http://localhost:3000") + "/admin/api";
+// Check the backend api route configuration for the correct base URL
+const API_BASE_URL = (process.env.NEXT_PUBLIC_ADMIN_BACKEND_API_URL || "http://localhost:3000") + "/api/admin";
 
 export const api = axios.create({
     baseURL: API_BASE_URL,
@@ -26,16 +27,16 @@ export const authAPI = {
 
 // Admin Management API
 export const adminAPI = {
-    getAllAdmins: (params) => api.get('/admin', { params }),
-    addAdmin: (data) => api.post('/admin/add', data),
-    deleteAdmin: (id) => api.delete(`/admin/${id}`),
-    getAllUsers: (params) => api.get('/admin/users', { params }),
-    deleteUser: (id) => api.delete(`/admin/users/${id}`),
-    getDashboardAnalytics: () => api.get('/admin/analytics/dashboard'),
-    getUserAnalytics: (params) => api.get('/admin/analytics/users', { params }),
-    getOrderAnalytics: (params) => api.get('/admin/analytics/orders', { params }),
-    getInventoryAnalytics: (params) => api.get('/admin/analytics/inventory', { params }),
-    getPaymentAnalytics: (params) => api.get('/admin/analytics/payments', { params }),
+    getAllAdmins: (params) => api.get('/', { params }),
+    addAdmin: (data) => api.post('/add', data),
+    deleteAdmin: (id) => api.delete(`/${id}`),
+    getAllUsers: (params) => api.get('/users', { params }),
+    deleteUser: (id) => api.delete(`/users/${id}`),
+    getDashboardAnalytics: () => api.get('/analytics/dashboard'),
+    getUserAnalytics: (params) => api.get('/analytics/users', { params }),
+    getOrderAnalytics: (params) => api.get('/analytics/orders', { params }),
+    getInventoryAnalytics: (params) => api.get('/analytics/inventory', { params }),
+    getPaymentAnalytics: (params) => api.get('/analytics/payments', { params }),
 };
 
 // Inventory API
@@ -47,12 +48,12 @@ export const inventoryAPI = {
 
 // Inventory Admin Management API
 export const inventoryAdminAPI = {
-    getAllInventoryAdmins: (params) => api.get('/admin/inventory-admins', { params }),
-    getInventoryAdminById: (id) => api.get(`/admin/inventory-admins/${id}`),
-    createInventoryAdmin: (data) => api.post('/admin/inventory-admins', data),
-    updateInventoryAdmin: (id, data) => api.put(`/admin/inventory-admins/${id}`, data),
-    deleteInventoryAdmin: (id) => api.delete(`/admin/inventory-admins/${id}`),
-    toggleInventoryAdminStatus: (id) => api.patch(`/admin/inventory-admins/${id}/toggle-status`),
+    getAllInventoryAdmins: (params) => api.get('/inventory-admins', { params }),
+    getInventoryAdminById: (id) => api.get(`/inventory-admins/${id}`),
+    createInventoryAdmin: (data) => api.post('/inventory-admins', data),
+    updateInventoryAdmin: (id, data) => api.put(`/inventory-admins/${id}`, data),
+    deleteInventoryAdmin: (id) => api.delete(`/inventory-admins/${id}`),
+    toggleInventoryAdminStatus: (id) => api.patch(`/inventory-admins/${id}/toggle-status`),
 };
 
 // Rider API

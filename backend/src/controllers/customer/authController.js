@@ -4,7 +4,7 @@ import db from '../../config/db.js';
 import { customers } from '../../db/schema.js';
 import { eq, or } from 'drizzle-orm';
 import env from '../../config/env.js';
-import { successResponse, errorResponse, validatePhone, validateEmail } from '../../utils/response.js';
+import { successResponse, errorResponse } from '../../utils/response.js';
 
 // Register new customer
 export const register = async (req, res) => {
