@@ -11,7 +11,7 @@ import {
     upload,
     VALID_UNITS,
 } from "../../controllers/inventory/inventoryController.js";
-import { getDashboardStats, getNotifications } from "../../controllers/inventory/dashboardController.js";
+import { getDashboardStats } from "../../controllers/inventory/dashboardController.js";
 import { authenticateToken, authorizeRoles } from "../../middlewares/inventoryAuth.js";
 
 const router = express.Router();
@@ -26,7 +26,6 @@ router.get("/units", (req, res) => {
 });
 
 // Protected routes (require authentication)
-router.get("/dashboard/notifications", authenticateToken, getNotifications);
 // Read operations - all authenticated users can access
 router.get("/items", authenticateToken, getAllItems); // GET /api/inventory/items
 router.get("/items/:id", authenticateToken, getItemById); // GET /api/inventory/items/:id

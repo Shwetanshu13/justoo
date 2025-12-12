@@ -1,7 +1,7 @@
 import db from '../../config/db.js';
 import { items, customers } from '../../db/schema.js';
 import { eq, and, or, sql, desc, asc, like, gte, lte, inArray } from 'drizzle-orm';
-import { successResponse, errorResponse, getPaginationData } from '../../utils/response.js';
+import { successResponse, errorResponse } from '../../utils/response.js';
 import { processItemsImages, processItemImage } from '../../config/cloudinary.js';
 
 // Get all items with pagination, filtering, and sorting
@@ -59,25 +59,14 @@ export const getItems = async (req, res) => {
         const order = sortOrder === 'desc' ? desc : asc;
         query = query.orderBy(order(items[sortField]));
 
-        // Apply pagination
+        // Apply pagination to the query but do not return metadata
         const itemsList = await query.limit(parseInt(limit)).offset(offset);
-
-        // Get total count for pagination
-        let countQuery = db.select({ count: sql`count(*)` }).from(items);
-        if (conditions.length > 0) {
-            countQuery = countQuery.where(and(...conditions));
-        }
-        const totalResult = await countQuery;
-        const totalItems = parseInt(totalResult[0].count);
-
-        const pagination = getPaginationData(page, limit, totalItems);
 
         // Process images for customer-facing response
         const processedItems = processItemsImages(itemsList);
 
         return successResponse(res, 'Items retrieved successfully', {
-            items: processedItems,
-            pagination
+            items: processedItems
         });
     } catch (error) {
         console.error('Get items error:', error);
@@ -233,25 +222,12 @@ export const getItemsByCategory = async (req, res) => {
 
         const categoryItems = await query.limit(parseInt(limit)).offset(offset);
 
-        // Get total count
-        const totalResult = await db
-            .select({ count: sql`count(*)` })
-            .from(items)
-            .where(and(
-                eq(items.category, category),
-                sql`${items.isActive} = 1`
-            ));
-
-        const totalItems = parseInt(totalResult[0].count);
-        const pagination = getPaginationData(page, limit, totalItems);
-
         // Process images for customer-facing response
         const processedItems = processItemsImages(categoryItems);
 
         return successResponse(res, `Items in category '${category}' retrieved successfully`, {
             category,
-            items: processedItems,
-            pagination
+            items: processedItems
         });
     } catch (error) {
         console.error('Get items by category error:', error);

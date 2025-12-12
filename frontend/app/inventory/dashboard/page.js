@@ -4,14 +4,12 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import DashboardLayout from "@/inventory/components/DashboardLayout";
 import { inventoryAPI } from "@/inventory/lib/api";
-import { formatCurrency } from "@/inventory/lib/utils";
 import {
     CubeIcon,
     ExclamationTriangleIcon,
     ChartBarIcon,
     ShoppingCartIcon,
     BoltIcon,
-    ArrowTrendingUpIcon,
 } from "@heroicons/react/24/outline";
 import toast from "react-hot-toast";
 import LoadingSpinner from "@/inventory/components/LoadingSpinner";
@@ -145,10 +143,10 @@ export default function Dashboard() {
                                 {item.trend && (
                                     <span
                                         className={`text-xs font-medium px-2 py-1 rounded-full ${item.name === "Out of Stock"
-                                                ? "bg-rose-50 text-rose-600"
-                                                : item.name === "Low Stock"
-                                                    ? "bg-amber-50 text-amber-600"
-                                                    : "bg-emerald-50 text-emerald-600"
+                                            ? "bg-rose-50 text-rose-600"
+                                            : item.name === "Low Stock"
+                                                ? "bg-amber-50 text-amber-600"
+                                                : "bg-emerald-50 text-emerald-600"
                                             }`}
                                     >
                                         {item.trend}
