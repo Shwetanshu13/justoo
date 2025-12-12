@@ -15,7 +15,14 @@ import {
     BanknotesIcon,
 } from "@heroicons/react/24/outline";
 
-const MetricCard = ({ title, value, icon: Icon, color = "blue" }) => {
+const MetricCard = ({
+    title,
+    value,
+    change,
+    changeType = "increase",
+    icon: Icon,
+    color = "blue",
+}) => {
     const colorClasses = {
         blue: "bg-blue-50 text-blue-600",
         green: "bg-green-50 text-green-600",
@@ -44,6 +51,28 @@ const MetricCard = ({ title, value, icon: Icon, color = "blue" }) => {
                                 <div className="text-2xl font-semibold text-gray-900">
                                     {value}
                                 </div>
+                                {change ? (
+                                    <div
+                                        className={`ml-2 flex items-baseline text-sm font-semibold ${
+                                            changeType === "increase"
+                                                ? "text-green-600"
+                                                : "text-red-600"
+                                        }`}
+                                    >
+                                        {changeType === "increase" ? (
+                                            <ArrowTrendingUpIcon className="self-center flex-shrink-0 h-4 w-4 text-green-500" />
+                                        ) : (
+                                            <ArrowTrendingDownIcon className="self-center flex-shrink-0 h-4 w-4 text-red-500" />
+                                        )}
+                                        <span className="sr-only">
+                                            {changeType === "increase"
+                                                ? "Increased"
+                                                : "Decreased"}{" "}
+                                            by
+                                        </span>
+                                        {change}
+                                    </div>
+                                ) : null}
                             </dd>
                         </dl>
                     </div>
@@ -118,6 +147,20 @@ const BarChart = ({ data = [], color = "#6366f1" }) => {
 };
 
 const TopProducts = ({ products }) => {
+    if (!products?.length) {
+        return (
+            <div className="bg-white shadow rounded-lg">
+                <div className="px-4 py-5 sm:p-6">
+                    <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
+                        Top Selling Products
+                    </h3>
+                    <p className="text-sm text-gray-500">
+                        No product performance data available.
+                    </p>
+                </div>
+            </div>
+        );
+    }
     return (
         <div className="bg-white shadow rounded-lg">
             <div className="px-4 py-5 sm:p-6">
@@ -177,6 +220,21 @@ const RecentOrders = ({ orders }) => {
         }
     };
 
+    if (!orders?.length) {
+        return (
+            <div className="bg-white shadow rounded-lg">
+                <div className="px-4 py-5 sm:p-6">
+                    <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
+                        Recent Orders
+                    </h3>
+                    <p className="text-sm text-gray-500">
+                        No recent orders available.
+                    </p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="bg-white shadow rounded-lg">
             <div className="px-4 py-5 sm:p-6">
@@ -229,7 +287,6 @@ export default function AnalyticsPage() {
         averageOrderValue: 0,
         activeRiders: 0,
         totalCustomers: 0,
-        conversionRate: 0,
         revenueChange: 0,
     });
     const [topProducts, setTopProducts] = useState([]);
@@ -349,7 +406,6 @@ export default function AnalyticsPage() {
                 averageOrderValue: 0,
                 activeRiders: 0,
                 totalCustomers: 0,
-                conversionRate: 0,
                 revenueChange: 0,
             });
             setTopProducts([]);

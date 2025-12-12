@@ -267,7 +267,6 @@ export default function Dashboard() {
         } catch (err) {
             console.error("Dashboard data fetch error:", err);
             toast.error("Failed to load dashboard data");
-            // Keep dummy data for fallback if needed, or just empty
         } finally {
             setLoading(false);
         }
