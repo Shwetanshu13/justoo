@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/admin/contexts/AuthContext";
 import { api } from "@/admin/lib/api";
 import toast from "react-hot-toast";
+import Modal from "@/admin/components/Modal";
 import {
     PlusIcon,
     PencilIcon,
@@ -18,31 +19,31 @@ const AdminCard = ({ admin, onEdit, onDelete, currentUserId }) => {
         switch (role) {
             case "superadmin":
                 return {
-                    bg: "bg-gradient-to-r from-red-50 to-rose-50",
+                    bg: "bg-red-50",
                     text: "text-red-700",
-                    border: "border-red-200/50",
-                    iconBg: "bg-gradient-to-br from-red-500 to-rose-500",
+                    border: "border-red-100",
+                    iconBg: "bg-red-100 text-red-600",
                 };
             case "admin":
                 return {
-                    bg: "bg-gradient-to-r from-blue-50 to-indigo-50",
+                    bg: "bg-blue-50",
                     text: "text-blue-700",
-                    border: "border-blue-200/50",
-                    iconBg: "bg-gradient-to-br from-blue-500 to-indigo-500",
+                    border: "border-blue-100",
+                    iconBg: "bg-blue-100 text-blue-600",
                 };
             case "inventory_admin":
                 return {
-                    bg: "bg-gradient-to-r from-emerald-50 to-green-50",
+                    bg: "bg-emerald-50",
                     text: "text-emerald-700",
-                    border: "border-emerald-200/50",
-                    iconBg: "bg-gradient-to-br from-emerald-500 to-teal-500",
+                    border: "border-emerald-100",
+                    iconBg: "bg-emerald-100 text-emerald-600",
                 };
             default:
                 return {
-                    bg: "bg-gradient-to-r from-gray-50 to-slate-50",
+                    bg: "bg-gray-50",
                     text: "text-gray-700",
-                    border: "border-gray-200/50",
-                    iconBg: "bg-gradient-to-br from-gray-500 to-slate-500",
+                    border: "border-gray-100",
+                    iconBg: "bg-gray-100 text-gray-600",
                 };
         }
     };
@@ -61,227 +62,51 @@ const AdminCard = ({ admin, onEdit, onDelete, currentUserId }) => {
     const roleConfig = getRoleConfig(admin.role);
 
     return (
-        <div className="bg-white overflow-hidden rounded-2xl border border-gray-100 hover:shadow-xl hover:shadow-gray-200/50 transition-all duration-300 transform hover:-translate-y-1 group">
-            <div className="p-6">
+        <div className="card p-6 hover:shadow-md transition-shadow duration-200 group">
+            <div className="flex items-start justify-between">
                 <div className="flex items-center">
                     <div className="flex-shrink-0">
                         <div
-                            className={`h-12 w-12 rounded-xl ${roleConfig.iconBg} flex items-center justify-center shadow-lg`}
+                            className={`h-12 w-12 rounded-xl ${roleConfig.iconBg} flex items-center justify-center`}
                         >
-                            <UserIcon className="h-6 w-6 text-white" />
+                            <UserIcon className="h-6 w-6" />
                         </div>
                     </div>
-                    <div className="ml-4 flex-1">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <h3 className="text-lg font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">
-                                    {admin.username}
-                                </h3>
-                                <p className="text-sm text-gray-500">
-                                    {admin.email}
-                                </p>
-                            </div>
-                            <span
-                                className={`inline-flex items-center px-3 py-1 rounded-lg text-xs font-semibold capitalize ${roleConfig.bg} ${roleConfig.text} border ${roleConfig.border}`}
-                            >
-                                {admin.role.replace("_", " ")}
-                            </span>
-                        </div>
-                        <div className="mt-3 flex items-center text-xs text-gray-500">
-                            <ShieldCheckIcon className="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" />
-                            Created on {formatDate(admin.created_at)}
-                        </div>
+                    <div className="ml-4">
+                        <h3 className="text-lg font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">
+                            {admin.username}
+                        </h3>
+                        <p className="text-sm text-gray-500">{admin.email}</p>
                     </div>
                 </div>
-
-                {admin.id !== currentUserId && (
-                    <div className="mt-5 pt-5 border-t border-gray-100 flex justify-end gap-2">
-                        <button
-                            onClick={() => onEdit(admin)}
-                            className="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-xl text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200 transition-all duration-200"
-                        >
-                            <PencilIcon className="h-4 w-4 mr-1" />
-                            Edit
-                        </button>
-                        <button
-                            onClick={() => onDelete(admin)}
-                            className="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-xl text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 transition-all duration-200"
-                        >
-                            <TrashIcon className="h-4 w-4 mr-1" />
-                            Delete
-                        </button>
-                    </div>
-                )}
+                <span
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${roleConfig.bg} ${roleConfig.text} border ${roleConfig.border}`}
+                >
+                    {admin.role.replace("_", " ")}
+                </span>
             </div>
-        </div>
-    );
-};
 
-const AdminModal = ({ isOpen, onClose, onSubmit, admin, loading }) => {
-    const [formData, setFormData] = useState({
-        username: "",
-        email: "",
-        password: "",
-        role: "inventory_admin",
-    });
+            <div className="mt-4 flex items-center text-xs text-gray-500">
+                <ShieldCheckIcon className="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" />
+                Created on {formatDate(admin.created_at)}
+            </div>
 
-    useEffect(() => {
-        if (admin) {
-            setFormData({
-                username: admin.username || "",
-                email: admin.email || "",
-                password: "",
-                role: admin.role || "inventory_admin",
-            });
-        } else {
-            setFormData({
-                username: "",
-                email: "",
-                password: "",
-                role: "inventory_admin",
-            });
-        }
-    }, [admin, isOpen]);
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        onSubmit(formData);
-    };
-
-    if (!isOpen) return null;
-
-    return (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
-            <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                <div
-                    className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
-                    onClick={onClose}
-                ></div>
-
-                <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                    <form onSubmit={handleSubmit}>
-                        <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                            <div className="sm:flex sm:items-start">
-                                <div className="mt-3 text-center sm:mt-0 sm:text-left w-full">
-                                    <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-                                        {admin ? "Edit Admin" : "Add New Admin"}
-                                    </h3>
-
-                                    <div className="space-y-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                Username
-                                            </label>
-                                            <input
-                                                type="text"
-                                                required
-                                                value={formData.username}
-                                                onChange={(e) =>
-                                                    setFormData({
-                                                        ...formData,
-                                                        username:
-                                                            e.target.value,
-                                                    })
-                                                }
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                                                placeholder="Enter username"
-                                            />
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                Email
-                                            </label>
-                                            <input
-                                                type="email"
-                                                required
-                                                value={formData.email}
-                                                onChange={(e) =>
-                                                    setFormData({
-                                                        ...formData,
-                                                        email: e.target.value,
-                                                    })
-                                                }
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                                                placeholder="Enter email"
-                                            />
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                Password{" "}
-                                                {admin &&
-                                                    "(Leave blank to keep current)"}
-                                            </label>
-                                            <input
-                                                type="password"
-                                                required={!admin}
-                                                value={formData.password}
-                                                onChange={(e) =>
-                                                    setFormData({
-                                                        ...formData,
-                                                        password:
-                                                            e.target.value,
-                                                    })
-                                                }
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                                                placeholder="Enter password"
-                                            />
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                Role
-                                            </label>
-                                            <select
-                                                value={formData.role}
-                                                onChange={(e) =>
-                                                    setFormData({
-                                                        ...formData,
-                                                        role: e.target.value,
-                                                    })
-                                                }
-                                                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                                            >
-                                                <option value="inventory_admin">
-                                                    Inventory Admin
-                                                </option>
-                                                <option value="admin">
-                                                    Admin
-                                                </option>
-                                                <option value="superadmin">
-                                                    Super Admin
-                                                </option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50"
-                            >
-                                {loading
-                                    ? "Saving..."
-                                    : admin
-                                    ? "Update"
-                                    : "Create"}
-                            </button>
-                            <button
-                                type="button"
-                                onClick={onClose}
-                                className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                            >
-                                Cancel
-                            </button>
-                        </div>
-                    </form>
+            {admin.id !== currentUserId && (
+                <div className="mt-5 pt-5 border-t border-gray-100 flex justify-end gap-2">
+                    <button
+                        onClick={() => onEdit(admin)}
+                        className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-200"
+                    >
+                        <PencilIcon className="h-4 w-4" />
+                    </button>
+                    <button
+                        onClick={() => onDelete(admin)}
+                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
+                    >
+                        <TrashIcon className="h-4 w-4" />
+                    </button>
                 </div>
-            </div>
+            )}
         </div>
     );
 };
@@ -295,10 +120,34 @@ export default function AdminsPage() {
     const [showModal, setShowModal] = useState(false);
     const [editingAdmin, setEditingAdmin] = useState(null);
     const [submitting, setSubmitting] = useState(false);
+    const [formData, setFormData] = useState({
+        username: "",
+        email: "",
+        password: "",
+        role: "inventory_admin",
+    });
 
     useEffect(() => {
         fetchAdmins();
     }, []);
+
+    useEffect(() => {
+        if (editingAdmin) {
+            setFormData({
+                username: editingAdmin.username || "",
+                email: editingAdmin.email || "",
+                password: "",
+                role: editingAdmin.role || "inventory_admin",
+            });
+        } else {
+            setFormData({
+                username: "",
+                email: "",
+                password: "",
+                role: "inventory_admin",
+            });
+        }
+    }, [editingAdmin, showModal]);
 
     const fetchAdmins = async () => {
         try {
@@ -359,7 +208,8 @@ export default function AdminsPage() {
         }
     };
 
-    const handleSubmitAdmin = async (formData) => {
+    const handleSubmitAdmin = async (e) => {
+        e.preventDefault();
         try {
             setSubmitting(true);
 
@@ -409,78 +259,71 @@ export default function AdminsPage() {
 
     if (user?.role !== "superadmin") {
         return (
-            <div className="text-center py-12">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                    Access Denied
-                </h2>
-                <p className="text-gray-600">
-                    You don't have permission to manage admins.
-                </p>
+            <div className="flex items-center justify-center h-64">
+                <div className="text-center">
+                    <h3 className="text-lg font-medium text-gray-900">
+                        Access Denied
+                    </h3>
+                    <p className="text-gray-600">
+                        You don't have permission to manage admins.
+                    </p>
+                </div>
             </div>
         );
     }
 
     return (
-        <div>
+        <div className="space-y-8">
             {/* Header */}
-            <div className="md:flex md:items-center md:justify-between mb-6">
-                <div className="flex-1 min-w-0">
-                    <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-2xl font-bold text-gray-900">
                         Admin Management
-                    </h2>
-                    <p className="mt-1 text-sm text-gray-500">
+                    </h1>
+                    <p className="text-sm text-gray-500 mt-1">
                         Manage system administrators and their permissions
                     </p>
                 </div>
-                <div className="mt-4 flex md:mt-0 md:ml-4">
-                    <button
-                        onClick={handleAddAdmin}
-                        className="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    >
-                        <PlusIcon className="h-4 w-4 mr-2" />
-                        Add Admin
-                    </button>
-                </div>
+                <button onClick={handleAddAdmin} className="btn-primary">
+                    <PlusIcon className="-ml-1 mr-2 h-4 w-4" />
+                    Add Admin
+                </button>
             </div>
 
             {/* Filters */}
-            <div className="bg-white shadow rounded-lg mb-6">
-                <div className="px-4 py-5 sm:p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="relative">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
-                            </div>
-                            <input
-                                type="text"
-                                placeholder="Search admins..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-                            />
+            <div className="card p-5">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
                         </div>
+                        <input
+                            type="text"
+                            placeholder="Search admins..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="input-field pl-10"
+                        />
+                    </div>
 
-                        <div>
-                            <select
-                                value={selectedRole}
-                                onChange={(e) =>
-                                    setSelectedRole(e.target.value)
-                                }
-                                className="block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
-                            >
-                                <option value="all">All Roles</option>
-                                <option value="superadmin">Super Admin</option>
-                                <option value="admin">Admin</option>
-                                <option value="inventory_admin">
-                                    Inventory Admin
-                                </option>
-                            </select>
-                        </div>
+                    <div>
+                        <select
+                            value={selectedRole}
+                            onChange={(e) => setSelectedRole(e.target.value)}
+                            className="input-field"
+                        >
+                            <option value="all">All Roles</option>
+                            <option value="superadmin">Super Admin</option>
+                            <option value="admin">Admin</option>
+                            <option value="inventory_admin">
+                                Inventory Admin
+                            </option>
+                        </select>
+                    </div>
 
-                        <div className="text-sm text-gray-500 flex items-center">
-                            Showing {filteredAdmins.length} of {admins.length}{" "}
-                            admins
-                        </div>
+                    <div className="text-sm text-gray-500 flex items-center justify-end">
+                        Showing {filteredAdmins.length} of {admins.length}{" "}
+                        admins
                     </div>
                 </div>
             </div>
@@ -488,12 +331,14 @@ export default function AdminsPage() {
             {/* Admins Grid */}
             {loading ? (
                 <div className="flex justify-center py-12">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                    <div className="w-8 h-8 border-2 border-gray-200 border-t-primary-600 rounded-full animate-spin"></div>
                 </div>
             ) : filteredAdmins.length === 0 ? (
                 <div className="text-center py-12">
-                    <UserIcon className="mx-auto h-12 w-12 text-gray-400" />
-                    <h3 className="mt-2 text-sm font-medium text-gray-900">
+                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 mb-4">
+                        <UserIcon className="h-6 w-6 text-gray-400" />
+                    </div>
+                    <h3 className="text-sm font-medium text-gray-900">
                         No admins found
                     </h3>
                     <p className="mt-1 text-sm text-gray-500">
@@ -517,13 +362,115 @@ export default function AdminsPage() {
             )}
 
             {/* Modal */}
-            <AdminModal
+            <Modal
                 isOpen={showModal}
                 onClose={() => setShowModal(false)}
-                onSubmit={handleSubmitAdmin}
-                admin={editingAdmin}
-                loading={submitting}
-            />
+                title={editingAdmin ? "Edit Admin" : "Add New Admin"}
+                footer={null}
+            >
+                <form onSubmit={handleSubmitAdmin} className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Username
+                        </label>
+                        <input
+                            type="text"
+                            required
+                            value={formData.username}
+                            onChange={(e) =>
+                                setFormData({
+                                    ...formData,
+                                    username: e.target.value,
+                                })
+                            }
+                            className="input-field"
+                            placeholder="Enter username"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Email
+                        </label>
+                        <input
+                            type="email"
+                            required
+                            value={formData.email}
+                            onChange={(e) =>
+                                setFormData({
+                                    ...formData,
+                                    email: e.target.value,
+                                })
+                            }
+                            className="input-field"
+                            placeholder="Enter email"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Password{" "}
+                            {editingAdmin && "(Leave blank to keep current)"}
+                        </label>
+                        <input
+                            type="password"
+                            required={!editingAdmin}
+                            value={formData.password}
+                            onChange={(e) =>
+                                setFormData({
+                                    ...formData,
+                                    password: e.target.value,
+                                })
+                            }
+                            className="input-field"
+                            placeholder="Enter password"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Role
+                        </label>
+                        <select
+                            value={formData.role}
+                            onChange={(e) =>
+                                setFormData({
+                                    ...formData,
+                                    role: e.target.value,
+                                })
+                            }
+                            className="input-field"
+                        >
+                            <option value="inventory_admin">
+                                Inventory Admin
+                            </option>
+                            <option value="admin">Admin</option>
+                            <option value="superadmin">Super Admin</option>
+                        </select>
+                    </div>
+
+                    <div className="flex justify-end gap-3 pt-4">
+                        <button
+                            type="button"
+                            onClick={() => setShowModal(false)}
+                            className="btn-secondary"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={submitting}
+                            className="btn-primary"
+                        >
+                            {submitting
+                                ? "Saving..."
+                                : editingAdmin
+                                ? "Update Admin"
+                                : "Create Admin"}
+                        </button>
+                    </div>
+                </form>
+            </Modal>
         </div>
     );
 }
