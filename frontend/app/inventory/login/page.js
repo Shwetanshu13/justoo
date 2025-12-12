@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useAuth } from "@/inventory/contexts/AuthContext";
 import { useRouter } from "next/navigation";
@@ -169,6 +170,16 @@ export default function LoginPage() {
                                 "Sign in"
                             )}
                         </button>
+
+                        <div className="text-center text-sm text-slate-600">
+                            Need the Admin portal?
+                            <Link
+                                href="/admin/login"
+                                className="ml-1 font-semibold text-blue-700 hover:text-blue-800"
+                            >
+                                Switch to Admin Login
+                            </Link>
+                        </div>
 
                         <div className="mt-6 rounded-lg bg-slate-50 p-4 text-xs text-slate-500 border border-slate-100">
                             <p className="font-semibold text-slate-700 mb-1">
