@@ -44,20 +44,46 @@ const RevenueChart = ({ chartData }) => {
             title: {
                 display: false,
             },
+            tooltip: {
+                backgroundColor: "rgba(17, 24, 39, 0.95)",
+                titleColor: "#fff",
+                bodyColor: "#e5e7eb",
+                borderColor: "rgba(99, 102, 241, 0.3)",
+                borderWidth: 1,
+                cornerRadius: 12,
+                padding: 14,
+                titleFont: {
+                    family: "'Inter', sans-serif",
+                    size: 13,
+                    weight: "600",
+                },
+                bodyFont: {
+                    family: "'Inter', sans-serif",
+                    size: 12,
+                },
+                displayColors: false,
+                callbacks: {
+                    label: (context) =>
+                        `Revenue: ₹${context.parsed.y.toLocaleString()}`,
+                },
+            },
         },
         scales: {
             y: {
                 beginAtZero: true,
                 grid: {
-                    color: "#f3f4f6",
+                    color: "rgba(148, 163, 184, 0.1)",
+                    drawBorder: false,
                 },
                 ticks: {
-                    callback: (value) => "₹" + value,
+                    callback: (value) => "₹" + value.toLocaleString(),
                     font: {
                         family: "'Inter', sans-serif",
                         size: 11,
+                        weight: "500",
                     },
-                    color: "#6b7280",
+                    color: "#94a3b8",
+                    padding: 8,
                 },
                 border: {
                     display: false,
@@ -71,13 +97,23 @@ const RevenueChart = ({ chartData }) => {
                     font: {
                         family: "'Inter', sans-serif",
                         size: 11,
+                        weight: "500",
                     },
-                    color: "#6b7280",
+                    color: "#94a3b8",
+                    padding: 4,
                 },
                 border: {
                     display: false,
                 },
             },
+        },
+        interaction: {
+            intersect: false,
+            mode: "index",
+        },
+        animation: {
+            duration: 750,
+            easing: "easeInOutQuart",
         },
     };
 
@@ -87,9 +123,17 @@ const RevenueChart = ({ chartData }) => {
             {
                 label: "Revenue",
                 data: [],
-                backgroundColor: "#4f46e5",
-                borderRadius: 4,
-                barThickness: 24,
+                backgroundColor: (context) => {
+                    const ctx = context.chart.ctx;
+                    const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+                    gradient.addColorStop(0, "rgba(99, 102, 241, 0.9)");
+                    gradient.addColorStop(1, "rgba(139, 92, 246, 0.6)");
+                    return gradient;
+                },
+                hoverBackgroundColor: "rgba(99, 102, 241, 1)",
+                borderRadius: 8,
+                barThickness: 28,
+                borderSkipped: false,
             },
         ],
     };
@@ -105,39 +149,63 @@ const StatsCard = ({
     icon: Icon,
     color = "blue",
 }) => {
-    const colorClasses = {
-        blue: "bg-blue-50 text-blue-600",
-        green: "bg-green-50 text-green-600",
-        purple: "bg-purple-50 text-purple-600",
-        orange: "bg-orange-50 text-orange-600",
+    const colorConfig = {
+        blue: {
+            bg: "bg-gradient-to-br from-blue-500 to-cyan-500",
+            iconBg: "bg-white/20",
+            shadow: "shadow-blue-500/25",
+        },
+        green: {
+            bg: "bg-gradient-to-br from-emerald-500 to-teal-500",
+            iconBg: "bg-white/20",
+            shadow: "shadow-emerald-500/25",
+        },
+        purple: {
+            bg: "bg-gradient-to-br from-violet-500 to-purple-600",
+            iconBg: "bg-white/20",
+            shadow: "shadow-violet-500/25",
+        },
+        orange: {
+            bg: "bg-gradient-to-br from-orange-500 to-amber-500",
+            iconBg: "bg-white/20",
+            shadow: "shadow-orange-500/25",
+        },
     };
 
-    // Fallback in case an icon isn't provided to avoid runtime element type errors
+    const config = colorConfig[color] || colorConfig.blue;
     const ResolvedIcon = Icon || CurrencyDollarIcon;
 
     return (
-        <div className="bg-white overflow-hidden rounded-xl border border-gray-200 hover:shadow-md transition-shadow duration-200">
-            <div className="p-5">
+        <div
+            className={`relative overflow-hidden rounded-2xl ${config.bg} ${config.shadow} shadow-xl p-6 text-white transform hover:scale-[1.02] hover:shadow-2xl transition-all duration-300`}
+        >
+            {/* Background decoration */}
+            <div className="absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full bg-white/10 blur-2xl"></div>
+            <div className="absolute bottom-0 left-0 -mb-4 -ml-4 h-20 w-20 rounded-full bg-white/10 blur-xl"></div>
+
+            <div className="relative">
                 <div className="flex items-center justify-between">
                     <div>
-                        <p className="text-sm font-medium text-gray-500 truncate">
+                        <p className="text-sm font-medium text-white/80 truncate">
                             {title}
                         </p>
-                        <p className="mt-1 text-2xl font-semibold text-gray-900">
+                        <p className="mt-2 text-3xl font-bold text-white">
                             {value}
                         </p>
                     </div>
-                    <div className={`p-3 rounded-lg ${colorClasses[color]}`}>
-                        <ResolvedIcon className="w-6 h-6" />
+                    <div
+                        className={`p-3 rounded-xl ${config.iconBg} backdrop-blur-sm`}
+                    >
+                        <ResolvedIcon className="w-7 h-7 text-white" />
                     </div>
                 </div>
                 {change && (
                     <div className="mt-4 flex items-center text-sm">
                         <span
-                            className={`flex items-center font-medium ${
+                            className={`flex items-center font-semibold px-2 py-1 rounded-lg ${
                                 changeType === "increase"
-                                    ? "text-green-600"
-                                    : "text-red-600"
+                                    ? "bg-white/20 text-white"
+                                    : "bg-red-400/30 text-white"
                             }`}
                         >
                             {changeType === "increase" ? (
@@ -147,7 +215,7 @@ const StatsCard = ({
                             )}
                             {change}
                         </span>
-                        <span className="ml-2 text-gray-400">
+                        <span className="ml-2 text-white/70 text-xs">
                             vs last month
                         </span>
                     </div>
@@ -213,9 +281,17 @@ export default function Dashboard() {
                 {
                     label: "Revenue",
                     data: revenueData,
-                    backgroundColor: "#4f46e5",
-                    borderRadius: 4,
-                    barThickness: 24,
+                    backgroundColor: (context) => {
+                        const ctx = context.chart.ctx;
+                        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+                        gradient.addColorStop(0, "rgba(99, 102, 241, 0.9)");
+                        gradient.addColorStop(1, "rgba(139, 92, 246, 0.6)");
+                        return gradient;
+                    },
+                    hoverBackgroundColor: "rgba(99, 102, 241, 1)",
+                    borderRadius: 8,
+                    barThickness: 28,
+                    borderSkipped: false,
                 },
             ],
         };
@@ -275,23 +351,44 @@ export default function Dashboard() {
     if (loading) {
         return (
             <div className="flex items-center justify-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+                <div className="relative">
+                    <div
+                        className="h-12 w-12 rounded-full bg-gradient-to-r from-primary-500 to-purple-500 animate-spin"
+                        style={{
+                            maskImage:
+                                "conic-gradient(transparent 120deg, black)",
+                            WebkitMaskImage:
+                                "conic-gradient(transparent 120deg, black)",
+                        }}
+                    />
+                    <div className="absolute inset-1 rounded-full bg-white" />
+                </div>
             </div>
         );
     }
 
     return (
-        <div>
-            <div className="mb-8">
-                <h1 className="text-2xl font-bold text-gray-900">
-                    Welcome back, {user?.username}!
-                </h1>
-                <p className="mt-1 text-sm text-gray-500">
-                    Here's what's happening with your business today.
-                </p>
+        <div className="space-y-8">
+            {/* Welcome Header */}
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary-600 via-purple-600 to-pink-500 p-8 text-white shadow-xl shadow-primary-500/20">
+                <div className="absolute top-0 right-0 -mt-8 -mr-8 h-40 w-40 rounded-full bg-white/10 blur-3xl"></div>
+                <div className="absolute bottom-0 left-0 -mb-8 -ml-8 h-32 w-32 rounded-full bg-white/10 blur-2xl"></div>
+                <div className="relative">
+                    <div className="flex items-center gap-3 mb-2">
+                        <span className="text-2xl">👋</span>
+                        <h1 className="text-2xl font-bold">
+                            Welcome back, {user?.username}!
+                        </h1>
+                    </div>
+                    <p className="text-white/80 max-w-xl">
+                        Here's what's happening with your business today. Track
+                        your metrics and manage your operations.
+                    </p>
+                </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+            {/* Stats Grid */}
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 <StatsCard
                     title="Total Orders"
                     value={stats.totalOrders.toLocaleString()}
@@ -320,25 +417,27 @@ export default function Dashboard() {
                 )}
             </div>
 
-            <div className="bg-white rounded-xl border border-gray-200 p-6 h-full">
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-4">
+            {/* Revenue Chart */}
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between p-6 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-slate-50">
                     <div>
-                        <h3 className="text-base font-semibold leading-6 text-gray-900">
+                        <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                            <ChartBarIcon className="h-5 w-5 text-primary-500" />
                             Revenue Overview
                         </h3>
-                        <p className="text-sm text-gray-500">
-                            Track daily revenue performance.
+                        <p className="text-sm text-gray-500 mt-0.5">
+                            Track daily revenue performance across time periods.
                         </p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-xl">
                         {ranges.map((range) => (
                             <button
                                 key={range.key}
                                 onClick={() => setSelectedRange(range.key)}
-                                className={`rounded-lg px-3 py-1.5 text-sm font-medium border transition ${
+                                className={`rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-200 ${
                                     selectedRange === range.key
-                                        ? "border-blue-200 bg-blue-50 text-blue-700"
-                                        : "border-gray-200 text-gray-600 hover:bg-gray-50"
+                                        ? "bg-white text-primary-700 shadow-sm"
+                                        : "text-gray-600 hover:text-gray-900"
                                 }`}
                             >
                                 {range.label}
@@ -347,8 +446,10 @@ export default function Dashboard() {
                     </div>
                 </div>
 
-                <div className="h-80 w-full">
-                    <RevenueChart chartData={chartData} />
+                <div className="p-6">
+                    <div className="h-80 w-full">
+                        <RevenueChart chartData={chartData} />
+                    </div>
                 </div>
             </div>
         </div>

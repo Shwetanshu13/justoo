@@ -14,16 +14,36 @@ import {
 } from "@heroicons/react/24/outline";
 
 const AdminCard = ({ admin, onEdit, onDelete, currentUserId }) => {
-    const getRoleColor = (role) => {
+    const getRoleConfig = (role) => {
         switch (role) {
             case "superadmin":
-                return "bg-red-100 text-red-800";
+                return {
+                    bg: "bg-gradient-to-r from-red-50 to-rose-50",
+                    text: "text-red-700",
+                    border: "border-red-200/50",
+                    iconBg: "bg-gradient-to-br from-red-500 to-rose-500",
+                };
             case "admin":
-                return "bg-blue-100 text-blue-800";
+                return {
+                    bg: "bg-gradient-to-r from-blue-50 to-indigo-50",
+                    text: "text-blue-700",
+                    border: "border-blue-200/50",
+                    iconBg: "bg-gradient-to-br from-blue-500 to-indigo-500",
+                };
             case "inventory_admin":
-                return "bg-green-100 text-green-800";
+                return {
+                    bg: "bg-gradient-to-r from-emerald-50 to-green-50",
+                    text: "text-emerald-700",
+                    border: "border-emerald-200/50",
+                    iconBg: "bg-gradient-to-br from-emerald-500 to-teal-500",
+                };
             default:
-                return "bg-gray-100 text-gray-800";
+                return {
+                    bg: "bg-gradient-to-r from-gray-50 to-slate-50",
+                    text: "text-gray-700",
+                    border: "border-gray-200/50",
+                    iconBg: "bg-gradient-to-br from-gray-500 to-slate-500",
+                };
         }
     };
 
@@ -38,19 +58,23 @@ const AdminCard = ({ admin, onEdit, onDelete, currentUserId }) => {
         });
     };
 
+    const roleConfig = getRoleConfig(admin.role);
+
     return (
-        <div className="bg-white overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow">
-            <div className="px-4 py-5 sm:p-6">
+        <div className="bg-white overflow-hidden rounded-2xl border border-gray-100 hover:shadow-xl hover:shadow-gray-200/50 transition-all duration-300 transform hover:-translate-y-1 group">
+            <div className="p-6">
                 <div className="flex items-center">
                     <div className="flex-shrink-0">
-                        <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                            <UserIcon className="h-6 w-6 text-gray-600" />
+                        <div
+                            className={`h-12 w-12 rounded-xl ${roleConfig.iconBg} flex items-center justify-center shadow-lg`}
+                        >
+                            <UserIcon className="h-6 w-6 text-white" />
                         </div>
                     </div>
                     <div className="ml-4 flex-1">
                         <div className="flex items-center justify-between">
                             <div>
-                                <h3 className="text-lg font-medium text-gray-900">
+                                <h3 className="text-lg font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">
                                     {admin.username}
                                 </h3>
                                 <p className="text-sm text-gray-500">
@@ -58,34 +82,32 @@ const AdminCard = ({ admin, onEdit, onDelete, currentUserId }) => {
                                 </p>
                             </div>
                             <span
-                                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${getRoleColor(
-                                    admin.role
-                                )}`}
+                                className={`inline-flex items-center px-3 py-1 rounded-lg text-xs font-semibold capitalize ${roleConfig.bg} ${roleConfig.text} border ${roleConfig.border}`}
                             >
                                 {admin.role.replace("_", " ")}
                             </span>
                         </div>
-                        <div className="mt-2 flex items-center text-sm text-gray-500">
-                            <ShieldCheckIcon className="flex-shrink-0 mr-1.5 h-4 w-4" />
+                        <div className="mt-3 flex items-center text-xs text-gray-500">
+                            <ShieldCheckIcon className="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" />
                             Created on {formatDate(admin.created_at)}
                         </div>
                     </div>
                 </div>
 
                 {admin.id !== currentUserId && (
-                    <div className="mt-4 flex justify-end space-x-2">
+                    <div className="mt-5 pt-5 border-t border-gray-100 flex justify-end gap-2">
                         <button
                             onClick={() => onEdit(admin)}
-                            className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                            className="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-xl text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200 transition-all duration-200"
                         >
-                            <PencilIcon className="h-3 w-3 mr-1" />
+                            <PencilIcon className="h-4 w-4 mr-1" />
                             Edit
                         </button>
                         <button
                             onClick={() => onDelete(admin)}
-                            className="inline-flex items-center px-3 py-1.5 border border-red-300 shadow-sm text-xs font-medium rounded text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                            className="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-xl text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 transition-all duration-200"
                         >
-                            <TrashIcon className="h-3 w-3 mr-1" />
+                            <TrashIcon className="h-4 w-4 mr-1" />
                             Delete
                         </button>
                     </div>

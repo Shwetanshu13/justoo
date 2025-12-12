@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { api } from "@/admin/lib/api";
 import toast from "react-hot-toast";
 import {
-    EyeIcon,
     CurrencyRupeeIcon,
     CalendarDaysIcon,
     MagnifyingGlassIcon,
@@ -15,27 +14,27 @@ const StatusBadge = ({ status }) => {
     const getStatusColor = (status) => {
         switch (status?.toLowerCase()) {
             case "pending":
-                return "bg-yellow-100 text-yellow-800";
+                return "bg-gradient-to-r from-amber-50 to-yellow-50 text-amber-700 border border-amber-200/50";
             case "confirmed":
-                return "bg-blue-100 text-blue-800";
+                return "bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border border-blue-200/50";
             case "preparing":
-                return "bg-purple-100 text-purple-800";
+                return "bg-gradient-to-r from-violet-50 to-purple-50 text-violet-700 border border-violet-200/50";
             case "ready":
-                return "bg-indigo-100 text-indigo-800";
+                return "bg-gradient-to-r from-indigo-50 to-blue-50 text-indigo-700 border border-indigo-200/50";
             case "out_for_delivery":
-                return "bg-orange-100 text-orange-800";
+                return "bg-gradient-to-r from-orange-50 to-amber-50 text-orange-700 border border-orange-200/50";
             case "delivered":
-                return "bg-green-100 text-green-800";
+                return "bg-gradient-to-r from-emerald-50 to-green-50 text-emerald-700 border border-emerald-200/50";
             case "cancelled":
-                return "bg-red-100 text-red-800";
+                return "bg-gradient-to-r from-red-50 to-rose-50 text-red-700 border border-red-200/50";
             default:
-                return "bg-gray-100 text-gray-800";
+                return "bg-gradient-to-r from-gray-50 to-slate-50 text-gray-700 border border-gray-200/50";
         }
     };
 
     return (
         <span
-            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${getStatusColor(
+            className={`inline-flex items-center px-3 py-1 rounded-lg text-xs font-semibold capitalize ${getStatusColor(
                 status
             )}`}
         >
@@ -56,19 +55,22 @@ const OrderRow = ({ order, onViewDetails }) => {
     };
 
     return (
-        <tr className="hover:bg-gray-50">
-            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+        <tr
+            className="hover:bg-gradient-to-r hover:from-primary-50/30 hover:to-transparent cursor-pointer transition-all duration-200 group"
+            onClick={() => onViewDetails(order)}
+        >
+            <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">
                 {order.order_id || order.id}
             </td>
             <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm text-gray-900">
+                <div className="text-sm font-medium text-gray-900">
                     {order.customer_name}
                 </div>
-                <div className="text-sm text-gray-500">
+                <div className="text-xs text-gray-500">
                     {order.customer_email}
                 </div>
             </td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
                 ₹{order.total_amount?.toFixed(2)}
             </td>
             <td className="px-6 py-4 whitespace-nowrap">
@@ -76,14 +78,6 @@ const OrderRow = ({ order, onViewDetails }) => {
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {formatDate(order.created_at)}
-            </td>
-            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <button
-                    onClick={() => onViewDetails(order)}
-                    className="text-indigo-600 hover:text-indigo-900"
-                >
-                    <EyeIcon className="h-4 w-4" />
-                </button>
             </td>
         </tr>
     );
@@ -615,9 +609,6 @@ export default function OrdersPage() {
                                 </th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Date
-                                </th>
-                                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Actions
                                 </th>
                             </tr>
                         </thead>

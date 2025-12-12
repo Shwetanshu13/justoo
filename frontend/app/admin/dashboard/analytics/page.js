@@ -23,23 +23,40 @@ const MetricCard = ({
     icon: Icon,
     color = "blue",
 }) => {
-    const colorClasses = {
-        blue: "bg-blue-50 text-blue-600",
-        green: "bg-green-50 text-green-600",
-        purple: "bg-purple-50 text-purple-600",
-        orange: "bg-orange-50 text-orange-600",
-        red: "bg-red-50 text-red-600",
+    const colorConfig = {
+        blue: {
+            iconBg: "bg-gradient-to-br from-blue-500 to-cyan-500",
+            shadow: "shadow-blue-500/20",
+        },
+        green: {
+            iconBg: "bg-gradient-to-br from-emerald-500 to-teal-500",
+            shadow: "shadow-emerald-500/20",
+        },
+        purple: {
+            iconBg: "bg-gradient-to-br from-violet-500 to-purple-600",
+            shadow: "shadow-violet-500/20",
+        },
+        orange: {
+            iconBg: "bg-gradient-to-br from-orange-500 to-amber-500",
+            shadow: "shadow-orange-500/20",
+        },
+        red: {
+            iconBg: "bg-gradient-to-br from-red-500 to-rose-500",
+            shadow: "shadow-red-500/20",
+        },
     };
 
+    const config = colorConfig[color] || colorConfig.blue;
+
     return (
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-5">
+        <div className="bg-white overflow-hidden rounded-2xl border border-gray-100 hover:shadow-xl hover:shadow-gray-200/50 transition-all duration-300 transform hover:-translate-y-1">
+            <div className="p-6">
                 <div className="flex items-center">
                     <div className="flex-shrink-0">
                         <div
-                            className={`w-8 h-8 rounded-md flex items-center justify-center ${colorClasses[color]}`}
+                            className={`w-12 h-12 rounded-xl flex items-center justify-center ${config.iconBg} ${config.shadow} shadow-lg`}
                         >
-                            <Icon className="w-5 h-5" />
+                            <Icon className="w-6 h-6 text-white" />
                         </div>
                     </div>
                     <div className="ml-5 w-0 flex-1">
@@ -47,29 +64,23 @@ const MetricCard = ({
                             <dt className="text-sm font-medium text-gray-500 truncate">
                                 {title}
                             </dt>
-                            <dd className="flex items-baseline">
-                                <div className="text-2xl font-semibold text-gray-900">
+                            <dd className="flex items-baseline mt-1">
+                                <div className="text-2xl font-bold text-gray-900">
                                     {value}
                                 </div>
                                 {change ? (
                                     <div
-                                        className={`ml-2 flex items-baseline text-sm font-semibold ${
+                                        className={`ml-2 flex items-center gap-1 text-sm font-semibold px-2 py-0.5 rounded-lg ${
                                             changeType === "increase"
-                                                ? "text-green-600"
-                                                : "text-red-600"
+                                                ? "bg-emerald-50 text-emerald-600"
+                                                : "bg-red-50 text-red-600"
                                         }`}
                                     >
                                         {changeType === "increase" ? (
-                                            <ArrowTrendingUpIcon className="self-center flex-shrink-0 h-4 w-4 text-green-500" />
+                                            <ArrowTrendingUpIcon className="h-3.5 w-3.5" />
                                         ) : (
-                                            <ArrowTrendingDownIcon className="self-center flex-shrink-0 h-4 w-4 text-red-500" />
+                                            <ArrowTrendingDownIcon className="h-3.5 w-3.5" />
                                         )}
-                                        <span className="sr-only">
-                                            {changeType === "increase"
-                                                ? "Increased"
-                                                : "Decreased"}{" "}
-                                            by
-                                        </span>
                                         {change}
                                     </div>
                                 ) : null}
@@ -82,9 +93,16 @@ const MetricCard = ({
     );
 };
 
-const SparkLineChart = ({ data = [], color = "#4f46e5" }) => {
+const SparkLineChart = ({ data = [], color = "#6366f1" }) => {
     if (!data.length) {
-        return <div className="text-sm text-gray-500">No data</div>;
+        return (
+            <div className="flex items-center justify-center h-40 text-sm text-gray-400">
+                <div className="text-center">
+                    <ChartBarIcon className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+                    No data available
+                </div>
+            </div>
+        );
     }
 
     const values = data.map((d) => Number(d.value) || 0);
@@ -95,19 +113,61 @@ const SparkLineChart = ({ data = [], color = "#4f46e5" }) => {
         return `${x},${y}`;
     });
 
+    // Create area fill points
+    const areaPoints = `0,100 ${points.join(" ")} 100,100`;
+
     return (
-        <svg viewBox="0 0 100 100" className="w-full h-40">
+        <svg
+            viewBox="0 0 100 100"
+            className="w-full h-40"
+            preserveAspectRatio="none"
+        >
+            <defs>
+                <linearGradient
+                    id="sparkGradient"
+                    x1="0%"
+                    y1="0%"
+                    x2="0%"
+                    y2="100%"
+                >
+                    <stop offset="0%" stopColor={color} stopOpacity="0.3" />
+                    <stop offset="100%" stopColor={color} stopOpacity="0.02" />
+                </linearGradient>
+                <linearGradient
+                    id="lineGradient"
+                    x1="0%"
+                    y1="0%"
+                    x2="100%"
+                    y2="0%"
+                >
+                    <stop offset="0%" stopColor="#6366f1" />
+                    <stop offset="100%" stopColor="#a855f7" />
+                </linearGradient>
+            </defs>
+            <polygon fill="url(#sparkGradient)" points={areaPoints} />
             <polyline
                 fill="none"
-                stroke={color}
-                strokeWidth="2"
+                stroke="url(#lineGradient)"
+                strokeWidth="2.5"
                 points={points.join(" ")}
                 strokeLinecap="round"
+                strokeLinejoin="round"
             />
             {data.map((d, i) => {
                 const x = (i / Math.max(data.length - 1, 1)) * 100;
                 const y = 100 - (Number(d.value) / maxVal) * 100;
-                return <circle key={i} cx={x} cy={y} r="1.8" fill={color} />;
+                return (
+                    <circle
+                        key={i}
+                        cx={x}
+                        cy={y}
+                        r="2.5"
+                        fill="white"
+                        stroke={color}
+                        strokeWidth="1.5"
+                        className="opacity-0 hover:opacity-100 transition-opacity"
+                    />
+                );
             })}
         </svg>
     );
@@ -115,27 +175,33 @@ const SparkLineChart = ({ data = [], color = "#4f46e5" }) => {
 
 const BarChart = ({ data = [], color = "#6366f1" }) => {
     if (!data.length) {
-        return <div className="text-sm text-gray-500">No data</div>;
+        return (
+            <div className="flex items-center justify-center h-32 text-sm text-gray-400">
+                <div className="text-center">
+                    <ChartBarIcon className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+                    No data available
+                </div>
+            </div>
+        );
     }
     const maxVal = Math.max(...data.map((d) => Number(d.value) || 0), 1);
     return (
-        <div className="space-y-3">
-            {data.map((d) => {
+        <div className="space-y-4">
+            {data.map((d, index) => {
                 const width = (Number(d.value) / maxVal) * 100;
                 return (
-                    <div key={d.label}>
-                        <div className="flex justify-between text-xs text-gray-600 mb-1">
-                            <span className="font-medium text-gray-800">
+                    <div key={d.label} className="group">
+                        <div className="flex justify-between text-xs mb-2">
+                            <span className="font-semibold text-gray-700 group-hover:text-gray-900 transition-colors">
                                 {d.label}
                             </span>
                             <span>{d.value}</span>
                         </div>
-                        <div className="h-2 w-full bg-gray-100 rounded-full">
+                        <div className="h-3 w-full bg-gray-100 rounded-full overflow-hidden">
                             <div
-                                className="h-2 rounded-full"
+                                className="h-3 rounded-full bg-gradient-to-r from-primary-500 to-purple-500 transition-all duration-500 ease-out group-hover:shadow-lg"
                                 style={{
                                     width: `${width}%`,
-                                    backgroundColor: color,
                                 }}
                             ></div>
                         </div>
@@ -149,50 +215,63 @@ const BarChart = ({ data = [], color = "#6366f1" }) => {
 const TopProducts = ({ products }) => {
     if (!products?.length) {
         return (
-            <div className="bg-white shadow rounded-lg">
-                <div className="px-4 py-5 sm:p-6">
-                    <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300">
+                <div className="px-6 py-5">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <ShoppingBagIcon className="h-5 w-5 text-primary-500" />
                         Top Selling Products
                     </h3>
-                    <p className="text-sm text-gray-500">
-                        No product performance data available.
-                    </p>
+                    <div className="flex flex-col items-center justify-center py-8 text-gray-400">
+                        <ShoppingBagIcon className="h-12 w-12 mb-3 text-gray-300" />
+                        <p className="text-sm">
+                            No product performance data available.
+                        </p>
+                    </div>
                 </div>
             </div>
         );
     }
     return (
-        <div className="bg-white shadow rounded-lg">
-            <div className="px-4 py-5 sm:p-6">
-                <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300">
+            <div className="px-6 py-5">
+                <h3 className="text-lg font-semibold text-gray-900 mb-5 flex items-center gap-2">
+                    <ShoppingBagIcon className="h-5 w-5 text-primary-500" />
                     Top Selling Products
                 </h3>
-                <div className="space-y-3">
+                <div className="space-y-4">
                     {products.map((product, index) => (
                         <div
                             key={product.id}
-                            className="flex items-center justify-between"
+                            className="flex items-center justify-between p-3 rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 transition-all duration-200 group"
                         >
                             <div className="flex items-center">
-                                <div className="flex-shrink-0 h-8 w-8 bg-gray-200 rounded-md flex items-center justify-center">
-                                    <span className="text-sm font-medium text-gray-600">
-                                        {index + 1}
-                                    </span>
+                                <div
+                                    className={`flex-shrink-0 h-10 w-10 rounded-xl flex items-center justify-center font-bold text-white shadow-lg ${
+                                        index === 0
+                                            ? "bg-gradient-to-br from-amber-400 to-orange-500"
+                                            : index === 1
+                                            ? "bg-gradient-to-br from-gray-400 to-gray-500"
+                                            : index === 2
+                                            ? "bg-gradient-to-br from-orange-600 to-amber-700"
+                                            : "bg-gradient-to-br from-gray-300 to-gray-400"
+                                    }`}
+                                >
+                                    {index + 1}
                                 </div>
-                                <div className="ml-3">
-                                    <p className="text-sm font-medium text-gray-900">
+                                <div className="ml-4">
+                                    <p className="text-sm font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">
                                         {product.name}
                                     </p>
-                                    <p className="text-sm text-gray-500">
+                                    <p className="text-xs text-gray-500">
                                         {product.category}
                                     </p>
                                 </div>
                             </div>
                             <div className="text-right">
-                                <p className="text-sm font-medium text-gray-900">
-                                    ₹{product.revenue}
+                                <p className="text-sm font-bold text-gray-900">
+                                    ₹{product.revenue?.toLocaleString()}
                                 </p>
-                                <p className="text-sm text-gray-500">
+                                <p className="text-xs text-gray-500">
                                     {product.sales} sold
                                 </p>
                             </div>
@@ -208,64 +287,67 @@ const RecentOrders = ({ orders }) => {
     const getStatusColor = (status) => {
         switch (status?.toLowerCase()) {
             case "delivered":
-                return "bg-green-100 text-green-800";
+                return "bg-gradient-to-r from-emerald-50 to-green-50 text-emerald-700 border border-emerald-200/50";
             case "out_for_delivery":
-                return "bg-blue-100 text-blue-800";
+                return "bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border border-blue-200/50";
             case "preparing":
-                return "bg-yellow-100 text-yellow-800";
+                return "bg-gradient-to-r from-amber-50 to-yellow-50 text-amber-700 border border-amber-200/50";
             case "cancelled":
-                return "bg-red-100 text-red-800";
+                return "bg-gradient-to-r from-red-50 to-rose-50 text-red-700 border border-red-200/50";
             default:
-                return "bg-gray-100 text-gray-800";
+                return "bg-gradient-to-r from-gray-50 to-slate-50 text-gray-700 border border-gray-200/50";
         }
     };
 
     if (!orders?.length) {
         return (
-            <div className="bg-white shadow rounded-lg">
-                <div className="px-4 py-5 sm:p-6">
-                    <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300">
+                <div className="px-6 py-5">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <TruckIcon className="h-5 w-5 text-primary-500" />
                         Recent Orders
                     </h3>
-                    <p className="text-sm text-gray-500">
-                        No recent orders available.
-                    </p>
+                    <div className="flex flex-col items-center justify-center py-8 text-gray-400">
+                        <TruckIcon className="h-12 w-12 mb-3 text-gray-300" />
+                        <p className="text-sm">No recent orders available.</p>
+                    </div>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="bg-white shadow rounded-lg">
-            <div className="px-4 py-5 sm:p-6">
-                <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300">
+            <div className="px-6 py-5">
+                <h3 className="text-lg font-semibold text-gray-900 mb-5 flex items-center gap-2">
+                    <TruckIcon className="h-5 w-5 text-primary-500" />
                     Recent Orders
                 </h3>
                 <div className="space-y-3">
                     {orders.map((order) => (
                         <div
                             key={order.id}
-                            className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0"
+                            className="flex items-center justify-between p-3 rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-slate-50 transition-all duration-200 group"
                         >
                             <div className="flex items-center">
-                                <div className="flex-shrink-0">
-                                    <ShoppingBagIcon className="h-5 w-5 text-gray-400" />
+                                <div className="flex-shrink-0 h-10 w-10 rounded-xl bg-gradient-to-br from-primary-100 to-purple-100 flex items-center justify-center">
+                                    <ShoppingBagIcon className="h-5 w-5 text-primary-600" />
                                 </div>
-                                <div className="ml-3">
-                                    <p className="text-sm font-medium text-gray-900">
+                                <div className="ml-4">
+                                    <p className="text-sm font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">
                                         {order.order_id}
                                     </p>
-                                    <p className="text-sm text-gray-500">
+                                    <p className="text-xs text-gray-500">
                                         {order.customer_name}
                                     </p>
                                 </div>
                             </div>
                             <div className="text-right">
-                                <p className="text-sm font-medium text-gray-900">
-                                    ₹{order.total_amount}
+                                <p className="text-sm font-bold text-gray-900">
+                                    ₹{order.total_amount?.toLocaleString()}
                                 </p>
                                 <span
-                                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
+                                    className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold ${getStatusColor(
                                         order.status
                                     )}`}
                                 >

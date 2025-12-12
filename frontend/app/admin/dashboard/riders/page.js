@@ -17,22 +17,33 @@ const StatusBadge = ({ status }) => {
     const getStatusColor = (status) => {
         switch (status?.toLowerCase()) {
             case "active":
-                return "bg-green-100 text-green-800";
+                return "bg-gradient-to-r from-emerald-50 to-green-50 text-emerald-700 border border-emerald-200/50";
             case "inactive":
-                return "bg-red-100 text-red-800";
+                return "bg-gradient-to-r from-red-50 to-rose-50 text-red-700 border border-red-200/50";
             case "busy":
-                return "bg-yellow-100 text-yellow-800";
+                return "bg-gradient-to-r from-amber-50 to-yellow-50 text-amber-700 border border-amber-200/50";
             default:
-                return "bg-gray-100 text-gray-800";
+                return "bg-gradient-to-r from-gray-50 to-slate-50 text-gray-700 border border-gray-200/50";
         }
     };
 
     return (
         <span
-            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${getStatusColor(
+            className={`inline-flex items-center px-3 py-1 rounded-lg text-xs font-semibold capitalize ${getStatusColor(
                 status
             )}`}
         >
+            <span
+                className={`h-1.5 w-1.5 rounded-full mr-1.5 ${
+                    status?.toLowerCase() === "active"
+                        ? "bg-emerald-500"
+                        : status?.toLowerCase() === "inactive"
+                        ? "bg-red-500"
+                        : status?.toLowerCase() === "busy"
+                        ? "bg-amber-500"
+                        : "bg-gray-500"
+                }`}
+            ></span>
             {status}
         </span>
     );
@@ -49,18 +60,21 @@ const RiderCard = ({ rider, onEdit, onDelete, onToggleStatus }) => {
     };
 
     return (
-        <div className="bg-white overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow">
-            <div className="px-4 py-5 sm:p-6">
+        <div
+            className="bg-white overflow-hidden rounded-2xl border border-gray-100 hover:shadow-xl hover:shadow-gray-200/50 transition-all duration-300 transform hover:-translate-y-1 cursor-pointer group"
+            onClick={() => onEdit(rider)}
+        >
+            <div className="p-6">
                 <div className="flex items-center">
                     <div className="flex-shrink-0">
-                        <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                            <TruckIcon className="h-6 w-6 text-gray-600" />
+                        <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shadow-lg shadow-orange-500/25">
+                            <TruckIcon className="h-6 w-6 text-white" />
                         </div>
                     </div>
                     <div className="ml-4 flex-1">
                         <div className="flex items-center justify-between">
                             <div>
-                                <h3 className="text-lg font-medium text-gray-900">
+                                <h3 className="text-lg font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">
                                     {rider.name || "Unnamed Rider"}
                                 </h3>
                                 <p className="text-sm text-gray-500">
@@ -69,53 +83,72 @@ const RiderCard = ({ rider, onEdit, onDelete, onToggleStatus }) => {
                             </div>
                             <StatusBadge status={rider.status} />
                         </div>
-                        <div className="mt-2 text-sm text-gray-500">
-                            <p>
-                                Vehicle: {rider.vehicle_type || "N/A"} -{" "}
+                        <div className="mt-3 flex items-center gap-4 text-sm text-gray-500">
+                            <span className="flex items-center gap-1">
+                                <span className="font-medium text-gray-700">
+                                    Vehicle:
+                                </span>
+                                {rider.vehicle_type || "N/A"} -{" "}
                                 {rider.vehicle_number || "N/A"}
-                            </p>
-                            <p>Joined: {formatDate(rider.created_at)}</p>
+                            </span>
+                        </div>
+                        <div className="mt-1 text-xs text-gray-400">
+                            Joined: {formatDate(rider.created_at)}
                         </div>
                     </div>
                 </div>
 
-                <div className="mt-4 flex justify-between items-center">
-                    <div className="text-sm text-gray-500">
-                        Deliveries: {rider.total_deliveries || 0}
+                <div className="mt-5 pt-5 border-t border-gray-100 flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                        <span className="text-2xl font-bold text-gray-900">
+                            {rider.total_deliveries || 0}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                            Deliveries
+                        </span>
                     </div>
-                    <div className="flex space-x-2">
+                    <div className="flex gap-2">
                         <button
-                            onClick={() => onToggleStatus(rider)}
-                            className={`inline-flex items-center px-3 py-1.5 border shadow-sm text-xs font-medium rounded ${
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onToggleStatus(rider);
+                            }}
+                            className={`inline-flex items-center px-3 py-2 text-xs font-semibold rounded-xl transition-all duration-200 ${
                                 rider.status === "active"
-                                    ? "border-red-300 text-red-700 bg-white hover:bg-red-50"
-                                    : "border-green-300 text-green-700 bg-white hover:bg-green-50"
-                            } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
+                                    ? "bg-red-50 text-red-700 hover:bg-red-100 border border-red-200"
+                                    : "bg-green-50 text-green-700 hover:bg-green-100 border border-green-200"
+                            }`}
                         >
                             {rider.status === "active" ? (
                                 <>
-                                    <XCircleIcon className="h-3 w-3 mr-1" />
+                                    <XCircleIcon className="h-4 w-4 mr-1" />
                                     Deactivate
                                 </>
                             ) : (
                                 <>
-                                    <CheckCircleIcon className="h-3 w-3 mr-1" />
+                                    <CheckCircleIcon className="h-4 w-4 mr-1" />
                                     Activate
                                 </>
                             )}
                         </button>
                         <button
-                            onClick={() => onEdit(rider)}
-                            className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onEdit(rider);
+                            }}
+                            className="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-xl text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200 transition-all duration-200"
                         >
-                            <PencilIcon className="h-3 w-3 mr-1" />
+                            <PencilIcon className="h-4 w-4 mr-1" />
                             Edit
                         </button>
                         <button
-                            onClick={() => onDelete(rider)}
-                            className="inline-flex items-center px-3 py-1.5 border border-red-300 shadow-sm text-xs font-medium rounded text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onDelete(rider);
+                            }}
+                            className="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-xl text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 transition-all duration-200"
                         >
-                            <TrashIcon className="h-3 w-3 mr-1" />
+                            <TrashIcon className="h-4 w-4 mr-1" />
                             Delete
                         </button>
                     </div>
