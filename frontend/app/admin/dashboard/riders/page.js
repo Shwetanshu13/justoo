@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { api } from '@/admin/lib/api';
-import toast from 'react-hot-toast';
+import { useState, useEffect } from "react";
+import { api } from "@/admin/lib/api";
+import toast from "react-hot-toast";
 import {
     PlusIcon,
     PencilIcon,
@@ -11,24 +11,28 @@ import {
     TruckIcon,
     CheckCircleIcon,
     XCircleIcon,
-} from '@heroicons/react/24/outline';
+} from "@heroicons/react/24/outline";
 
 const StatusBadge = ({ status }) => {
     const getStatusColor = (status) => {
         switch (status?.toLowerCase()) {
-            case 'active':
-                return 'bg-green-100 text-green-800';
-            case 'inactive':
-                return 'bg-red-100 text-red-800';
-            case 'busy':
-                return 'bg-yellow-100 text-yellow-800';
+            case "active":
+                return "bg-green-100 text-green-800";
+            case "inactive":
+                return "bg-red-100 text-red-800";
+            case "busy":
+                return "bg-yellow-100 text-yellow-800";
             default:
-                return 'bg-gray-100 text-gray-800';
+                return "bg-gray-100 text-gray-800";
         }
     };
 
     return (
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${getStatusColor(status)}`}>
+        <span
+            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${getStatusColor(
+                status
+            )}`}
+        >
             {status}
         </span>
     );
@@ -36,11 +40,11 @@ const StatusBadge = ({ status }) => {
 
 const RiderCard = ({ rider, onEdit, onDelete, onToggleStatus }) => {
     const formatDate = (dateString) => {
-        if (!dateString) return 'N/A';
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
+        if (!dateString) return "N/A";
+        return new Date(dateString).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
         });
     };
 
@@ -56,13 +60,20 @@ const RiderCard = ({ rider, onEdit, onDelete, onToggleStatus }) => {
                     <div className="ml-4 flex-1">
                         <div className="flex items-center justify-between">
                             <div>
-                                <h3 className="text-lg font-medium text-gray-900">{rider.name || 'Unnamed Rider'}</h3>
-                                <p className="text-sm text-gray-500">{rider.phone || 'No phone'}</p>
+                                <h3 className="text-lg font-medium text-gray-900">
+                                    {rider.name || "Unnamed Rider"}
+                                </h3>
+                                <p className="text-sm text-gray-500">
+                                    {rider.phone || "No phone"}
+                                </p>
                             </div>
                             <StatusBadge status={rider.status} />
                         </div>
                         <div className="mt-2 text-sm text-gray-500">
-                            <p>Vehicle: {rider.vehicle_type || 'N/A'} - {rider.vehicle_number || 'N/A'}</p>
+                            <p>
+                                Vehicle: {rider.vehicle_type || "N/A"} -{" "}
+                                {rider.vehicle_number || "N/A"}
+                            </p>
                             <p>Joined: {formatDate(rider.created_at)}</p>
                         </div>
                     </div>
@@ -75,12 +86,13 @@ const RiderCard = ({ rider, onEdit, onDelete, onToggleStatus }) => {
                     <div className="flex space-x-2">
                         <button
                             onClick={() => onToggleStatus(rider)}
-                            className={`inline-flex items-center px-3 py-1.5 border shadow-sm text-xs font-medium rounded ${rider.status === 'active'
-                                ? 'border-red-300 text-red-700 bg-white hover:bg-red-50'
-                                : 'border-green-300 text-green-700 bg-white hover:bg-green-50'
-                                } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
+                            className={`inline-flex items-center px-3 py-1.5 border shadow-sm text-xs font-medium rounded ${
+                                rider.status === "active"
+                                    ? "border-red-300 text-red-700 bg-white hover:bg-red-50"
+                                    : "border-green-300 text-green-700 bg-white hover:bg-green-50"
+                            } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
                         >
-                            {rider.status === 'active' ? (
+                            {rider.status === "active" ? (
                                 <>
                                     <XCircleIcon className="h-3 w-3 mr-1" />
                                     Deactivate
@@ -115,38 +127,38 @@ const RiderCard = ({ rider, onEdit, onDelete, onToggleStatus }) => {
 
 const RiderModal = ({ isOpen, onClose, onSubmit, rider, loading }) => {
     const [formData, setFormData] = useState({
-        name: '',
-        phone: '',
-        email: '',
-        vehicle_type: 'bike',
-        vehicle_number: '',
-        license_number: '',
-        password: '',
-        status: 'active',
+        name: "",
+        phone: "",
+        email: "",
+        vehicle_type: "bike",
+        vehicle_number: "",
+        license_number: "",
+        password: "",
+        status: "active",
     });
 
     useEffect(() => {
         if (rider) {
             setFormData({
-                name: rider.name || '',
-                phone: rider.phone || '',
-                email: rider.email || '',
-                vehicle_type: rider.vehicle_type || 'bike',
-                vehicle_number: rider.vehicle_number || '',
-                license_number: rider.license_number || '',
-                password: '', // Always empty for security when editing
-                status: rider.status || 'active',
+                name: rider.name || "",
+                phone: rider.phone || "",
+                email: rider.email || "",
+                vehicle_type: rider.vehicle_type || "bike",
+                vehicle_number: rider.vehicle_number || "",
+                license_number: rider.license_number || "",
+                password: "", // Always empty for security when editing
+                status: rider.status || "active",
             });
         } else {
             setFormData({
-                name: '',
-                phone: '',
-                email: '',
-                vehicle_type: 'bike',
-                vehicle_number: '',
-                license_number: '',
-                password: '',
-                status: 'active',
+                name: "",
+                phone: "",
+                email: "",
+                vehicle_type: "bike",
+                vehicle_number: "",
+                license_number: "",
+                password: "",
+                status: "active",
             });
         }
     }, [rider, isOpen]);
@@ -161,7 +173,10 @@ const RiderModal = ({ isOpen, onClose, onSubmit, rider, loading }) => {
     return (
         <div className="fixed inset-0 z-50 overflow-y-auto">
             <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={onClose}></div>
+                <div
+                    className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+                    onClick={onClose}
+                ></div>
 
                 <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
                     <form onSubmit={handleSubmit}>
@@ -169,7 +184,7 @@ const RiderModal = ({ isOpen, onClose, onSubmit, rider, loading }) => {
                             <div className="sm:flex sm:items-start">
                                 <div className="mt-3 text-center sm:mt-0 sm:text-left w-full">
                                     <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-                                        {rider ? 'Edit Rider' : 'Add New Rider'}
+                                        {rider ? "Edit Rider" : "Add New Rider"}
                                     </h3>
 
                                     <div className="space-y-4">
@@ -181,7 +196,12 @@ const RiderModal = ({ isOpen, onClose, onSubmit, rider, loading }) => {
                                                 type="text"
                                                 required
                                                 value={formData.name}
-                                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                                onChange={(e) =>
+                                                    setFormData({
+                                                        ...formData,
+                                                        name: e.target.value,
+                                                    })
+                                                }
                                                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                                                 placeholder="Enter rider name"
                                             />
@@ -195,7 +215,12 @@ const RiderModal = ({ isOpen, onClose, onSubmit, rider, loading }) => {
                                                 type="tel"
                                                 required
                                                 value={formData.phone}
-                                                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                                onChange={(e) =>
+                                                    setFormData({
+                                                        ...formData,
+                                                        phone: e.target.value,
+                                                    })
+                                                }
                                                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                                                 placeholder="Enter phone number"
                                             />
@@ -208,7 +233,12 @@ const RiderModal = ({ isOpen, onClose, onSubmit, rider, loading }) => {
                                             <input
                                                 type="email"
                                                 value={formData.email}
-                                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                                onChange={(e) =>
+                                                    setFormData({
+                                                        ...formData,
+                                                        email: e.target.value,
+                                                    })
+                                                }
                                                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                                                 placeholder="Enter email address"
                                             />
@@ -216,15 +246,25 @@ const RiderModal = ({ isOpen, onClose, onSubmit, rider, loading }) => {
 
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                                Password {!rider && '*'}
+                                                Password {!rider && "*"}
                                             </label>
                                             <input
                                                 type="password"
                                                 required={!rider}
                                                 value={formData.password}
-                                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                                onChange={(e) =>
+                                                    setFormData({
+                                                        ...formData,
+                                                        password:
+                                                            e.target.value,
+                                                    })
+                                                }
                                                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                                                placeholder={rider ? "Leave blank to keep current password" : "Enter password (min 6 characters)"}
+                                                placeholder={
+                                                    rider
+                                                        ? "Leave blank to keep current password"
+                                                        : "Enter password (min 6 characters)"
+                                                }
                                                 minLength={6}
                                             />
                                         </div>
@@ -236,14 +276,30 @@ const RiderModal = ({ isOpen, onClose, onSubmit, rider, loading }) => {
                                                 </label>
                                                 <select
                                                     required
-                                                    value={formData.vehicle_type}
-                                                    onChange={(e) => setFormData({ ...formData, vehicle_type: e.target.value })}
+                                                    value={
+                                                        formData.vehicle_type
+                                                    }
+                                                    onChange={(e) =>
+                                                        setFormData({
+                                                            ...formData,
+                                                            vehicle_type:
+                                                                e.target.value,
+                                                        })
+                                                    }
                                                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                                                 >
-                                                    <option value="bike">Bike</option>
-                                                    <option value="scooter">Scooter</option>
-                                                    <option value="car">Car</option>
-                                                    <option value="van">Van</option>
+                                                    <option value="bike">
+                                                        Bike
+                                                    </option>
+                                                    <option value="scooter">
+                                                        Scooter
+                                                    </option>
+                                                    <option value="car">
+                                                        Car
+                                                    </option>
+                                                    <option value="van">
+                                                        Van
+                                                    </option>
                                                 </select>
                                             </div>
 
@@ -254,8 +310,16 @@ const RiderModal = ({ isOpen, onClose, onSubmit, rider, loading }) => {
                                                 <input
                                                     type="text"
                                                     required
-                                                    value={formData.vehicle_number}
-                                                    onChange={(e) => setFormData({ ...formData, vehicle_number: e.target.value })}
+                                                    value={
+                                                        formData.vehicle_number
+                                                    }
+                                                    onChange={(e) =>
+                                                        setFormData({
+                                                            ...formData,
+                                                            vehicle_number:
+                                                                e.target.value,
+                                                        })
+                                                    }
                                                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                                                     placeholder="KA01AB1234"
                                                 />
@@ -269,7 +333,13 @@ const RiderModal = ({ isOpen, onClose, onSubmit, rider, loading }) => {
                                             <input
                                                 type="text"
                                                 value={formData.license_number}
-                                                onChange={(e) => setFormData({ ...formData, license_number: e.target.value })}
+                                                onChange={(e) =>
+                                                    setFormData({
+                                                        ...formData,
+                                                        license_number:
+                                                            e.target.value,
+                                                    })
+                                                }
                                                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                                                 placeholder="Enter license number"
                                             />
@@ -281,12 +351,23 @@ const RiderModal = ({ isOpen, onClose, onSubmit, rider, loading }) => {
                                             </label>
                                             <select
                                                 value={formData.status}
-                                                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                                                onChange={(e) =>
+                                                    setFormData({
+                                                        ...formData,
+                                                        status: e.target.value,
+                                                    })
+                                                }
                                                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                                             >
-                                                <option value="active">Active</option>
-                                                <option value="inactive">Inactive</option>
-                                                <option value="busy">Busy</option>
+                                                <option value="active">
+                                                    Active
+                                                </option>
+                                                <option value="inactive">
+                                                    Inactive
+                                                </option>
+                                                <option value="busy">
+                                                    Busy
+                                                </option>
                                             </select>
                                         </div>
                                     </div>
@@ -300,7 +381,11 @@ const RiderModal = ({ isOpen, onClose, onSubmit, rider, loading }) => {
                                 disabled={loading}
                                 className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50"
                             >
-                                {loading ? 'Saving...' : (rider ? 'Update' : 'Create')}
+                                {loading
+                                    ? "Saving..."
+                                    : rider
+                                    ? "Update"
+                                    : "Create"}
                             </button>
                             <button
                                 type="button"
@@ -320,8 +405,8 @@ const RiderModal = ({ isOpen, onClose, onSubmit, rider, loading }) => {
 export default function RidersPage() {
     const [riders, setRiders] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [selectedStatus, setSelectedStatus] = useState('all');
+    const [searchTerm, setSearchTerm] = useState("");
+    const [selectedStatus, setSelectedStatus] = useState("all");
     const [showModal, setShowModal] = useState(false);
     const [editingRider, setEditingRider] = useState(null);
     const [submitting, setSubmitting] = useState(false);
@@ -333,16 +418,16 @@ export default function RidersPage() {
     const fetchRiders = async () => {
         try {
             setLoading(true);
-            const response = await api.get('/riders');
-            console.log(response);
+            const response = await api.get("/riders", {
+                params: { isActive: 1 }, // only show active (non-deleted) riders
+            });
 
             // Ensure we have valid rider data
             const riderData = response.data?.data?.riders || [];
             setRiders(Array.isArray(riderData) ? riderData : []);
-
         } catch (error) {
-            console.error('Error fetching riders:', error);
-            toast.error('Failed to fetch riders');
+            console.error("Error fetching riders:", error);
+            toast.error("Failed to fetch riders");
             setRiders([]); // Set empty array on error
         } finally {
             setLoading(false);
@@ -360,51 +445,70 @@ export default function RidersPage() {
     };
 
     const handleDeleteRider = async (rider) => {
-        if (window.confirm(`Are you sure you want to delete rider ${rider.name || 'this rider'}?`)) {
+        if (!rider?.id) {
+            toast.error("Invalid rider selected");
+            return;
+        }
+
+        if (
+            window.confirm(
+                `Are you sure you want to delete rider ${
+                    rider.name || "this rider"
+                }?`
+            )
+        ) {
             try {
                 const response = await api.delete(`/riders/${rider.id}`);
                 const responseData = response.data || response;
 
                 if (responseData.success) {
-                    toast.success('Rider deleted successfully');
+                    toast.success("Rider deleted successfully");
                     fetchRiders();
                 } else {
-                    toast.error(responseData.error || 'Failed to delete rider');
+                    toast.error(responseData.error || "Failed to delete rider");
                 }
             } catch (error) {
-                console.error('Error deleting rider:', error);
+                console.error("Error deleting rider:", error);
 
                 if (error.response?.status === 404) {
-                    toast.error('Rider not found');
+                    toast.error("Rider not found");
                 } else if (error.response?.data?.error) {
                     toast.error(error.response.data.error);
                 } else {
-                    toast.error('Failed to delete rider');
+                    toast.error("Failed to delete rider");
                 }
             }
         }
     };
 
     const handleToggleStatus = async (rider) => {
-        const newStatus = rider.status === 'active' ? 'inactive' : 'active';
+        const newStatus = rider.status === "active" ? "inactive" : "active";
 
         try {
-            const response = await api.put(`/riders/${rider.id}`, { status: newStatus });
+            const response = await api.put(`/riders/${rider.id}`, {
+                status: newStatus,
+            });
             const responseData = response.data || response;
 
             if (responseData.success) {
-                toast.success(`Rider ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully`);
+                toast.success(
+                    `Rider ${
+                        newStatus === "active" ? "activated" : "deactivated"
+                    } successfully`
+                );
                 fetchRiders();
             } else {
-                toast.error(responseData.error || 'Failed to update rider status');
+                toast.error(
+                    responseData.error || "Failed to update rider status"
+                );
             }
         } catch (error) {
-            console.error('Error updating rider status:', error);
+            console.error("Error updating rider status:", error);
 
             if (error.response?.data?.error) {
                 toast.error(error.response.data.error);
             } else {
-                toast.error('Failed to update rider status');
+                toast.error("Failed to update rider status");
             }
         }
     };
@@ -415,53 +519,68 @@ export default function RidersPage() {
 
             let response;
             if (editingRider) {
-                response = await api.put(`/riders/${editingRider.id}`, formData);
+                response = await api.put(
+                    `/riders/${editingRider.id}`,
+                    formData
+                );
             } else {
-                response = await api.post('/riders', formData);
+                response = await api.post("/riders", formData);
             }
 
             // Check if response has data property (axios response structure)
             const responseData = response.data || response;
 
             if (responseData.success) {
-                toast.success(`Rider ${editingRider ? 'updated' : 'created'} successfully`);
+                toast.success(
+                    `Rider ${editingRider ? "updated" : "created"} successfully`
+                );
                 setShowModal(false);
                 fetchRiders();
             } else {
-                toast.error(responseData.error || `Failed to ${editingRider ? 'update' : 'create'} rider`);
+                toast.error(
+                    responseData.error ||
+                        `Failed to ${editingRider ? "update" : "create"} rider`
+                );
             }
         } catch (error) {
-            console.error('Error submitting rider:', error);
+            console.error("Error submitting rider:", error);
 
             // Handle specific error cases
             if (error.response?.status === 409) {
-                const errorMessage = error.response.data?.error || 'Phone number or email already exists';
+                const errorMessage =
+                    error.response.data?.error ||
+                    "Phone number or email already exists";
                 toast.error(errorMessage);
             } else if (error.response?.status === 400) {
-                const errorMessage = error.response.data?.error || 'Invalid data provided';
+                const errorMessage =
+                    error.response.data?.error || "Invalid data provided";
                 toast.error(errorMessage);
             } else {
-                toast.error(`Failed to ${editingRider ? 'update' : 'create'} rider`);
+                toast.error(
+                    `Failed to ${editingRider ? "update" : "create"} rider`
+                );
             }
         } finally {
             setSubmitting(false);
         }
     };
 
-    const filteredRiders = riders.filter(rider => {
-        const riderName = rider.name || '';
-        const riderPhone = rider.phone || '';
-        const riderVehicleNumber = rider.vehicle_number || '';
+    const filteredRiders = riders.filter((rider) => {
+        const riderName = rider.name || "";
+        const riderPhone = rider.phone || "";
+        const riderVehicleNumber = rider.vehicle_number || "";
 
-        const matchesSearch = riderName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        const matchesSearch =
+            riderName.toLowerCase().includes(searchTerm.toLowerCase()) ||
             riderPhone.includes(searchTerm) ||
             riderVehicleNumber.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesStatus = selectedStatus === 'all' || rider.status === selectedStatus;
+        const matchesStatus =
+            selectedStatus === "all" || rider.status === selectedStatus;
         return matchesSearch && matchesStatus;
     });
 
     const getStatusCount = (status) => {
-        return riders.filter(rider => rider.status === status).length;
+        return riders.filter((rider) => rider.status === status).length;
     };
 
     return (
@@ -499,8 +618,12 @@ export default function RidersPage() {
                             </div>
                             <div className="ml-5 w-0 flex-1">
                                 <dl>
-                                    <dt className="text-sm font-medium text-gray-500 truncate">Total Riders</dt>
-                                    <dd className="text-lg font-medium text-gray-900">{riders.length}</dd>
+                                    <dt className="text-sm font-medium text-gray-500 truncate">
+                                        Total Riders
+                                    </dt>
+                                    <dd className="text-lg font-medium text-gray-900">
+                                        {riders.length}
+                                    </dd>
                                 </dl>
                             </div>
                         </div>
@@ -517,8 +640,12 @@ export default function RidersPage() {
                             </div>
                             <div className="ml-5 w-0 flex-1">
                                 <dl>
-                                    <dt className="text-sm font-medium text-gray-500 truncate">Active</dt>
-                                    <dd className="text-lg font-medium text-gray-900">{getStatusCount('active')}</dd>
+                                    <dt className="text-sm font-medium text-gray-500 truncate">
+                                        Active
+                                    </dt>
+                                    <dd className="text-lg font-medium text-gray-900">
+                                        {getStatusCount("active")}
+                                    </dd>
                                 </dl>
                             </div>
                         </div>
@@ -535,8 +662,12 @@ export default function RidersPage() {
                             </div>
                             <div className="ml-5 w-0 flex-1">
                                 <dl>
-                                    <dt className="text-sm font-medium text-gray-500 truncate">Busy</dt>
-                                    <dd className="text-lg font-medium text-gray-900">{getStatusCount('busy')}</dd>
+                                    <dt className="text-sm font-medium text-gray-500 truncate">
+                                        Busy
+                                    </dt>
+                                    <dd className="text-lg font-medium text-gray-900">
+                                        {getStatusCount("busy")}
+                                    </dd>
                                 </dl>
                             </div>
                         </div>
@@ -553,8 +684,12 @@ export default function RidersPage() {
                             </div>
                             <div className="ml-5 w-0 flex-1">
                                 <dl>
-                                    <dt className="text-sm font-medium text-gray-500 truncate">Inactive</dt>
-                                    <dd className="text-lg font-medium text-gray-900">{getStatusCount('inactive')}</dd>
+                                    <dt className="text-sm font-medium text-gray-500 truncate">
+                                        Inactive
+                                    </dt>
+                                    <dd className="text-lg font-medium text-gray-900">
+                                        {getStatusCount("inactive")}
+                                    </dd>
                                 </dl>
                             </div>
                         </div>
@@ -582,7 +717,9 @@ export default function RidersPage() {
                         <div>
                             <select
                                 value={selectedStatus}
-                                onChange={(e) => setSelectedStatus(e.target.value)}
+                                onChange={(e) =>
+                                    setSelectedStatus(e.target.value)
+                                }
                                 className="block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
                             >
                                 <option value="all">All Status</option>
@@ -593,7 +730,8 @@ export default function RidersPage() {
                         </div>
 
                         <div className="text-sm text-gray-500 flex items-center">
-                            Showing {filteredRiders.length} of {riders.length} riders
+                            Showing {filteredRiders.length} of {riders.length}{" "}
+                            riders
                         </div>
                     </div>
                 </div>
@@ -607,12 +745,13 @@ export default function RidersPage() {
             ) : filteredRiders.length === 0 ? (
                 <div className="text-center py-12">
                     <TruckIcon className="mx-auto h-12 w-12 text-gray-400" />
-                    <h3 className="mt-2 text-sm font-medium text-gray-900">No riders found</h3>
+                    <h3 className="mt-2 text-sm font-medium text-gray-900">
+                        No riders found
+                    </h3>
                     <p className="mt-1 text-sm text-gray-500">
-                        {searchTerm || selectedStatus !== 'all'
-                            ? 'Try adjusting your search or filter criteria.'
-                            : 'Get started by adding a new rider.'
-                        }
+                        {searchTerm || selectedStatus !== "all"
+                            ? "Try adjusting your search or filter criteria."
+                            : "Get started by adding a new rider."}
                     </p>
                 </div>
             ) : (

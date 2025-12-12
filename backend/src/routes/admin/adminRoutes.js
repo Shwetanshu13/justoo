@@ -11,6 +11,7 @@ router.use(requireAnyAdmin);
 
 // Admin management (SuperAdmin only)
 router.post('/add', requireSuperAdmin, adminController.addAdmin);
+router.put('/:id', requireSuperAdmin, adminController.updateAdmin);
 router.delete('/:id', requireSuperAdmin, adminController.removeAdmin);
 router.get('/', adminController.getAllAdmins);
 

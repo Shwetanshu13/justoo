@@ -82,7 +82,7 @@ export const addAdmin = async (req, res) => {
 
         const { password: _, ...adminWithoutPassword } = newAdmin[0];
 
-        return successResponse(res, 'Admin added successfully', adminWithoutPassword, 201);
+        return successResponse(res, adminWithoutPassword, 'Admin added successfully', 201);
     } catch (error) {
         console.error('Error adding admin:', error);
         return errorResponse(res, 'Failed to add admin', 500);
@@ -124,10 +124,105 @@ export const removeAdmin = async (req, res) => {
 
         const { password: _, ...adminWithoutPassword } = deletedAdmin[0];
 
-        return successResponse(res, 'Admin removed successfully', adminWithoutPassword);
+        return successResponse(res, adminWithoutPassword, 'Admin removed successfully');
     } catch (error) {
         console.error('Error removing admin:', error);
         return errorResponse(res, 'Failed to remove admin', 500);
+    }
+};
+
+export const updateAdmin = async (req, res) => {
+    const { id } = req.params;
+    if (!id) {
+        return errorResponse(res, 'Admin ID is required', 400);
+    }
+
+    const numericId = Number(id);
+    if (!Number.isInteger(numericId) || numericId <= 0) {
+        return errorResponse(res, 'Invalid admin ID', 400);
+    }
+
+    const { username, email, password, role } = req.body;
+
+    // Validate role if provided
+    const validRoles = ['superadmin', 'admin', 'inventory_admin'];
+    if (role && !validRoles.includes(role)) {
+        return errorResponse(res, 'Invalid role. Must be one of: superadmin, admin, inventory_admin', 400);
+    }
+
+    // Validate password if provided
+    if (password && password.length < 6) {
+        return errorResponse(res, 'Password must be at least 6 characters long', 400);
+    }
+
+    // Validate email if provided
+    if (email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return errorResponse(res, 'Please provide a valid email address', 400);
+        }
+    }
+
+    // Validate username if provided
+    if (username && username.length < 3) {
+        return errorResponse(res, 'Username must be at least 3 characters long', 400);
+    }
+
+    try {
+        // Prevent self-demotion/deletion logic is not required here, but avoid removing own role? Keep allowed.
+        const existingAdmin = await db
+            .select()
+            .from(admins)
+            .where(and(eq(admins.id, numericId), sql`${admins.role} IN ('superadmin', 'admin', 'inventory_admin')`))
+            .limit(1);
+
+        if (existingAdmin.length === 0) {
+            return errorResponse(res, 'Admin not found', 404);
+        }
+
+        // Check for unique username/email if changed
+        if (username) {
+            const usernameClash = await db
+                .select()
+                .from(admins)
+                .where(and(eq(admins.username, username), ne(admins.id, numericId)))
+                .limit(1);
+            if (usernameClash.length > 0) {
+                return errorResponse(res, 'Username already exists', 409);
+            }
+        }
+
+        if (email) {
+            const emailClash = await db
+                .select()
+                .from(admins)
+                .where(and(eq(admins.email, email), ne(admins.id, numericId)))
+                .limit(1);
+            if (emailClash.length > 0) {
+                return errorResponse(res, 'Email already exists', 409);
+            }
+        }
+
+        const updatePayload = {};
+        if (username) updatePayload.username = username;
+        if (email) updatePayload.email = email;
+        if (role) updatePayload.role = role;
+        if (password) {
+            updatePayload.password = await bcrypt.hash(password, SALT_ROUNDS);
+        }
+        updatePayload.updatedAt = new Date();
+
+        const updatedAdmin = await db
+            .update(admins)
+            .set(updatePayload)
+            .where(eq(admins.id, numericId))
+            .returning();
+
+        const { password: _, ...adminWithoutPassword } = updatedAdmin[0];
+        return successResponse(res, adminWithoutPassword, 'Admin updated successfully');
+    } catch (error) {
+        console.error('Error updating admin:', error);
+        return errorResponse(res, 'Failed to update admin', 500);
     }
 };
 
@@ -178,7 +273,7 @@ export const getAllUsers = async (req, res) => {
             .limit(parseInt(limit))
             .offset(offset);
 
-        return successResponse(res, 'All users retrieved successfully', allUsers);
+        return successResponse(res, allUsers, 'All users retrieved successfully');
     } catch (error) {
         console.error('Error getting all users:', error);
         return errorResponse(res, 'Failed to retrieve users', 500);
@@ -217,7 +312,7 @@ export const deleteUser = async (req, res) => {
 
         const { password: _, ...userWithoutPassword } = deletedUser[0];
 
-        return successResponse(res, 'User deleted successfully', userWithoutPassword);
+        return successResponse(res, userWithoutPassword, 'User deleted successfully');
     } catch (error) {
         console.error('Error deleting user:', error);
         return errorResponse(res, 'Failed to delete user', 500);
@@ -241,7 +336,7 @@ export const inventoryAnalytics = async (req, res) => {
     try {
         const analytics = await getInventoryAnalytics();
 
-        return successResponse(res, 'Inventory analytics retrieved successfully', analytics);
+        return successResponse(res, analytics, 'Inventory analytics retrieved successfully');
     } catch (error) {
         console.error('Error getting inventory analytics:', error);
         return errorResponse(res, 'Failed to retrieve inventory analytics', 500);
@@ -252,7 +347,7 @@ export const userAnalytics = async (req, res) => {
     try {
         const analytics = await getUserAnalytics();
 
-        return successResponse(res, 'User analytics retrieved successfully', analytics);
+        return successResponse(res, analytics, 'User analytics retrieved successfully');
     } catch (error) {
         console.error('Error getting user analytics:', error);
         return errorResponse(res, 'Failed to retrieve user analytics', 500);
@@ -263,7 +358,7 @@ export const paymentAnalytics = async (req, res) => {
     try {
         const analytics = await getPaymentAnalytics();
 
-        return successResponse(res, 'Payment analytics retrieved successfully', analytics);
+        return successResponse(res, analytics, 'Payment analytics retrieved successfully');
     } catch (error) {
         console.error('Error getting payment analytics:', error);
         return errorResponse(res, 'Failed to retrieve payment analytics', 500);

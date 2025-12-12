@@ -1,53 +1,57 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { api } from '@/admin/lib/api';
-import toast from 'react-hot-toast';
+import { useState, useEffect } from "react";
+import { api } from "@/admin/lib/api";
+import toast from "react-hot-toast";
 import {
     EyeIcon,
     CurrencyRupeeIcon,
     CalendarDaysIcon,
     MagnifyingGlassIcon,
     FunnelIcon,
-} from '@heroicons/react/24/outline';
+} from "@heroicons/react/24/outline";
 
 const StatusBadge = ({ status }) => {
     const getStatusColor = (status) => {
         switch (status?.toLowerCase()) {
-            case 'pending':
-                return 'bg-yellow-100 text-yellow-800';
-            case 'confirmed':
-                return 'bg-blue-100 text-blue-800';
-            case 'preparing':
-                return 'bg-purple-100 text-purple-800';
-            case 'ready':
-                return 'bg-indigo-100 text-indigo-800';
-            case 'out_for_delivery':
-                return 'bg-orange-100 text-orange-800';
-            case 'delivered':
-                return 'bg-green-100 text-green-800';
-            case 'cancelled':
-                return 'bg-red-100 text-red-800';
+            case "pending":
+                return "bg-yellow-100 text-yellow-800";
+            case "confirmed":
+                return "bg-blue-100 text-blue-800";
+            case "preparing":
+                return "bg-purple-100 text-purple-800";
+            case "ready":
+                return "bg-indigo-100 text-indigo-800";
+            case "out_for_delivery":
+                return "bg-orange-100 text-orange-800";
+            case "delivered":
+                return "bg-green-100 text-green-800";
+            case "cancelled":
+                return "bg-red-100 text-red-800";
             default:
-                return 'bg-gray-100 text-gray-800';
+                return "bg-gray-100 text-gray-800";
         }
     };
 
     return (
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${getStatusColor(status)}`}>
-            {status?.replace('_', ' ')}
+        <span
+            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${getStatusColor(
+                status
+            )}`}
+        >
+            {status?.replace("_", " ")}
         </span>
     );
 };
 
 const OrderRow = ({ order, onViewDetails }) => {
     const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
+        return new Date(dateString).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
         });
     };
 
@@ -57,8 +61,12 @@ const OrderRow = ({ order, onViewDetails }) => {
                 {order.order_id || order.id}
             </td>
             <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm text-gray-900">{order.customer_name}</div>
-                <div className="text-sm text-gray-500">{order.customer_email}</div>
+                <div className="text-sm text-gray-900">
+                    {order.customer_name}
+                </div>
+                <div className="text-sm text-gray-500">
+                    {order.customer_email}
+                </div>
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                 ₹{order.total_amount?.toFixed(2)}
@@ -87,7 +95,10 @@ const OrderDetailsModal = ({ isOpen, onClose, order }) => {
     return (
         <div className="fixed inset-0 z-50 overflow-y-auto">
             <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onClick={onClose}></div>
+                <div
+                    className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+                    onClick={onClose}
+                ></div>
 
                 <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
                     <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
@@ -106,53 +117,113 @@ const OrderDetailsModal = ({ isOpen, onClose, order }) => {
                         <div className="space-y-4">
                             {/* Customer Info */}
                             <div className="bg-gray-50 p-4 rounded-lg">
-                                <h4 className="font-medium text-gray-900 mb-2">Customer Information</h4>
+                                <h4 className="font-medium text-gray-900 mb-2">
+                                    Customer Information
+                                </h4>
                                 <div className="grid grid-cols-2 gap-4 text-sm">
                                     <div>
-                                        <span className="text-gray-500">Name:</span>
-                                        <p className="font-medium">{order.customer_name}</p>
+                                        <span className="text-gray-500">
+                                            Name:
+                                        </span>
+                                        <p className="font-medium">
+                                            {order.customer_name}
+                                        </p>
                                     </div>
                                     <div>
-                                        <span className="text-gray-500">Email:</span>
-                                        <p className="font-medium">{order.customer_email}</p>
+                                        <span className="text-gray-500">
+                                            Email:
+                                        </span>
+                                        <p className="font-medium">
+                                            {order.customer_email}
+                                        </p>
                                     </div>
                                     <div>
-                                        <span className="text-gray-500">Phone:</span>
-                                        <p className="font-medium">{order.customer_phone || 'N/A'}</p>
+                                        <span className="text-gray-500">
+                                            Phone:
+                                        </span>
+                                        <p className="font-medium">
+                                            {order.customer_phone || "N/A"}
+                                        </p>
                                     </div>
                                     <div>
-                                        <span className="text-gray-500">Address:</span>
-                                        <p className="font-medium">{order.delivery_address || 'N/A'}</p>
+                                        <span className="text-gray-500">
+                                            Address:
+                                        </span>
+                                        <p className="font-medium">
+                                            {order.delivery_address || "N/A"}
+                                        </p>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Order Items */}
                             <div>
-                                <h4 className="font-medium text-gray-900 mb-2">Order Items</h4>
+                                <h4 className="font-medium text-gray-900 mb-2">
+                                    Order Items
+                                </h4>
                                 <div className="border rounded-lg overflow-hidden">
                                     <table className="min-w-full divide-y divide-gray-200">
                                         <thead className="bg-gray-50">
                                             <tr>
-                                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Item</th>
-                                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Qty</th>
-                                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
-                                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
+                                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                                                    Item
+                                                </th>
+                                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                                                    Qty
+                                                </th>
+                                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                                                    Price
+                                                </th>
+                                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                                                    Total
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody className="bg-white divide-y divide-gray-200">
                                             {order.items?.length ? (
-                                                order.items.map((item, index) => (
-                                                    <tr key={index}>
-                                                        <td className="px-4 py-2 text-sm text-gray-900">{item.name}</td>
-                                                        <td className="px-4 py-2 text-sm text-gray-900">{item.quantity}</td>
-                                                        <td className="px-4 py-2 text-sm text-gray-900">₹{item.price?.toFixed ? item.price.toFixed(2) : Number(item.price ?? 0).toFixed(2)}</td>
-                                                        <td className="px-4 py-2 text-sm text-gray-900">₹{(item.total ?? item.quantity * Number(item.price ?? 0)).toFixed(2)}</td>
-                                                    </tr>
-                                                ))
+                                                order.items.map(
+                                                    (item, index) => (
+                                                        <tr key={index}>
+                                                            <td className="px-4 py-2 text-sm text-gray-900">
+                                                                {item.name}
+                                                            </td>
+                                                            <td className="px-4 py-2 text-sm text-gray-900">
+                                                                {item.quantity}
+                                                            </td>
+                                                            <td className="px-4 py-2 text-sm text-gray-900">
+                                                                ₹
+                                                                {item.price
+                                                                    ?.toFixed
+                                                                    ? item.price.toFixed(
+                                                                          2
+                                                                      )
+                                                                    : Number(
+                                                                          item.price ??
+                                                                              0
+                                                                      ).toFixed(
+                                                                          2
+                                                                      )}
+                                                            </td>
+                                                            <td className="px-4 py-2 text-sm text-gray-900">
+                                                                ₹
+                                                                {(
+                                                                    item.total ??
+                                                                    item.quantity *
+                                                                        Number(
+                                                                            item.price ??
+                                                                                0
+                                                                        )
+                                                                ).toFixed(2)}
+                                                            </td>
+                                                        </tr>
+                                                    )
+                                                )
                                             ) : (
                                                 <tr>
-                                                    <td colSpan="4" className="px-4 py-2 text-sm text-gray-500 text-center">
+                                                    <td
+                                                        colSpan="4"
+                                                        className="px-4 py-2 text-sm text-gray-500 text-center"
+                                                    >
                                                         No items available
                                                     </td>
                                                 </tr>
@@ -164,7 +235,9 @@ const OrderDetailsModal = ({ isOpen, onClose, order }) => {
 
                             {/* Order Summary */}
                             <div className="bg-gray-50 p-4 rounded-lg">
-                                <h4 className="font-medium text-gray-900 mb-2">Order Summary</h4>
+                                <h4 className="font-medium text-gray-900 mb-2">
+                                    Order Summary
+                                </h4>
                                 <div className="space-y-2 text-sm">
                                     <div className="flex justify-between">
                                         <span>Status:</span>
@@ -172,16 +245,26 @@ const OrderDetailsModal = ({ isOpen, onClose, order }) => {
                                     </div>
                                     <div className="flex justify-between">
                                         <span>Total Amount:</span>
-                                        <span className="font-medium">₹{order.total_amount?.toFixed(2)}</span>
+                                        <span className="font-medium">
+                                            ₹{order.total_amount?.toFixed(2)}
+                                        </span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span>Order Date:</span>
-                                        <span>{new Date(order.created_at).toLocaleDateString()}</span>
+                                        <span>
+                                            {new Date(
+                                                order.created_at
+                                            ).toLocaleDateString()}
+                                        </span>
                                     </div>
                                     {order.delivery_time && (
                                         <div className="flex justify-between">
                                             <span>Delivery Time:</span>
-                                            <span>{new Date(order.delivery_time).toLocaleDateString()}</span>
+                                            <span>
+                                                {new Date(
+                                                    order.delivery_time
+                                                ).toLocaleDateString()}
+                                            </span>
                                         </div>
                                     )}
                                 </div>
@@ -206,9 +289,9 @@ const OrderDetailsModal = ({ isOpen, onClose, order }) => {
 export default function OrdersPage() {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [selectedStatus, setSelectedStatus] = useState('all');
-    const [dateRange, setDateRange] = useState('all');
+    const [searchTerm, setSearchTerm] = useState("");
+    const [selectedStatus, setSelectedStatus] = useState("all");
+    const [dateRange, setDateRange] = useState("all");
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [showModal, setShowModal] = useState(false);
 
@@ -219,7 +302,7 @@ export default function OrdersPage() {
     const fetchOrders = async () => {
         try {
             setLoading(true);
-            const response = await api.get('/orders');
+            const response = await api.get("/orders");
             const ok = response?.data?.success;
             const payload = response?.data?.data?.orders;
 
@@ -227,9 +310,9 @@ export default function OrdersPage() {
                 const normalized = payload.map((o) => ({
                     id: o.id,
                     order_id: o.id,
-                    customer_name: o.customerName || '',
-                    customer_email: o.customerEmail || '',
-                    customer_phone: o.customerPhone || '',
+                    customer_name: o.customerName || "",
+                    customer_email: o.customerEmail || "",
+                    customer_phone: o.customerPhone || "",
                     total_amount: Number(o.totalAmount ?? 0),
                     status: o.status,
                     created_at: o.createdAt,
@@ -239,7 +322,9 @@ export default function OrdersPage() {
                         quantity: item.quantity,
                         price: Number(item.price ?? 0),
                         total: Number(
-                            item.total ?? item.quantity * Number(item.price ?? 0) ?? 0
+                            item.total ??
+                                item.quantity * Number(item.price ?? 0) ??
+                                0
                         ),
                     })),
                 }));
@@ -247,53 +332,49 @@ export default function OrdersPage() {
             } else {
                 setOrders([
                     {
-                        id: 'ORD-001',
-                        order_id: 'ORD-001',
-                        customer_name: 'John Doe',
-                        customer_email: 'john@example.com',
-                        customer_phone: '+91 9876543210',
-                        total_amount: 450.00,
-                        status: 'delivered',
-                        created_at: '2024-01-15T10:30:00Z',
-                        delivery_address: '123 Main St, Bangalore',
+                        id: "ORD-001",
+                        order_id: "ORD-001",
+                        customer_name: "John Doe",
+                        customer_email: "john@example.com",
+                        customer_phone: "+91 9876543210",
+                        total_amount: 450.0,
+                        status: "delivered",
+                        created_at: "2024-01-15T10:30:00Z",
+                        delivery_address: "123 Main St, Bangalore",
                         items: [
-                            { name: 'Product 1', quantity: 2, price: 200 },
-                            { name: 'Product 2', quantity: 1, price: 50 }
-                        ]
+                            { name: "Product 1", quantity: 2, price: 200 },
+                            { name: "Product 2", quantity: 1, price: 50 },
+                        ],
                     },
                     {
-                        id: 'ORD-002',
-                        order_id: 'ORD-002',
-                        customer_name: 'Jane Smith',
-                        customer_email: 'jane@example.com',
-                        customer_phone: '+91 9876543211',
-                        total_amount: 320.00,
-                        status: 'out_for_delivery',
-                        created_at: '2024-01-15T14:15:00Z',
-                        delivery_address: '456 Oak Ave, Mumbai',
-                        items: [
-                            { name: 'Product 3', quantity: 1, price: 320 }
-                        ]
+                        id: "ORD-002",
+                        order_id: "ORD-002",
+                        customer_name: "Jane Smith",
+                        customer_email: "jane@example.com",
+                        customer_phone: "+91 9876543211",
+                        total_amount: 320.0,
+                        status: "out_for_delivery",
+                        created_at: "2024-01-15T14:15:00Z",
+                        delivery_address: "456 Oak Ave, Mumbai",
+                        items: [{ name: "Product 3", quantity: 1, price: 320 }],
                     },
                     {
-                        id: 'ORD-003',
-                        order_id: 'ORD-003',
-                        customer_name: 'Bob Johnson',
-                        customer_email: 'bob@example.com',
-                        customer_phone: '+91 9876543212',
-                        total_amount: 180.00,
-                        status: 'preparing',
-                        created_at: '2024-01-15T16:45:00Z',
-                        delivery_address: '789 Pine Rd, Delhi',
-                        items: [
-                            { name: 'Product 4', quantity: 3, price: 60 }
-                        ]
-                    }
+                        id: "ORD-003",
+                        order_id: "ORD-003",
+                        customer_name: "Bob Johnson",
+                        customer_email: "bob@example.com",
+                        customer_phone: "+91 9876543212",
+                        total_amount: 180.0,
+                        status: "preparing",
+                        created_at: "2024-01-15T16:45:00Z",
+                        delivery_address: "789 Pine Rd, Delhi",
+                        items: [{ name: "Product 4", quantity: 3, price: 60 }],
+                    },
                 ]);
             }
         } catch (error) {
-            console.error('Error fetching orders:', error);
-            toast.error('Failed to fetch orders');
+            console.error("Error fetching orders:", error);
+            toast.error("Failed to fetch orders");
         } finally {
             setLoading(false);
         }
@@ -305,29 +386,41 @@ export default function OrdersPage() {
     };
 
     const getFilteredOrders = () => {
-        return orders.filter(order => {
+        return orders.filter((order) => {
             const matchesSearch =
-                String(order.order_id)?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                order.customer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                order.customer_email?.toLowerCase().includes(searchTerm.toLowerCase());
+                String(order.order_id)
+                    ?.toLowerCase()
+                    .includes(searchTerm.toLowerCase()) ||
+                order.customer_name
+                    ?.toLowerCase()
+                    .includes(searchTerm.toLowerCase()) ||
+                order.customer_email
+                    ?.toLowerCase()
+                    .includes(searchTerm.toLowerCase());
 
-            const matchesStatus = selectedStatus === 'all' || order.status === selectedStatus;
+            const matchesStatus =
+                selectedStatus === "all" || order.status === selectedStatus;
 
             let matchesDate = true;
-            if (dateRange !== 'all') {
+            if (dateRange !== "all") {
                 const orderDate = new Date(order.created_at);
                 const now = new Date();
 
                 switch (dateRange) {
-                    case 'today':
-                        matchesDate = orderDate.toDateString() === now.toDateString();
+                    case "today":
+                        matchesDate =
+                            orderDate.toDateString() === now.toDateString();
                         break;
-                    case 'week':
-                        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    case "week":
+                        const weekAgo = new Date(
+                            now.getTime() - 7 * 24 * 60 * 60 * 1000
+                        );
                         matchesDate = orderDate >= weekAgo;
                         break;
-                    case 'month':
-                        const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                    case "month":
+                        const monthAgo = new Date(
+                            now.getTime() - 30 * 24 * 60 * 60 * 1000
+                        );
                         matchesDate = orderDate >= monthAgo;
                         break;
                 }
@@ -340,7 +433,10 @@ export default function OrdersPage() {
     const filteredOrders = getFilteredOrders();
 
     const getTotalRevenue = () => {
-        return filteredOrders.reduce((sum, order) => sum + (order.total_amount || 0), 0);
+        return filteredOrders.reduce(
+            (sum, order) => sum + (order.total_amount || 0),
+            0
+        );
     };
 
     return (
@@ -369,8 +465,12 @@ export default function OrdersPage() {
                             </div>
                             <div className="ml-5 w-0 flex-1">
                                 <dl>
-                                    <dt className="text-sm font-medium text-gray-500 truncate">Total Revenue</dt>
-                                    <dd className="text-lg font-medium text-gray-900">₹{getTotalRevenue().toFixed(2)}</dd>
+                                    <dt className="text-sm font-medium text-gray-500 truncate">
+                                        Total Revenue
+                                    </dt>
+                                    <dd className="text-lg font-medium text-gray-900">
+                                        ₹{getTotalRevenue().toFixed(2)}
+                                    </dd>
                                 </dl>
                             </div>
                         </div>
@@ -387,8 +487,12 @@ export default function OrdersPage() {
                             </div>
                             <div className="ml-5 w-0 flex-1">
                                 <dl>
-                                    <dt className="text-sm font-medium text-gray-500 truncate">Total Orders</dt>
-                                    <dd className="text-lg font-medium text-gray-900">{filteredOrders.length}</dd>
+                                    <dt className="text-sm font-medium text-gray-500 truncate">
+                                        Total Orders
+                                    </dt>
+                                    <dd className="text-lg font-medium text-gray-900">
+                                        {filteredOrders.length}
+                                    </dd>
                                 </dl>
                             </div>
                         </div>
@@ -405,9 +509,17 @@ export default function OrdersPage() {
                             </div>
                             <div className="ml-5 w-0 flex-1">
                                 <dl>
-                                    <dt className="text-sm font-medium text-gray-500 truncate">Average Order</dt>
+                                    <dt className="text-sm font-medium text-gray-500 truncate">
+                                        Average Order
+                                    </dt>
                                     <dd className="text-lg font-medium text-gray-900">
-                                        ₹{filteredOrders.length ? (getTotalRevenue() / filteredOrders.length).toFixed(2) : '0.00'}
+                                        ₹
+                                        {filteredOrders.length
+                                            ? (
+                                                  getTotalRevenue() /
+                                                  filteredOrders.length
+                                              ).toFixed(2)
+                                            : "0.00"}
                                     </dd>
                                 </dl>
                             </div>
@@ -436,7 +548,9 @@ export default function OrdersPage() {
                         <div>
                             <select
                                 value={selectedStatus}
-                                onChange={(e) => setSelectedStatus(e.target.value)}
+                                onChange={(e) =>
+                                    setSelectedStatus(e.target.value)
+                                }
                                 className="block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
                             >
                                 <option value="all">All Status</option>
@@ -444,7 +558,9 @@ export default function OrdersPage() {
                                 <option value="confirmed">Confirmed</option>
                                 <option value="preparing">Preparing</option>
                                 <option value="ready">Ready</option>
-                                <option value="out_for_delivery">Out for Delivery</option>
+                                <option value="out_for_delivery">
+                                    Out for Delivery
+                                </option>
                                 <option value="delivered">Delivered</option>
                                 <option value="cancelled">Cancelled</option>
                             </select>
@@ -464,7 +580,8 @@ export default function OrdersPage() {
                         </div>
 
                         <div className="text-sm text-gray-500 flex items-center">
-                            Showing {filteredOrders.length} of {orders.length} orders
+                            Showing {filteredOrders.length} of {orders.length}{" "}
+                            orders
                         </div>
                     </div>
                 </div>

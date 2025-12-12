@@ -1,6 +1,6 @@
 // Inventory Admin Controller - For admin system to manage inventory users
 import bcrypt from 'bcrypt';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
 import db from '../../config/db.js';
 import { inventoryUsers } from '../../db/schema.js';
 
@@ -155,7 +155,7 @@ class InventoryAdminController {
 
             // Prepare update data
             const updateData = {
-                updatedAt: new Date().toISOString()
+                updatedAt: new Date()
             };
 
             if (username) updateData.username = username;

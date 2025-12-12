@@ -28,7 +28,10 @@ const AdminCard = ({ admin, onEdit, onDelete, currentUserId }) => {
     };
 
     const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
+        if (!dateString) return 'N/A';
+        const parsed = new Date(dateString);
+        if (isNaN(parsed.getTime())) return 'N/A';
+        return parsed.toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
             day: 'numeric',
@@ -234,12 +237,19 @@ export default function AdminsPage() {
         try {
             setLoading(true);
             const response = await api.get('/');
-            console.log(response);
-            if (response.data.success) {
+            const responseData = response.data || response;
 
-                setAdmins(response.data.data);
+            if (responseData.success) {
+                const adminsList = Array.isArray(responseData.data) ? responseData.data : [];
+                // Normalize date keys for the UI
+                const normalized = adminsList.map((admin) => ({
+                    ...admin,
+                    created_at: admin.created_at || admin.createdAt,
+                    updated_at: admin.updated_at || admin.updatedAt,
+                }));
+                setAdmins(normalized);
             } else {
-                toast.error('Failed to fetch admins');
+                toast.error(responseData.error || 'Failed to fetch admins');
             }
         } catch (error) {
             console.error('Error fetching admins:', error);
@@ -262,13 +272,14 @@ export default function AdminsPage() {
     const handleDeleteAdmin = async (admin) => {
         if (window.confirm(`Are you sure you want to delete ${admin.username}?`)) {
             try {
-                const response = await api.delete(`/admin/${admin.id}`);
+                const response = await api.delete(`/${admin.id}`);
+                const responseData = response.data || response;
 
-                if (response.success) {
+                if (responseData.success) {
                     toast.success('Admin deleted successfully');
                     fetchAdmins();
                 } else {
-                    toast.error(response.error || 'Failed to delete admin');
+                    toast.error(responseData.error || 'Failed to delete admin');
                 }
             } catch (error) {
                 console.error('Error deleting admin:', error);
@@ -287,17 +298,19 @@ export default function AdminsPage() {
                 if (!updateData.password) {
                     delete updateData.password;
                 }
-                response = await api.put(`/admin/${editingAdmin.id}`, updateData);
+                response = await api.put(`/${editingAdmin.id}`, updateData);
             } else {
-                response = await api.post('/admin', formData);
+                response = await api.post('/add', formData);
             }
 
-            if (response.success) {
+            const responseData = response.data || response;
+
+            if (responseData.success) {
                 toast.success(`Admin ${editingAdmin ? 'updated' : 'created'} successfully`);
                 setShowModal(false);
                 fetchAdmins();
             } else {
-                toast.error(response.error || `Failed to ${editingAdmin ? 'update' : 'create'} admin`);
+                toast.error(responseData.error || `Failed to ${editingAdmin ? 'update' : 'create'} admin`);
             }
         } catch (error) {
             console.error('Error submitting admin:', error);
