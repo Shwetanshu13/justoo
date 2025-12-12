@@ -170,7 +170,9 @@ export default function EditItemPage() {
                         The item you’re trying to edit could not be found.
                     </p>
                     <button
-                        onClick={() => router.push("/dashboard/inventory")}
+                        onClick={() =>
+                            router.push("/inventory/dashboard/inventory")
+                        }
                         className="inline-flex items-center px-4 py-2 rounded-2xl bg-blue-600 text-sm font-semibold text-white"
                     >
                         Back to Inventory
@@ -492,7 +494,9 @@ export default function EditItemPage() {
                             <button
                                 type="button"
                                 onClick={() =>
-                                    router.push("/dashboard/inventory")
+                                    router.push(
+                                        "/inventory/dashboard/inventory"
+                                    )
                                 }
                                 className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors"
                             >
