@@ -39,8 +39,8 @@ export const signin = async (req, res) => {
         // Set httpOnly cookie for session
         res.cookie('auth_token', token, {
             httpOnly: true,
-            secure: env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            secure: true,
+            sameSite: 'none',
             maxAge: 24 * 60 * 60 * 1000 // 24 hours
         });
 
