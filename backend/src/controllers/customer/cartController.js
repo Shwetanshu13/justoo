@@ -269,14 +269,12 @@ export const getCartSummary = async (req, res) => {
 
         // Calculate delivery fee (40 rs if order < 100, otherwise free)
         const deliveryFee = validatedCart.total < 100 ? 40 : 0;
-        const taxAmount = validatedCart.total * 0.05; // 5% tax
-        const finalTotal = validatedCart.total + deliveryFee + taxAmount;
+        const finalTotal = validatedCart.total + deliveryFee;
 
         const summary = {
             items: validatedCart.items,
             subtotal: validatedCart.total,
             deliveryFee,
-            taxAmount: parseFloat(taxAmount.toFixed(2)),
             total: parseFloat(finalTotal.toFixed(2)),
             itemCount: validatedCart.itemCount,
             freeDeliveryThreshold: 100

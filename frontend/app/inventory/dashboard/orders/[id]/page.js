@@ -98,9 +98,8 @@ export default function OrderDetailsPage({ params }) {
                     </div>
                     <div className="flex items-center gap-3">
                         <span
-                            className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${
-                                statusColors[statusInfo.color]
-                            }`}
+                            className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ${statusColors[statusInfo.color]
+                                }`}
                         >
                             {statusInfo.text}
                         </span>
@@ -170,12 +169,6 @@ export default function OrderDetailsPage({ params }) {
                                         {formatCurrency(
                                             order.order.deliveryFee
                                         )}
-                                    </span>
-                                </div>
-                                <div className="flex justify-between text-sm mb-2">
-                                    <span className="text-slate-500">Tax</span>
-                                    <span className="font-medium text-slate-900">
-                                        {formatCurrency(order.order.taxAmount)}
                                     </span>
                                 </div>
                                 {parseFloat(order.order.discountAmount) > 0 && (
