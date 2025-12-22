@@ -136,11 +136,11 @@ export const createOrder = async (req, res) => {
         // Get complete order details
         const orderDetails = await getOrderDetails(newOrder.id);
 
-        return successResponse(res, 'Order placed successfully', {
+        return successResponse(res, {
             order: orderDetails,
             orderNumber,
             estimatedDelivery: defaultDeliveryTime
-        }, 201);
+        }, 'Order placed successfully', 201);
     } catch (error) {
         console.error('Create order error:', error);
         return errorResponse(res, 'Failed to place order', 500);
@@ -187,9 +187,9 @@ export const getCustomerOrders = async (req, res) => {
 
         const customerOrders = await query.limit(parseInt(limit)).offset(offset);
 
-        return successResponse(res, 'Orders retrieved successfully', {
+        return successResponse(res, {
             orders: customerOrders
-        });
+        }, 'Orders retrieved successfully');
     } catch (error) {
         console.error('Get customer orders error:', error);
         return errorResponse(res, 'Failed to retrieve orders', 500);
@@ -217,7 +217,7 @@ export const getOrderById = async (req, res) => {
 
         const orderDetails = await getOrderDetails(orderId);
 
-        return successResponse(res, 'Order retrieved successfully', orderDetails);
+        return successResponse(res, orderDetails, 'Order retrieved successfully');
     } catch (error) {
         console.error('Get order by ID error:', error);
         return errorResponse(res, 'Failed to retrieve order', 500);
@@ -275,7 +275,7 @@ export const cancelOrder = async (req, res) => {
             }
         });
 
-        return successResponse(res, 'Order cancelled successfully');
+        return successResponse(res, null, 'Order cancelled successfully');
     } catch (error) {
         console.error('Cancel order error:', error);
         return errorResponse(res, 'Failed to cancel order', 500);
@@ -364,10 +364,10 @@ export const getOrderStats = async (req, res) => {
             .where(eq(orders.customerId, customerId))
             .groupBy(orders.status);
 
-        return successResponse(res, 'Order statistics retrieved successfully', {
+        return successResponse(res, {
             overview: stats[0],
             statusBreakdown: orderStatusCounts
-        });
+        }, 'Order statistics retrieved successfully');
     } catch (error) {
         console.error('Get order stats error:', error);
         return errorResponse(res, 'Failed to retrieve order statistics', 500);

@@ -89,10 +89,10 @@ export const register = async (req, res) => {
 
         const { password: _, ...customerWithoutPassword } = newCustomer[0];
 
-        return successResponse(res, 'Customer registered successfully', {
+        return successResponse(res, {
             customer: customerWithoutPassword,
             token
-        }, 201);
+        }, 'Customer registered successfully', 201);
     } catch (error) {
         console.error('Registration error:', error);
         return errorResponse(res, 'Failed to register customer', 500);
@@ -200,7 +200,7 @@ export const getProfile = async (req, res) => {
             return errorResponse(res, 'Customer not found', 404);
         }
 
-        return successResponse(res, 'Profile retrieved successfully', customer[0]);
+        return successResponse(res, customer[0], 'Profile retrieved successfully');
     } catch (error) {
         console.error('Get profile error:', error);
         return errorResponse(res, 'Failed to retrieve profile', 500);
@@ -253,7 +253,7 @@ export const updateProfile = async (req, res) => {
 
         const { password: _, ...customerWithoutPassword } = updatedCustomer[0];
 
-        return successResponse(res, 'Profile updated successfully', customerWithoutPassword);
+        return successResponse(res, customerWithoutPassword, 'Profile updated successfully');
     } catch (error) {
         console.error('Update profile error:', error);
         return errorResponse(res, 'Failed to update profile', 500);
@@ -302,7 +302,7 @@ export const changePassword = async (req, res) => {
             })
             .where(eq(customers.id, req.customer.id));
 
-        return successResponse(res, 'Password changed successfully');
+        return successResponse(res, null, 'Password changed successfully');
     } catch (error) {
         console.error('Change password error:', error);
         return errorResponse(res, 'Failed to change password', 500);
@@ -319,7 +319,7 @@ export const logout = async (req, res) => {
             sameSite: 'strict'
         });
 
-        return successResponse(res, 'Logged out successfully');
+        return successResponse(res, null, 'Logged out successfully');
     } catch (error) {
         console.error('Logout error:', error);
         return errorResponse(res, 'Failed to logout', 500);

@@ -65,9 +65,9 @@ export const getItems = async (req, res) => {
         // Process images for customer-facing response
         const processedItems = processItemsImages(itemsList);
 
-        return successResponse(res, 'Items retrieved successfully', {
+        return successResponse(res, {
             items: processedItems
-        });
+        }, 'Items retrieved successfully');
     } catch (error) {
         console.error('Get items error:', error);
         return errorResponse(res, 'Failed to retrieve items', 500);
@@ -96,7 +96,7 @@ export const getItemById = async (req, res) => {
         // Process image for customer-facing response
         const processedItem = processItemImage(item[0]);
 
-        return successResponse(res, 'Item retrieved successfully', processedItem);
+        return successResponse(res, processedItem, 'Item retrieved successfully');
     } catch (error) {
         console.error('Get item by ID error:', error);
         return errorResponse(res, 'Failed to retrieve item', 500);
@@ -120,7 +120,7 @@ export const getCategories = async (req, res) => {
             .groupBy(items.category)
             .orderBy(asc(items.category));
 
-        return successResponse(res, 'Categories retrieved successfully', categories);
+        return successResponse(res, categories, 'Categories retrieved successfully');
     } catch (error) {
         console.error('Get categories error:', error);
         return errorResponse(res, 'Failed to retrieve categories', 500);
@@ -146,7 +146,7 @@ export const getFeaturedItems = async (req, res) => {
         // Process images for customer-facing response
         const processedItems = processItemsImages(featuredItems);
 
-        return successResponse(res, 'Featured items retrieved successfully', processedItems);
+        return successResponse(res, processedItems, 'Featured items retrieved successfully');
     } catch (error) {
         console.error('Get featured items error:', error);
         return errorResponse(res, 'Failed to retrieve featured items', 500);
@@ -184,11 +184,11 @@ export const searchItems = async (req, res) => {
         // Process images for customer-facing response
         const processedResults = processItemsImages(searchResults);
 
-        return successResponse(res, 'Search results retrieved successfully', {
+        return successResponse(res, {
             query: q,
             results: processedResults,
             total: processedResults.length
-        });
+        }, 'Search results retrieved successfully');
     } catch (error) {
         console.error('Search items error:', error);
         return errorResponse(res, 'Failed to search items', 500);
@@ -225,10 +225,10 @@ export const getItemsByCategory = async (req, res) => {
         // Process images for customer-facing response
         const processedItems = processItemsImages(categoryItems);
 
-        return successResponse(res, `Items in category '${category}' retrieved successfully`, {
+        return successResponse(res, {
             category,
             items: processedItems
-        });
+        }, `Items in category '${category}' retrieved successfully`);
     } catch (error) {
         console.error('Get items by category error:', error);
         return errorResponse(res, 'Failed to retrieve items by category', 500);
@@ -286,10 +286,10 @@ export const getItemSuggestions = async (req, res) => {
         // Process images for customer-facing response
         const processedSuggestions = processItemsImages(suggestions);
 
-        return successResponse(res, 'Item suggestions retrieved successfully', {
+        return successResponse(res, {
             suggestions: processedSuggestions,
             basedOn: categories.length > 0 ? 'previous orders' : 'featured items'
-        });
+        }, 'Item suggestions retrieved successfully');
     } catch (error) {
         console.error('Get item suggestions error:', error);
         return errorResponse(res, 'Failed to retrieve item suggestions', 500);

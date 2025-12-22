@@ -20,7 +20,7 @@ export const getCart = async (req, res) => {
             carts.set(customerId, validatedCart);
         }
 
-        return successResponse(res, 'Cart retrieved successfully', validatedCart);
+        return successResponse(res, validatedCart, 'Cart retrieved successfully');
     } catch (error) {
         console.error('Get cart error:', error);
         return errorResponse(res, 'Failed to retrieve cart', 500);
@@ -91,7 +91,7 @@ export const addToCart = async (req, res) => {
         cart = calculateCartTotals(cart);
         carts.set(customerId, cart);
 
-        return successResponse(res, 'Item added to cart successfully', cart);
+        return successResponse(res, cart, 'Item added to cart successfully');
     } catch (error) {
         console.error('Add to cart error:', error);
         return errorResponse(res, 'Failed to add item to cart', 500);
@@ -143,7 +143,7 @@ export const updateCartItem = async (req, res) => {
         const updatedCart = calculateCartTotals(cart);
         carts.set(customerId, updatedCart);
 
-        return successResponse(res, 'Cart item updated successfully', updatedCart);
+        return successResponse(res, updatedCart, 'Cart item updated successfully');
     } catch (error) {
         console.error('Update cart item error:', error);
         return errorResponse(res, 'Failed to update cart item', 500);
@@ -173,7 +173,7 @@ export const removeFromCart = async (req, res) => {
         const updatedCart = calculateCartTotals(cart);
         carts.set(customerId, updatedCart);
 
-        return successResponse(res, 'Item removed from cart successfully', updatedCart);
+        return successResponse(res, updatedCart, 'Item removed from cart successfully');
     } catch (error) {
         console.error('Remove from cart error:', error);
         return errorResponse(res, 'Failed to remove item from cart', 500);
@@ -187,11 +187,11 @@ export const clearCart = async (req, res) => {
 
         carts.delete(customerId);
 
-        return successResponse(res, 'Cart cleared successfully', {
+        return successResponse(res, {
             items: [],
             total: 0,
             itemCount: 0
-        });
+        }, 'Cart cleared successfully');
     } catch (error) {
         console.error('Clear cart error:', error);
         return errorResponse(res, 'Failed to clear cart', 500);
@@ -282,7 +282,7 @@ export const getCartSummary = async (req, res) => {
             freeDeliveryThreshold: 100
         };
 
-        return successResponse(res, 'Cart summary retrieved successfully', summary);
+        return successResponse(res, summary, 'Cart summary retrieved successfully');
     } catch (error) {
         console.error('Get cart summary error:', error);
         return errorResponse(res, 'Failed to retrieve cart summary', 500);
