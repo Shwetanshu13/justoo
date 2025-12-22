@@ -294,7 +294,6 @@ const getOrderDetails = async (orderId) => {
             itemCount: orders.itemCount,
             subtotal: orders.subtotal,
             deliveryFee: orders.deliveryFee,
-            taxAmount: orders.taxAmount,
             discountAmount: orders.discountAmount,
             notes: orders.notes,
             specialInstructions: orders.specialInstructions,

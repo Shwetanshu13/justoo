@@ -64,7 +64,6 @@ export const orders = pgTable('orders', {
     itemCount: integer('item_count').notNull(),
     subtotal: numeric('subtotal', { precision: 10, scale: 2 }).notNull(),
     deliveryFee: numeric('delivery_fee', { precision: 8, scale: 2 }).default('0.00'),
-    taxAmount: numeric('tax_amount', { precision: 8, scale: 2 }).default('0.00'),
     discountAmount: numeric('discount_amount', { precision: 8, scale: 2 }).default('0.00'),
     notes: text('notes'),
     specialInstructions: text('special_instructions'),

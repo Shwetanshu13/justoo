@@ -15,7 +15,6 @@ export const getAvailableOrders = async (req, res) => {
                 itemCount: orders.itemCount,
                 subtotal: orders.subtotal,
                 deliveryFee: orders.deliveryFee,
-                taxAmount: orders.taxAmount,
                 orderPlacedAt: orders.orderPlacedAt,
                 estimatedDeliveryTime: orders.estimatedDeliveryTime,
                 deliveryAddressId: orders.deliveryAddressId
