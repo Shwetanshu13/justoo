@@ -17,7 +17,7 @@ export const getCustomerAddresses = async (req, res) => {
             ))
             .orderBy(desc(customerAddresses.isDefault), desc(customerAddresses.updatedAt));
 
-        return successResponse(res, 'Addresses retrieved successfully', addresses);
+        return successResponse(res, addresses, 'Addresses retrieved successfully');
     } catch (error) {
         console.error('Get customer addresses error:', error);
         return errorResponse(res, 'Failed to retrieve addresses', 500);
@@ -44,7 +44,7 @@ export const getAddressById = async (req, res) => {
             return errorResponse(res, 'Address not found', 404);
         }
 
-        return successResponse(res, 'Address retrieved successfully', address[0]);
+        return successResponse(res, address[0], 'Address retrieved successfully');
     } catch (error) {
         console.error('Get address by ID error:', error);
         return errorResponse(res, 'Failed to retrieve address', 500);
@@ -106,7 +106,7 @@ export const addAddress = async (req, res) => {
             })
             .returning();
 
-        return successResponse(res, 'Address added successfully', newAddress[0], 201);
+        return successResponse(res, newAddress[0], 'Address added successfully', 201);
     } catch (error) {
         console.error('Add address error:', error);
         return errorResponse(res, 'Failed to add address', 500);
@@ -186,7 +186,7 @@ export const updateAddress = async (req, res) => {
             .where(eq(customerAddresses.id, parseInt(addressId)))
             .returning();
 
-        return successResponse(res, 'Address updated successfully', updatedAddress[0]);
+        return successResponse(res, updatedAddress[0], 'Address updated successfully');
     } catch (error) {
         console.error('Update address error:', error);
         return errorResponse(res, 'Failed to update address', 500);
@@ -228,7 +228,7 @@ export const deleteAddress = async (req, res) => {
             })
             .where(eq(customerAddresses.id, parseInt(addressId)));
 
-        return successResponse(res, 'Address deleted successfully');
+        return successResponse(res, null, 'Address deleted successfully');
     } catch (error) {
         console.error('Delete address error:', error);
         return errorResponse(res, 'Failed to delete address', 500);
@@ -274,7 +274,7 @@ export const setDefaultAddress = async (req, res) => {
                 .where(eq(customerAddresses.id, parseInt(addressId)));
         });
 
-        return successResponse(res, 'Default address updated successfully');
+        return successResponse(res, null, 'Default address updated successfully');
     } catch (error) {
         console.error('Set default address error:', error);
         return errorResponse(res, 'Failed to set default address', 500);
@@ -300,7 +300,7 @@ export const getDefaultAddress = async (req, res) => {
             return errorResponse(res, 'No default address found', 404);
         }
 
-        return successResponse(res, 'Default address retrieved successfully', defaultAddress[0]);
+        return successResponse(res, defaultAddress[0], 'Default address retrieved successfully');
     } catch (error) {
         console.error('Get default address error:', error);
         return errorResponse(res, 'Failed to retrieve default address', 500);
@@ -325,11 +325,11 @@ export const validateAddress = async (req, res) => {
 
         // Simplified address validation - just check if coordinates are valid
         // Since delivery fees are now amount-based, we don't need complex zone validation
-        return successResponse(res, 'Address validation completed', {
+        return successResponse(res, {
             isValid: true,
             inServiceArea: true, // Simplified - all valid coordinates are in service area
             estimatedDeliveryTime: 60 // Default 60 minutes delivery time
-        });
+        }, 'Address validation completed');
     } catch (error) {
         console.error('Validate address error:', error);
         return errorResponse(res, 'Failed to validate address', 500);
