@@ -151,17 +151,17 @@ export const login = async (req, res) => {
         // Set cookie
         res.cookie('token', token, {
             httpOnly: true,
-            secure: env.NODE_ENV === 'production',
+            secure: true,
             sameSite: 'strict',
             maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
         });
 
         const { password: _, ...customerWithoutPassword } = customer[0];
 
-        return successResponse(res, 'Login successful', {
+        return successResponse(res, {
             customer: customerWithoutPassword,
             token
-        });
+        }, 'Login successful');
     } catch (error) {
         console.error('Login error:', error);
         return errorResponse(res, 'Failed to login', 500);
