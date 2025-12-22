@@ -7,8 +7,6 @@ const router = express.Router();
 // Email/Password login endpoint
 router.post("/login", login);
 
-// Removed mobile OTP and Firebase authentication endpoints
-
 // Logout endpoint
 router.post("/logout", logout);
 
