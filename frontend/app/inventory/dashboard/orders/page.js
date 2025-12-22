@@ -61,7 +61,7 @@ export default function OrdersPage() {
             0
         );
         const completed = filteredOrders.filter(
-            (o) => o.status === "completed"
+            (o) => o.status === "completed" || o.status === "delivered"
         ).length;
         return {
             totalOrders: filteredOrders.length,
