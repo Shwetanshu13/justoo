@@ -1,12 +1,15 @@
-import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
-import env from '../config/env.js';
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
+import env from "../config/env.js";
 
 const JWT_SECRET = env.JWT_SECRET;
 const SALT_ROUNDS = env.SALT_ROUNDS || 10;
 
 export const generateToken = (payload, options = {}) => {
-    return jwt.sign(payload, JWT_SECRET, { expiresIn: env.JWT_EXPIRES_IN, ...options });
+    return jwt.sign(payload, JWT_SECRET, {
+        expiresIn: env.JWT_EXPIRES_IN,
+        ...options,
+    });
 };
 
 export const verifyToken = (token) => {
@@ -22,6 +25,11 @@ export const comparePassword = async (password, hashedPassword) => {
 };
 
 export const extractTokenFromHeader = (authHeader) => {
-    if (!authHeader || !authHeader.startsWith('Bearer ')) return null;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) return null;
     return authHeader.substring(7);
+};
+
+export const validatePhone = (phone) => {
+    const phoneRegex = /^\+?[1-9]\d{1,14}$/; // E.164 format
+    return phoneRegex.test(phone);
 };
