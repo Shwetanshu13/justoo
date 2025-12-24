@@ -14,6 +14,7 @@ import {
     XMarkIcon,
     ShieldCheckIcon,
     SparklesIcon,
+    MapPinIcon,
 } from "@heroicons/react/24/outline";
 import { useAuth } from "@/admin/contexts/AuthContext";
 import Link from "next/link";
@@ -36,6 +37,12 @@ const navigation = [
         href: "/admin/dashboard/riders",
         icon: TruckIcon,
         gradient: "from-orange-500 to-amber-500",
+    },
+    {
+        name: "Address Zones",
+        href: "/admin/dashboard/address-zones",
+        icon: MapPinIcon,
+        gradient: "from-emerald-500 to-lime-500",
     },
     {
         name: "Admins",

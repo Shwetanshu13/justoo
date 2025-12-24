@@ -20,6 +20,13 @@ const nextConfig = {
             },
         ];
     },
+    // allowedDevOrigins: [
+    //     "http://localhost:3000",
+    //     "http://localhost:3001",
+    //     "http://localhost:3002",
+    //     "http://172.20.10.5:3000",
+    // ],
+    // crossOrigin: "anonymous",
 };
 
 module.exports = nextConfig;
