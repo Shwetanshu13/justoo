@@ -64,7 +64,7 @@ const getAllAddressZones = async (req, res) => {
             FROM delivery_zones
         `);
         const zones = result.rows || result;
-        console.log(zones);
+        // console.log(zones);
         return res.status(200).json({ zones });
     } catch (error) {
         return res.status(500).json({
