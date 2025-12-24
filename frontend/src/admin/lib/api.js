@@ -81,10 +81,10 @@ export const ordersAPI = {
 
 // Address Zones API
 export const addressZoneAPI = {
-    getAll: () => api.get("/address-zones"),
-    create: (data) => api.post("/address-zones", data),
-    update: (id, data) => api.put(`/address-zones/${id}`, data),
-    remove: (id) => api.delete(`/address-zones/${id}`),
+    getAll: () => api.get("/address"),
+    create: (data) => api.post("/address/add", data),
+    update: (id, data) => api.put(`/address/${id}`, data),
+    remove: (id) => api.delete(`/address/${id}`),
 };
 
 export default api;

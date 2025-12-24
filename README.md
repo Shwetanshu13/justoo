@@ -8,47 +8,50 @@ This monorepo uses a **Gateway Pattern** where all backend services are mounted 
 
 ### Services
 
-- **Admin Service**: Admin panel for managing the platform
-  - Backend: User management, rider management, order oversight
-  - Frontend: Next.js admin dashboard
-- **Customer Service**: Customer-facing shopping experience
-  - Backend: Shopping cart, orders, item browsing
-  - Frontend: Next.js customer app
-- **Inventory Service**: Inventory and stock management
-  - Backend: Item CRUD, stock tracking, order processing
-  - Frontend: Next.js inventory dashboard
-- **Rider Service**: Rider management and delivery tracking
-  - Backend: Rider operations, delivery management
-  - Frontend: Next.js rider app
+-   **Admin Service**: Admin panel for managing the platform
+    -   Backend: User management, rider management, order oversight
+    -   Frontend: Next.js admin dashboard
+-   **Customer Service**: Customer-facing shopping experience
+    -   Backend: Shopping cart, orders, item browsing
+    -   Frontend: Next.js customer app
+-   **Inventory Service**: Inventory and stock management
+    -   Backend: Item CRUD, stock tracking, order processing
+    -   Frontend: Next.js inventory dashboard
+-   **Rider Service**: Rider management and delivery tracking
+    -   Backend: Rider operations, delivery management
+    -   Frontend: Next.js rider app
 
 ### Shared Packages
 
-- **packages/db**: Unified Drizzle ORM schema for PostgreSQL
+-   **packages/db**: Unified Drizzle ORM schema for PostgreSQL
 
 ## 🚀 Ports & URLs
 
 ### Gateway (All Backends)
-- **Port**: 3000 (configurable via `BACKEND_PORT` in `.env`)
-- **URL**: `http://localhost:3000`
-- **Health Check**: `http://localhost:3000/health`
+
+-   **Port**: 3000 (configurable via `BACKEND_PORT` in `.env`)
+-   **URL**: `http://localhost:3000`
+-   **Health Check**: `http://localhost:3000/health`
 
 ### Service Endpoints
-- Admin API: `http://localhost:3000/admin/api/*`
-- Customer API: `http://localhost:3000/customer/api/*`
-- Inventory API: `http://localhost:3000/inventory/api/*`
-- Rider API: `http://localhost:3000/rider/api/*`
+
+-   Admin API: `http://localhost:3000/admin/api/*`
+-   Customer API: `http://localhost:3000/customer/api/*`
+-   Inventory API: `http://localhost:3000/inventory/api/*`
+-   Rider API: `http://localhost:3000/rider/api/*`
 
 ### Frontend Development Servers
-- Admin Frontend: `http://localhost:3001`
-- Customer Frontend: `http://localhost:3002`
-- Inventory Frontend: `http://localhost:3003`
-- Rider Frontend: `http://localhost:3004`
+
+-   Admin Frontend: `http://localhost:3001`
+-   Customer Frontend: `http://localhost:3002`
+-   Inventory Frontend: `http://localhost:3003`
+-   Rider Frontend: `http://localhost:3004`
 
 ## 📋 Requirements
 
-- Node.js 18+
-- pnpm 9+
-- PostgreSQL database
+-   Node.js 18+
+-   pnpm 9+
+-   PostgreSQL database
 
 ## 🛠️ Getting Started
 
@@ -108,29 +111,42 @@ pnpm run dev:rider          # Rider frontend
 
 ## 📜 Available Scripts
 
-- `pnpm dev` - Run all development servers
-- `pnpm build` - Build all apps
-- `pnpm start:gateway` - Start the unified backend gateway
-- `pnpm lint` - Lint all packages
+-   `pnpm dev` - Run all development servers
+-   `pnpm build` - Build all apps
+-   `pnpm start:gateway` - Start the unified backend gateway
+-   `pnpm lint` - Lint all packages
+
+## 🗄️ Database schema updates
+
+Make sure your `.env` contains a valid `DATABASE_SQL_URL`. Then from the `backend` directory run:
+
+```bash
+pnpm install
+pnpm db:push
+```
+
+This will push the Drizzle schema defined in `backend/src/db/schema.js` to your PostgreSQL database.
 
 ## 🔐 Default Credentials
 
 **Superadmin:**
-- Username: `superadmin`
-- Email: `superadmin@justoo.local`
-- Password: `ChangeMe123!`
+
+-   Username: `superadmin`
+-   Email: `superadmin@justoo.local`
+-   Password: `ChangeMe123!`
 
 ## 📚 Documentation
 
 For detailed API documentation, see:
-- Admin API: `apps/admin/backend/docs/API_ROUTES.md`
-- Customer API: `apps/customer/backend/API_DOCUMENTATION.md`
-- Inventory API: `apps/inventory/backend/docs/API_DOCUMENTATION.md`
+
+-   Admin API: `apps/admin/backend/docs/API_ROUTES.md`
+-   Customer API: `apps/customer/backend/API_DOCUMENTATION.md`
+-   Inventory API: `apps/inventory/backend/docs/API_DOCUMENTATION.md`
 
 ## 🏛️ Tech Stack
 
-- **Backend**: Node.js, Express.js
-- **Frontend**: Next.js 15, React 19, Tailwind CSS
-- **Database**: PostgreSQL with Drizzle ORM
-- **Monorepo**: pnpm workspace + Turborepo
-- **Authentication**: JWT with httpOnly cookies
+-   **Backend**: Node.js, Express.js
+-   **Frontend**: Next.js 15, React 19, Tailwind CSS
+-   **Database**: PostgreSQL with Drizzle ORM
+-   **Monorepo**: pnpm workspace + Turborepo
+-   **Authentication**: JWT with httpOnly cookies

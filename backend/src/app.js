@@ -12,6 +12,7 @@ import adminInventoryRoutes from "./routes/admin/inventoryRoutes.js";
 import adminInventoryAdminRoutes from "./routes/admin/inventoryAdminRoutes.js";
 import adminOrderRoutes from "./routes/admin/orderRoutes.js";
 import adminRiderRoutes from "./routes/admin/riderRoutes.js";
+import adminAddressRoutes from "./routes/admin/addressRoutes.js";
 
 // Customer domain routes
 import customerAuthRoutes from "./routes/customer/authRoutes.js";
@@ -55,6 +56,7 @@ app.use("/api/admin/inventory", adminInventoryRoutes);
 app.use("/api/admin/inventory-admins", adminInventoryAdminRoutes);
 app.use("/api/admin/orders", adminOrderRoutes);
 app.use("/api/admin/riders", adminRiderRoutes);
+app.use("/api/admin/address", adminAddressRoutes);
 
 // Customer routes
 app.use("/api/customer/auth", customerAuthRoutes);

@@ -9,9 +9,9 @@ router.use(auth);
 router.use(requireAnyAdmin);
 
 // Address Zone management (Any Admin)
-router.post("/address-zones", addressController.addAddressZone);
-router.get("/address-zones", addressController.getAllAddressZones);
-router.put("/address-zones/:id", addressController.updateAddressZone);
-router.delete("/address-zones/:id", addressController.deleteAddressZone);
+router.post("/add", addressController.addAddressZone);
+router.get("/", addressController.getAllAddressZones);
+router.put("/:id", addressController.updateAddressZone);
+router.delete("/:id", addressController.deleteAddressZone);
 
 export default router;

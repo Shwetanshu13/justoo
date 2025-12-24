@@ -72,6 +72,12 @@ const geometry = customType({
     dataType() {
         return "geometry(Polygon, 4326)";
     },
+    toDriver(value) {
+        return value;
+    },
+    fromDriver(value) {
+        return value;
+    },
 });
 
 // Tables
